@@ -40,7 +40,7 @@ attestraLinkHost=attestrabond.com
 
 Use your own stack's `apiUrl` if it differs from this example; when `pulumi stack output apiUrl` is missing, verify the selected stack and finish `pulumi up`. These values can also be passed through CI. The link host must serve `https://HOST/.well-known/assetlinks.json` with the app's package `com.apexfission.android.attestra.auth` and signing certificate SHA-256 to make Android App Links open directly in the app. On other devices or when the app isn't associated, the website must host `/verify-email` and show the manual code screen.
 
-With no API URL the app retains the screen gallery for design review. With a configured URL the live email flow opens by default. The manifest accepts only HTTPS `/verify-email` links for the configured host, and the activity checks the incoming origin again before handling a link. Visiting a link never calls the backend with B alone.
+The launcher opens a choice screen in the existing `MainActivity`: **Start onboarding** runs the live email flow, and **Open UI catalog** previews every screen without calling the backend. With no API URL, Start onboarding explains how to configure `attestraApiBaseUrl`; the catalog still works. The system Back action returns to the choice screen, or to the catalog list when previewing an individual screen. A valid HTTPS `/verify-email` App Link opens live onboarding directly, including when the catalog is currently visible. The manifest accepts links only for the configured host, and the activity checks the incoming origin again before handling one. Visiting a link never calls the backend with B alone.
 
 ## Email flow
 
