@@ -1,11 +1,10 @@
-package com.apexfission.android.attestra.auth.ui.onboarding
+package com.apexfission.android.attestra.auth.ui.onboarding.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -55,7 +55,7 @@ import com.apexfission.android.attestra.auth.ui.theme.AttestraSurfaceContainerLo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun OnboardingFrame(
+fun OnboardingFrame(
     title: String,
     icon: ImageVector,
     step: String,
@@ -75,7 +75,7 @@ internal fun OnboardingFrame(
                 title = { Text("Attestra", fontWeight = FontWeight.Bold, color = AttestraOnSurface) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = AttestraOnSurface)
                     }
                 },
                 actions = {
@@ -89,10 +89,54 @@ internal fun OnboardingFrame(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = AttestraSurface),
             )
         },
+        bottomBar = {
+            if (primaryLabel != null || secondaryLabel != null) {
+                Surface(
+                    color = AttestraSurface,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 16.dp)
+                            .imePadding(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (primaryLabel != null) {
+                            Button(
+                                onClick = onPrimary,
+                                enabled = primaryEnabled,
+                                modifier = Modifier.fillMaxWidth().height(48.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6), contentColor = Color.White),
+                            ) { Text(primaryLabel) }
+                        }
+                        if (secondaryLabel != null) {
+                            OutlinedButton(
+                                onClick = onSecondary,
+                                enabled = secondaryEnabled,
+                                modifier = Modifier.fillMaxWidth().height(48.dp),
+                                shape = RoundedCornerShape(8.dp),
+                            ) { Text(secondaryLabel, color = AttestraOnSurface) }
+                        }
+                    }
+                }
+            }
+        }
     ) { inset ->
-        Box(Modifier.fillMaxSize().padding(inset).imePadding(), contentAlignment = Alignment.TopCenter) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(inset)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.TopCenter
+        ) {
             Column(
-                Modifier.widthIn(max = 480.dp).fillMaxWidth().verticalScroll(rememberScrollState())
+                modifier = Modifier
+                    .widthIn(max = 480.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
@@ -103,34 +147,16 @@ internal fun OnboardingFrame(
                     ) {
                         Icon(icon, contentDescription = null, tint = AttestraPrimary)
                     }
-                    Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                    Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = AttestraOnSurface)
                 }
                 content()
-                Spacer(Modifier.height(4.dp))
-                if (primaryLabel != null) {
-                    Button(
-                        onClick = onPrimary,
-                        enabled = primaryEnabled,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6), contentColor = Color.White),
-                    ) { Text(primaryLabel) }
-                }
-                if (secondaryLabel != null) {
-                    OutlinedButton(
-                        onClick = onSecondary,
-                        enabled = secondaryEnabled,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(8.dp),
-                    ) { Text(secondaryLabel) }
-                }
             }
         }
     }
 }
 
 @Composable
-internal fun OnboardingCard(content: @Composable () -> Unit) {
+fun OnboardingCard(content: @Composable () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -143,12 +169,12 @@ internal fun OnboardingCard(content: @Composable () -> Unit) {
 }
 
 @Composable
-internal fun BodyText(text: String) {
+fun BodyText(text: String) {
     Text(text, style = MaterialTheme.typography.bodyMedium, color = AttestraOnSurfaceVariant)
 }
 
 @Composable
-internal fun StatusRow(label: String, detail: String, complete: Boolean = true) {
+fun StatusRow(label: String, detail: String, complete: Boolean = true) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Icon(
@@ -157,7 +183,7 @@ internal fun StatusRow(label: String, detail: String, complete: Boolean = true) 
                 tint = if (complete) AttestraSecondary else AttestraOnSurfaceVariant,
                 modifier = Modifier.size(20.dp),
             )
-            Text(label, fontWeight = FontWeight.SemiBold)
+            Text(label, fontWeight = FontWeight.SemiBold, color = AttestraOnSurface)
         }
         Text(detail, style = MaterialTheme.typography.bodySmall, color = AttestraOnSurfaceVariant)
         HorizontalDivider(color = AttestraSurfaceContainerHigh)
@@ -165,7 +191,7 @@ internal fun StatusRow(label: String, detail: String, complete: Boolean = true) 
 }
 
 @Composable
-internal fun WaitingIndicator(description: String) {
+fun WaitingIndicator(description: String) {
     Column(
         modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
         horizontalAlignment = Alignment.CenterHorizontally,

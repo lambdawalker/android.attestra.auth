@@ -19,9 +19,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.apexfission.android.attestra.auth.ui.theme.AttestraSurfaceContainerLow
 import com.apexfission.android.attestra.auth.ui.theme.AttestraSurface
+import com.apexfission.android.attestra.auth.ui.theme.AttestraOnSurface
+import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
+import com.apexfission.android.attestra.auth.ui.onboarding.common.*
+import com.apexfission.android.attestra.auth.ui.onboarding.email.*
+import com.apexfission.android.attestra.auth.ui.onboarding.passkey.*
+import com.apexfission.android.attestra.auth.ui.onboarding.id.*
 
 /**
  * UI-only integration seam. A future host supplies real implementations that own
@@ -75,14 +82,14 @@ fun OnboardingCatalog(actions: OnboardingBusinessActions) {
             Modifier.fillMaxSize().background(AttestraSurface).verticalScroll(rememberScrollState()).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Onboarding screen gallery", style = MaterialTheme.typography.headlineSmall)
+            Text("Onboarding screen gallery", style = MaterialTheme.typography.headlineSmall, color = AttestraOnSurface)
             BodyText("Select a UI state. Actions call empty business hooks; no account, passkey, or ID status changes here.")
             catalogItems.forEach { item ->
                 Card(
                     Modifier.fillMaxWidth().clickable { selected = item.key },
                     colors = CardDefaults.cardColors(containerColor = AttestraSurfaceContainerLow),
                 ) {
-                    Text(item.title, modifier = Modifier.padding(18.dp))
+                    Text(item.title, modifier = Modifier.padding(18.dp), color = AttestraOnSurface)
                 }
             }
         }
@@ -90,7 +97,7 @@ fun OnboardingCatalog(actions: OnboardingBusinessActions) {
     }
     when (selected) {
         "email_start" -> EmailStartScreen(back, actions::requestEmail)
-        "email_wait" -> EmailWaitScreen(sampleEmail, back, actions::resendEmail) { selected = "email_start" }
+        "email_wait" -> EmailWaitScreen(sampleEmail, back, actions::resendEmail, { selected = "email_start" })
         "email_code" -> EmailCodeScreen(sampleEmail, back, actions::confirmWithCode, actions::resendEmail)
         "email_wrong" -> EmailCodeScreen(
             sampleEmail, back, actions::confirmWithCode, actions::resendEmail,
@@ -113,5 +120,13 @@ fun OnboardingCatalog(actions: OnboardingBusinessActions) {
             val task = LoadingTask.entries.firstOrNull { "loading_${it.name}" == selected }
             if (task != null) OnboardingLoadingScreen(task, back, onLeave = back)
         }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0F131B)
+@Composable
+fun OnboardingCatalogPreview() {
+    AttestraAuthTheme {
+        OnboardingCatalog(actions = OnboardingBusinessActions())
     }
 }
