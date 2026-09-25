@@ -12,7 +12,33 @@ bash gradlew :app:assembleDebug \
   -PattestraLinkHost=app.your-domain.com
 ```
 
-`attestraApiBaseUrl` is the Pulumi `apiUrl` output (HTTPS origin, without a trailing API path). `attestraLinkHost` is the **host of the verification link** in the email, taken from Pulumi's `appOrigin`; it is not the API Gateway host. They can be set in a local, untracked `~/.gradle/gradle.properties` or passed through CI. The link host must serve `https://HOST/.well-known/assetlinks.json` with the app's package `com.apexfission.android.attestra.auth` and signing certificate SHA-256 to make Android App Links open directly in the app. On other devices or when the app isn't associated, the website must host `/verify-email` and show the manual code screen.
+To retrieve the actual values after deploying the [Go auth stack](https://github.com/lambdawalker/go.attestra.aws.auth), use PowerShell:
+
+```powershell
+cd D:\dev\go.attestra.aws.auth\infra
+pulumi stack select dev
+pulumi stack output apiUrl
+pulumi config get appOrigin
+```
+
+`apiUrl` is the value for `attestraApiBaseUrl`: copy the complete HTTPS origin, for example `https://kop22wur83.execute-api.us-east-2.amazonaws.com`. Do not add `/signup`, `/confirm`, `/verify-email`, or a trailing slash. `appOrigin` is the website that hosts the verification link; use **only its hostname** for `attestraLinkHost` (for example, `attestrabond.com` from `https://attestrabond.com`). The two hosts serve different purposes.
+
+From the Android repository root on Windows, you can pass the values directly to Gradle:
+
+```powershell
+.\gradlew.bat :app:assembleDebug `
+  '-PattestraApiBaseUrl=https://kop22wur83.execute-api.us-east-2.amazonaws.com' `
+  '-PattestraLinkHost=attestrabond.com'
+```
+
+Alternatively, put these properties in your local `~/.gradle/gradle.properties` (on Windows, your user profile's `.gradle\gradle.properties`) and run `.\gradlew.bat :app:assembleDebug`:
+
+```properties
+attestraApiBaseUrl=https://kop22wur83.execute-api.us-east-2.amazonaws.com
+attestraLinkHost=attestrabond.com
+```
+
+Use your own stack's `apiUrl` if it differs from this example; when `pulumi stack output apiUrl` is missing, verify the selected stack and finish `pulumi up`. These values can also be passed through CI. The link host must serve `https://HOST/.well-known/assetlinks.json` with the app's package `com.apexfission.android.attestra.auth` and signing certificate SHA-256 to make Android App Links open directly in the app. On other devices or when the app isn't associated, the website must host `/verify-email` and show the manual code screen.
 
 With no API URL the app retains the screen gallery for design review. With a configured URL the live email flow opens by default. The manifest accepts only HTTPS `/verify-email` links for the configured host, and the activity checks the incoming origin again before handling a link. Visiting a link never calls the backend with B alone.
 
