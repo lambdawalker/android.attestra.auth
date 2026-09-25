@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.apexfission.android.attestra.auth.ui.onboarding.CompleteEmailVerificationScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.OnboardingBusinessActions
+import com.apexfission.android.attestra.auth.ui.onboarding.OnboardingCatalog
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,15 +14,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AttestraAuthTheme {
-                CompleteEmailVerificationScreen(
-                    onBackClicked = { finish() },
-                    onVerifyClicked = { code ->
-                        // Handle verification code submission
-                    },
-                    onResendClicked = {
-                        // Handle resend email
-                    }
-                )
+                // UI gallery until the onboarding host routes real backend outcomes.
+                OnboardingCatalog(actions = OnboardingBusinessActions())
             }
         }
     }
