@@ -24,7 +24,7 @@ class EmailVerificationApiTest {
             assertFalse(body.contains("token_a"))
             respond("""{"request_id":"request-1"}""", HttpStatusCode.Accepted, headersOf(HttpHeaders.ContentType, "application/json"))
         }) { install(ContentNegotiation) { json(EmailHttpClient.json) } }
-        val api = EmailVerificationApi("https://api.example.test", client)
+        val api = EmailVerificationApi("https://api.example.test", client, log = { _, _ -> })
         assertEquals("request-1", api.signup("person@example.test", "challenge"))
         client.close()
     }
@@ -33,7 +33,7 @@ class EmailVerificationApiTest {
         val client = HttpClient(MockEngine {
             respond("""{"error":"incorrect_code","attempts_remaining":2}""", HttpStatusCode.UnprocessableEntity, headersOf(HttpHeaders.ContentType, "application/json"))
         }) { install(ContentNegotiation) { json(EmailHttpClient.json) } }
-        val api = EmailVerificationApi("https://api.example.test", client)
+        val api = EmailVerificationApi("https://api.example.test", client, log = { _, _ -> })
         try {
             api.confirmCode("request-1", "link-b", "000123")
             throw AssertionError("Expected incorrect code")

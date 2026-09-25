@@ -1,5 +1,6 @@
 package com.apexfission.android.attestra.auth.email
 
+import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -55,7 +56,11 @@ interface EmailVerificationGateway {
     suspend fun confirmCode(requestId: String, tokenB: String, tokenC: String): AuthSession
 }
 
-class EmailVerificationApi(baseUrl: String, private val client: HttpClient) : EmailVerificationGateway {
+class EmailVerificationApi(
+    baseUrl: String,
+    private val client: HttpClient,
+    private val log: (Int, String) -> Unit = { priority, message -> Log.println(priority, "AttestraEmailApi", message) },
+) : EmailVerificationGateway {
     private val root = baseUrl.trimEnd('/').also {
         require(it.startsWith("https://") && it.substringAfter("https://").isNotBlank() && !it.contains('?') && !it.contains('#')) {
             "Email API URL must be an HTTPS origin"
@@ -64,12 +69,12 @@ class EmailVerificationApi(baseUrl: String, private val client: HttpClient) : Em
 
     override suspend fun signup(email: String, challenge: String): String {
         val response = client.post("$root/signup") { contentType(ContentType.Application.Json); setBody(SignupBody(email, challenge)) }
-        response.requireStatus(202)
+        response.requireStatus(202, "signup")
         return response.body<SignupReply>().requestId
     }
 
     override suspend fun resend(requestId: String) {
-        client.post("$root/resend") { contentType(ContentType.Application.Json); setBody(ResendBody(requestId)) }.requireStatus(202)
+        client.post("$root/resend") { contentType(ContentType.Application.Json); setBody(ResendBody(requestId)) }.requireStatus(202, "resend")
     }
 
     override suspend fun confirmLocal(requestId: String, tokenB: String, tokenA: String): AuthSession =
@@ -80,12 +85,15 @@ class EmailVerificationApi(baseUrl: String, private val client: HttpClient) : Em
 
     private suspend fun confirm(body: ConfirmBody): AuthSession {
         val response = client.post("$root/confirm") { contentType(ContentType.Application.Json); setBody(body) }
-        response.requireStatus(200)
+        response.requireStatus(200, "confirm")
         return response.body()
     }
 
-    private suspend fun HttpResponse.requireStatus(expected: Int) {
-        if (status.value == expected) return
+    private suspend fun HttpResponse.requireStatus(expected: Int, operation: String) {
+        if (status.value == expected) {
+            log(Log.DEBUG, "$operation returned HTTP ${status.value}")
+            return
+        }
         val serverCode = runCatching { EmailHttpClient.json.decodeFromString<ErrorReply>(bodyAsText()) }.getOrNull()
         val kind = when (serverCode?.error) {
             "invalid_request" -> EmailApiError.Kind.INVALID_REQUEST
@@ -96,6 +104,7 @@ class EmailVerificationApi(baseUrl: String, private val client: HttpClient) : Em
             "confirmation_in_progress" -> EmailApiError.Kind.IN_PROGRESS
             else -> EmailApiError.Kind.UNAVAILABLE
         }
+        log(Log.WARN, "$operation returned HTTP ${status.value} ($kind)")
         throw EmailApiError(kind, serverCode?.attemptsRemaining)
     }
 }
