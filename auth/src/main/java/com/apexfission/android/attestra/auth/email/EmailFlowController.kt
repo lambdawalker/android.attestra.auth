@@ -1,5 +1,6 @@
 package com.apexfission.android.attestra.auth.email
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,6 +31,7 @@ class EmailFlowController(
     private val storage: AuthStorage,
     private val proofs: ProofGenerator = ProofGenerator(),
     private val now: () -> Long = System::currentTimeMillis,
+    private val log: (Int, String) -> Unit = { priority, message -> Log.println(priority, "AttestraEmail", message) },
 ) {
     var screen: EmailScreen by mutableStateOf(
         storage.pending()?.takeIf { now() - it.createdAtMillis < 60 * 60_000L }
@@ -44,6 +46,7 @@ class EmailFlowController(
     fun canResend(): Boolean = now() - lastEmailAtMillis >= 60_000L
 
     suspend fun start(email: String) = exclusive {
+        log(Log.DEBUG, "Requesting verification email")
         screen = EmailScreen.Loading(LoadingStep.REQUEST_EMAIL)
         try {
             val proof = proofs.create()
@@ -53,9 +56,11 @@ class EmailFlowController(
             storage.savePending(pending)
             lastEmailAtMillis = now()
             screen = EmailScreen.Wait(email, requestId)
+            log(Log.DEBUG, "Verification email requested; waiting for link")
         } catch (cancelled: CancellationException) {
             throw cancelled
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            log(Log.WARN, "Email request failed (${error.javaClass.simpleName})")
             screen = EmailScreen.Start("We couldn't request an email. Check your connection and try again.")
         }
     }
@@ -64,25 +69,30 @@ class EmailFlowController(
         val pending = storage.pending()?.takeIf { it.requestId == link.requestId && now() - it.createdAtMillis < 60 * 60_000L }
         val email = pending?.email.orEmpty()
         if (!link.isValid()) {
+            log(Log.WARN, "Verification link has invalid proof format")
             screen = EmailScreen.Unusable(email, link.requestId.takeIf { it.matches(Regex("[A-Za-z0-9_-]{43}")) })
             return@exclusive
         }
         if (pending == null) {
+            log(Log.DEBUG, "Verification link opened without matching local proof; requesting manual code")
             screen = EmailScreen.Code(email, link)
             return@exclusive
         }
+        log(Log.DEBUG, "Verification link matched local proof; confirming automatically")
         screen = EmailScreen.Loading(LoadingStep.CONFIRM_EMAIL)
         try {
             complete(link.requestId, api.confirmLocal(link.requestId, link.tokenB, pending.tokenA))
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: EmailApiError) {
+            log(Log.WARN, "Automatic confirmation rejected (${error.kind})")
             screen = when (error.kind) {
                 EmailApiError.Kind.SIGN_IN_REQUIRED -> EmailScreen.Recovery
                 EmailApiError.Kind.LINK_UNUSABLE -> EmailScreen.Code(email, link, "Automatic verification didn't work. Enter the code from your email.")
                 else -> EmailScreen.Code(email, link, "We couldn't verify automatically. Enter the code from your email or try again.")
             }
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            log(Log.WARN, "Automatic confirmation failed (${error.javaClass.simpleName})")
             screen = EmailScreen.Code(email, link, "We couldn't verify automatically. Enter the code from your email or try again.")
         }
     }
@@ -90,15 +100,18 @@ class EmailFlowController(
     suspend fun confirmCode(code: String) = exclusive {
         val current = screen as? EmailScreen.Code ?: return@exclusive
         if (!code.matches(Regex("[0-9]{6}"))) {
+            log(Log.DEBUG, "Manual code rejected by local format validation")
             screen = current.copy(error = "Enter the six-digit code in your email.")
             return@exclusive
         }
+        log(Log.DEBUG, "Submitting manual confirmation code")
         screen = EmailScreen.Loading(LoadingStep.CONFIRM_EMAIL)
         try {
             complete(current.link.requestId, api.confirmCode(current.link.requestId, current.link.tokenB, code))
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: EmailApiError) {
+            log(Log.WARN, "Manual confirmation rejected (${error.kind})")
             screen = when (error.kind) {
                 EmailApiError.Kind.INCORRECT_CODE -> current.copy(error = "That code didn't match. Try the latest email.", attemptsRemaining = error.attemptsRemaining)
                 EmailApiError.Kind.ATTEMPT_LIMIT -> EmailScreen.Limit(current.email, current.link.requestId)
@@ -106,7 +119,8 @@ class EmailFlowController(
                 EmailApiError.Kind.SIGN_IN_REQUIRED -> EmailScreen.Recovery
                 else -> current.copy(error = "We couldn't verify your email. Please try again.")
             }
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            log(Log.WARN, "Manual confirmation failed (${error.javaClass.simpleName})")
             screen = current.copy(error = "Check your connection and try again.")
         }
     }
@@ -120,20 +134,27 @@ class EmailFlowController(
             is EmailScreen.Unusable -> previous.email to previous.requestId
             else -> return@exclusive
         }
-        if (id == null || !canResend()) return@exclusive
+        if (id == null || !canResend()) {
+            log(Log.DEBUG, "Resend skipped: request missing or cooldown active")
+            return@exclusive
+        }
+        log(Log.DEBUG, "Requesting another verification email")
         screen = EmailScreen.Loading(LoadingStep.RESEND_EMAIL)
         try {
             api.resend(id)
             lastEmailAtMillis = now()
             screen = EmailScreen.Wait(email, id, "If a new email arrives, open its latest link.")
+            log(Log.DEBUG, "Verification email resent")
         } catch (cancelled: CancellationException) {
             throw cancelled
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            log(Log.WARN, "Resend failed (${error.javaClass.simpleName})")
             screen = EmailScreen.Wait(email, id, "We couldn't request another email. Please try again.")
         }
     }
 
     fun changeEmail() {
+        log(Log.DEBUG, "Clearing pending email and returning to start")
         storage.clearPending()
         screen = EmailScreen.Start()
     }
@@ -143,14 +164,19 @@ class EmailFlowController(
             storage.saveSession(session)
             if (storage.pending()?.requestId == requestId) storage.clearPending()
             screen = EmailScreen.Verified
-        } catch (_: Exception) {
+            log(Log.DEBUG, "Email verified; session stored")
+        } catch (error: Exception) {
+            log(Log.ERROR, "Email confirmed but session storage failed (${error.javaClass.simpleName})")
             // The server already consumed the proof. Retrying it cannot recover tokens.
             screen = EmailScreen.Recovery
         }
     }
 
     private suspend inline fun exclusive(crossinline action: suspend () -> Unit) {
-        if (!requestLock.tryLock()) return
+        if (!requestLock.tryLock()) {
+            log(Log.DEBUG, "Ignoring action while another email request is running")
+            return
+        }
         try { action() } finally { requestLock.unlock() }
     }
 }

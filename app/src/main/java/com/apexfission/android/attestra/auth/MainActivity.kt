@@ -2,6 +2,7 @@ package com.apexfission.android.attestra.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,12 +23,16 @@ import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 private enum class EntryScreen { Home, Catalog, Onboarding }
 
 class MainActivity : ComponentActivity() {
+    private companion object { const val TAG = "AttestraAuth" }
     private var incomingLink by mutableStateOf<VerificationLink?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         incomingLink = intent.takeIf { it?.action == Intent.ACTION_VIEW }
             ?.data?.let { parseVerificationLink(it, BuildConfig.AUTH_LINK_HOST) }
+        if (intent?.action == Intent.ACTION_VIEW) {
+            Log.d(TAG, if (incomingLink != null) "Verification link received at launch" else "Unrecognized verification link at launch")
+        }
         enableEdgeToEdge()
         setContent {
             var destination by rememberSaveable {
@@ -35,6 +40,12 @@ class MainActivity : ComponentActivity() {
             }
             LaunchedEffect(incomingLink) {
                 if (incomingLink != null) destination = EntryScreen.Onboarding
+            }
+            LaunchedEffect(destination) {
+                Log.d(TAG, "Showing ${destination.name} screen")
+                if (destination == EntryScreen.Onboarding && BuildConfig.AUTH_API_BASE_URL.isBlank()) {
+                    Log.w(TAG, "Live onboarding unavailable: attestraApiBaseUrl is missing")
+                }
             }
             BackHandler(enabled = destination != EntryScreen.Home) {
                 destination = EntryScreen.Home
@@ -75,6 +86,9 @@ class MainActivity : ComponentActivity() {
         setIntent(intent)
         incomingLink = intent.takeIf { it.action == Intent.ACTION_VIEW }
             ?.data?.let { parseVerificationLink(it, BuildConfig.AUTH_LINK_HOST) }
+        if (intent.action == Intent.ACTION_VIEW) {
+            Log.d(TAG, if (incomingLink != null) "Verification link received while app is open" else "Unrecognized verification link while app is open")
+        }
     }
 
     private fun clearIncomingLink() {
