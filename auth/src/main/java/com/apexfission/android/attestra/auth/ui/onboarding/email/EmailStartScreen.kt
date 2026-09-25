@@ -21,7 +21,7 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFram
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
 @Composable
-fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit) {
+fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit, error: String? = null) {
     var email by rememberSaveable { mutableStateOf("") }
     var attempted by rememberSaveable { mutableStateOf(false) }
     val valid = Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
@@ -42,6 +42,7 @@ fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit) {
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
+            if (error != null) Text(error, color = androidx.compose.material3.MaterialTheme.colorScheme.error)
         }
     }
 }
