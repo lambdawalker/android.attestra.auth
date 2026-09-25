@@ -45,13 +45,6 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.apexfission.android.attestra.auth.ui.theme.AttestraOnSurface
-import com.apexfission.android.attestra.auth.ui.theme.AttestraOnSurfaceVariant
-import com.apexfission.android.attestra.auth.ui.theme.AttestraPrimary
-import com.apexfission.android.attestra.auth.ui.theme.AttestraSecondary
-import com.apexfission.android.attestra.auth.ui.theme.AttestraSurface
-import com.apexfission.android.attestra.auth.ui.theme.AttestraSurfaceContainerHigh
-import com.apexfission.android.attestra.auth.ui.theme.AttestraSurfaceContainerLow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,30 +62,30 @@ fun OnboardingFrame(
     content: @Composable () -> Unit,
 ) {
     Scaffold(
-        containerColor = AttestraSurface,
+        containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             TopAppBar(
-                title = { Text("Attestra", fontWeight = FontWeight.Bold, color = AttestraOnSurface) },
+                title = { Text("Attestra", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = AttestraOnSurface)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface)
                     }
                 },
                 actions = {
                     Text(
                         step,
                         style = MaterialTheme.typography.labelMedium,
-                        color = AttestraOnSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(end = 20.dp),
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AttestraSurface),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
             )
         },
         bottomBar = {
             if (primaryLabel != null || secondaryLabel != null) {
                 Surface(
-                    color = AttestraSurface,
+                    color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
@@ -109,7 +102,7 @@ fun OnboardingFrame(
                                 enabled = primaryEnabled,
                                 modifier = Modifier.fillMaxWidth().height(48.dp),
                                 shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6), contentColor = Color.White),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
                             ) { Text(primaryLabel) }
                         }
                         if (secondaryLabel != null) {
@@ -118,7 +111,7 @@ fun OnboardingFrame(
                                 enabled = secondaryEnabled,
                                 modifier = Modifier.fillMaxWidth().height(48.dp),
                                 shape = RoundedCornerShape(8.dp),
-                            ) { Text(secondaryLabel, color = AttestraOnSurface) }
+                            ) { Text(secondaryLabel, color = MaterialTheme.colorScheme.onSurface) }
                         }
                     }
                 }
@@ -142,12 +135,12 @@ fun OnboardingFrame(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     Box(
-                        Modifier.size(48.dp).background(AttestraSurfaceContainerHigh, RoundedCornerShape(12.dp)),
+                        Modifier.size(48.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(12.dp)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(icon, contentDescription = null, tint = AttestraPrimary)
+                        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     }
-                    Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = AttestraOnSurface)
+                    Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
                 content()
             }
@@ -160,7 +153,7 @@ fun OnboardingCard(content: @Composable () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = AttestraSurfaceContainerLow),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             content()
@@ -170,7 +163,7 @@ fun OnboardingCard(content: @Composable () -> Unit) {
 
 @Composable
 fun BodyText(text: String) {
-    Text(text, style = MaterialTheme.typography.bodyMedium, color = AttestraOnSurfaceVariant)
+    Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 @Composable
@@ -180,13 +173,13 @@ fun StatusRow(label: String, detail: String, complete: Boolean = true) {
             Icon(
                 if (complete) Icons.Default.CheckCircle else Icons.Default.Shield,
                 contentDescription = null,
-                tint = if (complete) AttestraSecondary else AttestraOnSurfaceVariant,
+                tint = if (complete) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp),
             )
-            Text(label, fontWeight = FontWeight.SemiBold, color = AttestraOnSurface)
+            Text(label, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
         }
-        Text(detail, style = MaterialTheme.typography.bodySmall, color = AttestraOnSurfaceVariant)
-        HorizontalDivider(color = AttestraSurfaceContainerHigh)
+        Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainerHigh)
     }
 }
 
@@ -197,7 +190,7 @@ fun WaitingIndicator(description: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
-        CircularProgressIndicator(color = AttestraPrimary)
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         BodyText(description)
     }
 }

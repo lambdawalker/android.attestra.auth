@@ -2,6 +2,7 @@ package com.apexfission.android.attestra.auth.ui.onboarding.email
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LockClock
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
@@ -10,7 +11,6 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.BodyText
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
-import com.apexfission.android.attestra.auth.ui.theme.AttestraOnSurfaceVariant
 
 @Composable
 fun EmailAttemptLimitScreen(
@@ -25,7 +25,7 @@ fun EmailAttemptLimitScreen(
         OnboardingCard {
             Text("This code can no longer be used", fontWeight = FontWeight.SemiBold)
             BodyText("Request another email when available. Open its latest link and use its new code together.")
-            Text(email, color = AttestraOnSurfaceVariant)
+            Text(email, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (!canRequestEmail) BodyText(retryAfter ?: "Please try again later.")
         }
     }

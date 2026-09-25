@@ -2,6 +2,7 @@ package com.apexfission.android.attestra.auth.ui.onboarding.email
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LinkOff
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -9,7 +10,6 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.BodyText
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
-import com.apexfission.android.attestra.auth.ui.theme.AttestraOnSurfaceVariant
 
 @Composable
 fun EmailLinkUnusableScreen(email: String, onBack: () -> Unit, onRequestEmail: () -> Unit, onChangeEmail: () -> Unit) {
@@ -20,7 +20,7 @@ fun EmailLinkUnusableScreen(email: String, onBack: () -> Unit, onRequestEmail: (
     ) {
         OnboardingCard {
             BodyText("This link may have expired or been replaced. Request another email and open its latest link.")
-            Text(email, color = AttestraOnSurfaceVariant)
+            Text(email, color = MaterialTheme.colorScheme.onSurfaceVariant)
             BodyText("The old link and code cannot be reused.")
         }
     }

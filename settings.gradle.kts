@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Attestra Auth"
 include(":app")
- 
+include(":auth")

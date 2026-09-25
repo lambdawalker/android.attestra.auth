@@ -37,10 +37,6 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.BodyText
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
-import com.apexfission.android.attestra.auth.ui.theme.AttestraError
-import com.apexfission.android.attestra.auth.ui.theme.AttestraOnSurface
-import com.apexfission.android.attestra.auth.ui.theme.AttestraOnSurfaceVariant
-import com.apexfission.android.attestra.auth.ui.theme.AttestraSurfaceContainerHigh
 
 @Composable
 fun EmailCodeScreen(
@@ -62,7 +58,7 @@ fun EmailCodeScreen(
     ) {
         OnboardingCard {
             BodyText("Enter the six-digit code from the email you just opened to confirm on this device.")
-            Text("Confirmation code", fontWeight = FontWeight.SemiBold)
+            Text("Confirmation code", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             BasicTextField(
                 value = code,
                 onValueChange = { code = it.filter(Char::isDigit).take(6) },
@@ -79,13 +75,13 @@ fun EmailCodeScreen(
                             repeat(6) { index ->
                                 Surface(
                                     modifier = Modifier.weight(1f).height(50.dp),
-                                    color = AttestraSurfaceContainerHigh,
+                                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
                                     shape = RoundedCornerShape(8.dp),
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
                                         Text(
                                             code.getOrNull(index)?.toString() ?: "",
-                                            color = AttestraOnSurface,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             style = MaterialTheme.typography.titleLarge,
                                             textAlign = TextAlign.Center,
                                         )
@@ -97,11 +93,11 @@ fun EmailCodeScreen(
                     }
                 },
             )
-            if (error != null) Text(error, color = AttestraError, style = MaterialTheme.typography.bodyMedium)
+            if (error != null) Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
             if (attemptsRemaining != null) {
-                Text("Attempts remaining: $attemptsRemaining", style = MaterialTheme.typography.bodySmall)
+                Text("Attempts remaining: $attemptsRemaining", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text(email, style = MaterialTheme.typography.labelMedium, color = AttestraOnSurfaceVariant)
+            Text(email, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             BodyText("The code is separate from the link. Entering it does not submit automatically.")
         }
     }

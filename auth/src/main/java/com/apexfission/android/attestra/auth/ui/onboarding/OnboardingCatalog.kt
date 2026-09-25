@@ -1,7 +1,7 @@
 package com.apexfission.android.attestra.auth.ui.onboarding
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,14 +21,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.apexfission.android.attestra.auth.ui.theme.AttestraSurfaceContainerLow
-import com.apexfission.android.attestra.auth.ui.theme.AttestraSurface
-import com.apexfission.android.attestra.auth.ui.theme.AttestraOnSurface
+import com.apexfission.android.attestra.auth.ui.onboarding.common.BodyText
+import com.apexfission.android.attestra.auth.ui.onboarding.common.LoadingTask
+import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingLoadingScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.email.EmailAttemptLimitScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.email.EmailCodeScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.email.EmailLinkUnusableScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.email.EmailSessionRecoveryScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.email.EmailStartScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.email.EmailWaitScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityDetails
+import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityDocumentUnreadableScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityReviewScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityStartScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentitySubmissionFailedScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentitySuccessScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityUnsuccessfulScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyFailedScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyStartScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyUnsupportedScreen
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
-import com.apexfission.android.attestra.auth.ui.onboarding.common.*
-import com.apexfission.android.attestra.auth.ui.onboarding.email.*
-import com.apexfission.android.attestra.auth.ui.onboarding.passkey.*
-import com.apexfission.android.attestra.auth.ui.onboarding.id.*
 
 /**
  * UI-only integration seam. A future host supplies real implementations that own
@@ -36,18 +48,18 @@ import com.apexfission.android.attestra.auth.ui.onboarding.id.*
  * None of these methods should infer a successful result from a button tap.
  */
 class OnboardingBusinessActions {
-    fun requestEmail(email: String) { /* TODO: POST /signup and retain local signup proof. */ }
-    fun resendEmail() { /* TODO: POST /resend and honor the server retry window. */ }
-    fun confirmWithCode(code: String) { /* TODO: submit B+C for the opened link. */ }
-    fun confirmWithLocalProof() { /* TODO: submit A+B after link routing. */ }
-    fun createPasskey() { /* TODO: fetch options and invoke platform credential UI. */ }
-    fun finishPasskeyRegistration() { /* TODO: send credential to /passkeys/complete. */ }
-    fun checkPasskeySupport() { /* TODO: query current platform capability. */ }
-    fun openIdentityCapture() { /* TODO: launch the selected ID capture plugin. */ }
-    fun submitIdentityDetails(details: IdentityDetails) { /* TODO: submit reviewed data once. */ }
-    fun reconcileIdentitySubmission() { /* TODO: query status before retrying uncertain submission. */ }
-    fun retryIdentityCheck() { /* TODO: ask provider for a new permitted attempt. */ }
-    fun recoverEmailSignIn() { /* TODO: resume email OTP login when session issuance fails. */ }
+    fun requestEmail(email: String) {}
+    fun resendEmail() {}
+    fun confirmWithCode(code: String) {}
+    fun confirmWithLocalProof() {}
+    fun createPasskey() {}
+    fun finishPasskeyRegistration() {}
+    fun checkPasskeySupport() {}
+    fun openIdentityCapture() {}
+    fun submitIdentityDetails(details: IdentityDetails) {}
+    fun reconcileIdentitySubmission() {}
+    fun retryIdentityCheck() {}
+    fun recoverEmailSignIn() {}
 }
 
 private data class CatalogItem(val key: String, val title: String)
@@ -79,17 +91,23 @@ fun OnboardingCatalog(actions: OnboardingBusinessActions) {
     val sampleEmail = "name@example.invalid"
     if (selected == null) {
         Column(
-            Modifier.fillMaxSize().background(AttestraSurface).verticalScroll(rememberScrollState()).padding(24.dp),
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Onboarding screen gallery", style = MaterialTheme.typography.headlineSmall, color = AttestraOnSurface)
+            Text("Onboarding screen gallery", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
             BodyText("Select a UI state. Actions call empty business hooks; no account, passkey, or ID status changes here.")
             catalogItems.forEach { item ->
                 Card(
-                    Modifier.fillMaxWidth().clickable { selected = item.key },
-                    colors = CardDefaults.cardColors(containerColor = AttestraSurfaceContainerLow),
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { selected = item.key },
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                 ) {
-                    Text(item.title, modifier = Modifier.padding(18.dp), color = AttestraOnSurface)
+                    Text(item.title, modifier = Modifier.padding(18.dp), color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
@@ -104,6 +122,7 @@ fun OnboardingCatalog(actions: OnboardingBusinessActions) {
             error = "That code didn’t match. Check the six-digit code in your email and try again.",
             attemptsRemaining = 2,
         )
+
         "email_limit" -> EmailAttemptLimitScreen(sampleEmail, back, actions::resendEmail, { selected = "email_start" }, canRequestEmail = true)
         "email_link" -> EmailLinkUnusableScreen(sampleEmail, back, actions::resendEmail) { selected = "email_start" }
         "email_recovery" -> EmailSessionRecoveryScreen(back, actions::recoverEmailSignIn)
