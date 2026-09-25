@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.apexfission.android.attestra.auth.library"
     compileSdk {
-        version = release(37)
+        version = release(36)
     }
 
     defaultConfig {

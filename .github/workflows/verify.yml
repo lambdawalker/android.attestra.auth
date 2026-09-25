@@ -15,7 +15,7 @@ jobs:
         with:
           packages: platform-tools
       - name: Install Android platform
-        run: sdkmanager "platforms;android-37" "build-tools;37.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Test auth and assemble app
         run: >-
           bash gradlew :auth:testDebugUnitTest :app:assembleDebug
