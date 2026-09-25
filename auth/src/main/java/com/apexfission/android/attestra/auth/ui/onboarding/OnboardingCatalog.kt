@@ -1,5 +1,6 @@
 package com.apexfission.android.attestra.auth.ui.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -88,6 +89,7 @@ private val catalogItems = listOf(
 fun OnboardingCatalog(actions: OnboardingBusinessActions) {
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
     val back = { selected = null }
+    BackHandler(enabled = selected != null) { selected = null }
     val sampleEmail = "name@example.invalid"
     if (selected == null) {
         Column(
