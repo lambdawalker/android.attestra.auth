@@ -17,7 +17,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-@Serializable private data class SignupBody(val email: String, @SerialName("code_challenge") val challenge: String, @SerialName("code_challenge_method") val method: String = "S256")
+@Serializable private data class SignupBody(val email: String, @SerialName("code_challenge") val challenge: String, @SerialName("code_challenge_method") val method: String)
 @Serializable private data class SignupReply(@SerialName("request_id") val requestId: String)
 @Serializable private data class ResendBody(@SerialName("request_id") val requestId: String)
 @Serializable private data class ConfirmBody(
@@ -68,7 +68,7 @@ class EmailVerificationApi(
     }
 
     override suspend fun signup(email: String, challenge: String): String {
-        val response = client.post("$root/signup") { contentType(ContentType.Application.Json); setBody(SignupBody(email, challenge)) }
+        val response = client.post("$root/signup") { contentType(ContentType.Application.Json); setBody(SignupBody(email, challenge, "S256")) }
         response.requireStatus(202, "signup")
         return response.body<SignupReply>().requestId
     }
