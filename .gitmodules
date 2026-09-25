@@ -1,0 +1,3 @@
+[submodule "design.attestra"]
+	path = design.attestra
+	url = git@github.com:lambdawalker/design.attestra.git
