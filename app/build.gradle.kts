@@ -4,20 +4,28 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+val authApiBaseUrl = providers.gradleProperty("attestraApiBaseUrl").orElse("").get()
+val authLinkHost = providers.gradleProperty("attestraLinkHost").orElse("example.invalid").get()
+require(authApiBaseUrl.isEmpty() || authApiBaseUrl.startsWith("https://")) { "attestraApiBaseUrl must use HTTPS" }
+require(authLinkHost.matches(Regex("[A-Za-z0-9.-]+"))) { "attestraLinkHost must be a hostname" }
+
 android {
     namespace = "com.apexfission.android.attestra.auth"
     compileSdk {
-        version = release(37)
+        version = release(36)
     }
 
     defaultConfig {
         applicationId = "com.apexfission.android.attestra.auth"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["attestraLinkHost"] = authLinkHost
+        buildConfigField("String", "AUTH_API_BASE_URL", "\"${authApiBaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+        buildConfigField("String", "AUTH_LINK_HOST", "\"$authLinkHost\"")
     }
 
     buildTypes {
@@ -33,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

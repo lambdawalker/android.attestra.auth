@@ -23,7 +23,7 @@ fun EmailWaitScreen(
     ) {
         OnboardingCard {
             BodyText("If a message arrives, open its confirmation link for:")
-            Text(email, fontWeight = FontWeight.SemiBold)
+            if (email.isNotBlank()) Text(email, fontWeight = FontWeight.SemiBold)
             BodyText("Keep the six-digit code in that email available in case it is requested.")
             if (resendHelp != null) BodyText(resendHelp)
         }

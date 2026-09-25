@@ -124,7 +124,7 @@ fun OnboardingCatalog(actions: OnboardingBusinessActions) {
         )
 
         "email_limit" -> EmailAttemptLimitScreen(sampleEmail, back, actions::resendEmail, { selected = "email_start" }, canRequestEmail = true)
-        "email_link" -> EmailLinkUnusableScreen(sampleEmail, back, actions::resendEmail) { selected = "email_start" }
+        "email_link" -> EmailLinkUnusableScreen(sampleEmail, back, actions::resendEmail, onChangeEmail = { selected = "email_start" })
         "email_recovery" -> EmailSessionRecoveryScreen(back, actions::recoverEmailSignIn)
         "passkey_start" -> PasskeyStartScreen(back, actions::createPasskey, back)
         "passkey_failed" -> PasskeyFailedScreen(back, actions::createPasskey, back, cancelled = false)

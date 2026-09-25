@@ -12,15 +12,15 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFram
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
 @Composable
-fun EmailLinkUnusableScreen(email: String, onBack: () -> Unit, onRequestEmail: () -> Unit, onChangeEmail: () -> Unit) {
+fun EmailLinkUnusableScreen(email: String, onBack: () -> Unit, onRequestEmail: () -> Unit, onChangeEmail: () -> Unit, canRequestEmail: Boolean = true) {
     OnboardingFrame(
         title = "This confirmation link can’t be used", icon = Icons.Default.LinkOff, step = "2/5", onBack = onBack,
-        primaryLabel = "Request a new email", onPrimary = onRequestEmail,
+        primaryLabel = "Request a new email", onPrimary = onRequestEmail, primaryEnabled = canRequestEmail,
         secondaryLabel = "Change email address", onSecondary = onChangeEmail,
     ) {
         OnboardingCard {
             BodyText("This link may have expired or been replaced. Request another email and open its latest link.")
-            Text(email, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (email.isNotBlank()) Text(email, color = MaterialTheme.colorScheme.onSurfaceVariant)
             BodyText("The old link and code cannot be reused.")
         }
     }

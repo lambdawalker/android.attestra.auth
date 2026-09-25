@@ -7,6 +7,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
 enum class LoadingTask(val title: String, val description: String, val step: String) {
+    REQUEST_EMAIL("Sending your confirmation email", "We are processing your request.", "1/5"),
     CONFIRM_EMAIL("Verifying your email", "We are confirming your email and preparing your session.", "2/5"),
     RESEND_EMAIL("Requesting another email", "We are processing your request.", "2/5"),
     OPEN_PASSKEY_MANAGER("Opening your passkey manager", "Follow your device or password manager to create a passkey.", "3/5"),

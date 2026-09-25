@@ -97,7 +97,7 @@ fun EmailCodeScreen(
             if (attemptsRemaining != null) {
                 Text("Attempts remaining: $attemptsRemaining", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text(email, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (email.isNotBlank()) Text(email, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             BodyText("The code is separate from the link. Entering it does not submit automatically.")
         }
     }

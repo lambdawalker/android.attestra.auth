@@ -25,7 +25,7 @@ fun EmailAttemptLimitScreen(
         OnboardingCard {
             Text("This code can no longer be used", fontWeight = FontWeight.SemiBold)
             BodyText("Request another email when available. Open its latest link and use its new code together.")
-            Text(email, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (email.isNotBlank()) Text(email, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (!canRequestEmail) BodyText(retryAfter ?: "Please try again later.")
         }
     }
