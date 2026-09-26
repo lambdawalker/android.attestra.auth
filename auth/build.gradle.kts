@@ -38,6 +38,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
+
     // Ktor client & Serialization
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)

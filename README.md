@@ -92,3 +92,9 @@ When confirmation succeeds but no session can be issued, the app displays the ex
 The `:auth` module owns the Ktor client, controller, protected storage, and email host. `OnboardingBusinessActions` now belongs only to the UI gallery; its callbacks remain empty for passkey and ID preview screens. The gallery's example email/status values are illustrative. The live flow never navigates to success merely because a button was tapped.
 
 The design submodule is a pinned reference, not a second copy of the design maintained in this repository. Initialize it with `git submodule update --init` (use an HTTPS URL override when SSH access is unavailable). Follow `design.attestra/auth/onboarding/README.md` from the pinned commit for the corresponding flow and screen inventory; the links above point to the latest design on GitHub, which can be newer than the pinned version.
+
+### Passkey registration in the live onboarding flow
+
+After a successful email confirmation, **Create passkey** calls the configurable API's `/passkeys/options` with the saved Cognito access token, opens Android Credential Manager, and submits its registration JSON to `/passkeys/complete`. Only `registered: true` advances to the optional ID check with **Passkey added**. Cancellation and failures offer a retry using fresh options; unsupported devices offer a defer path; expired sessions go to email sign-in recovery. Passkey sign-in and ID capture are separate integrations.
+
+Set `attestraApiBaseUrl` as for email verification. The HTTPS `attestraLinkHost` must serve `/.well-known/assetlinks.json` containing `delegate_permission/common.get_login_creds`, the exact app ID, and the installed APK's SHA-256 signing fingerprint. Test on Android 9 or newer with a configured credential provider. Diagnostic messages remain under the `EmailDebugX` tag for now.
