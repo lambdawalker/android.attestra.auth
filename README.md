@@ -77,6 +77,10 @@ The last command only checks routing; `test` values cannot confirm an email. The
 
 ## Android integration
 
+### Temporary confirmation trace
+
+For the current session recovery investigation, filter Logcat by `AttestraAuth`, `EmailVerification`, and `AttestraEmailApi` (or run `adb logcat -s AttestraAuth:D EmailVerification:D AttestraEmailApi:D`). Start a fresh signup and open its new email link. Note the `/confirm` HTTP status, `trace_id` from the `x-request-id` header, whether session decoding succeeded, and whether encrypted storage completed. A `409 confirmed_sign_in_required` means the backend consumed the proof but did not return a usable session; HTTP 200 followed by a storage exception points to Android. The same email link cannot issue a session twice. Remove the temporary trace statements after diagnosis.
+
 Follow the [email proof protocol](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/architecture.md) and [screen inventory](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/README.md) in the design repo. On Android, `:auth` creates A, sends its S256 challenge through Ktor, and saves A with the request ID in Keystore encrypted preferences. App Links use matching local A for confirmation; on another device the app presents the manual-code screen. The app persists a successful session before opening passkey setup.
 
 The private preferences file is excluded from cloud backup and device transfer. No A, C, B, or Cognito token is logged or put into a new navigation URL. The original link URL is cleared from the activity after parsing. The app keeps only one local pending signup at a time; opening a link on a different device falls back to code entry. Session storage is in `SecureAuthStorage` for future passkey and login integration.
