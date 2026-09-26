@@ -29,7 +29,7 @@ class EmailFlowControllerTest {
 
     @Test fun localProofConfirmsAfterLinkOpensAndStoresSession() = runBlocking {
         val api = FakeApi(); val store = MemoryStorage()
-        val controller = EmailFlowController(api, store, ProofGenerator { bytes -> bytes.fill(1) }, now = { 1_000L }, log = { _, _ -> })
+        val controller = EmailFlowController(api, store, ProofGenerator { bytes -> bytes.fill(1) }, now = { 1_000L })
         controller.start("person@example.test")
         assertTrue(controller.screen is EmailScreen.Wait)
         assertEquals(0, api.localCalls)
@@ -42,7 +42,7 @@ class EmailFlowControllerTest {
 
     @Test fun anotherDeviceNeverConfirmsBeforeSixDigitSubmission() = runBlocking {
         val api = FakeApi(); val store = MemoryStorage()
-        val controller = EmailFlowController(api, store, ProofGenerator { bytes -> bytes.fill(1) }, log = { _, _ -> })
+        val controller = EmailFlowController(api, store, ProofGenerator { bytes -> bytes.fill(1) })
         controller.openLink(VerificationLink(token, token))
         assertTrue(controller.screen is EmailScreen.Code)
         assertEquals(0, api.localCalls)
@@ -56,7 +56,7 @@ class EmailFlowControllerTest {
 
     @Test fun replacedLinkNeverUsesStoredAOnOtherRequest() = runBlocking {
         val api = FakeApi(); val store = MemoryStorage()
-        val controller = EmailFlowController(api, store, ProofGenerator { bytes -> bytes.fill(1) }, log = { _, _ -> })
+        val controller = EmailFlowController(api, store, ProofGenerator { bytes -> bytes.fill(1) })
         controller.start("person@example.test")
         controller.openLink(VerificationLink("B".repeat(43), token))
         assertFalse(controller.screen is EmailScreen.Verified)

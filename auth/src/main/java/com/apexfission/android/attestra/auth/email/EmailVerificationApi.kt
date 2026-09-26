@@ -17,18 +17,30 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-@Serializable private data class SignupBody(val email: String, @SerialName("code_challenge") val challenge: String, @SerialName("code_challenge_method") val method: String = "S256")
-@Serializable private data class SignupReply(@SerialName("request_id") val requestId: String)
-@Serializable private data class ResendBody(@SerialName("request_id") val requestId: String)
-@Serializable private data class ConfirmBody(
+@Serializable
+private data class SignupBody(
+    val email: String,
+    @SerialName("code_challenge") val challenge: String,
+    @SerialName("code_challenge_method") val method: String
+)
+
+@Serializable
+private data class SignupReply(@SerialName("request_id") val requestId: String)
+@Serializable
+private data class ResendBody(@SerialName("request_id") val requestId: String)
+@Serializable
+private data class ConfirmBody(
     @SerialName("request_id") val requestId: String,
     @SerialName("token_b") val tokenB: String,
     @SerialName("token_a") val tokenA: String? = null,
     @SerialName("token_c") val tokenC: String? = null,
 )
-@Serializable private data class ErrorReply(val error: String, @SerialName("attempts_remaining") val attemptsRemaining: Int? = null)
 
-@Serializable data class AuthSession(
+@Serializable
+private data class ErrorReply(val error: String, @SerialName("attempts_remaining") val attemptsRemaining: Int? = null)
+
+@Serializable
+data class AuthSession(
     @SerialName("access_token") val accessToken: String,
     @SerialName("id_token") val idToken: String,
     @SerialName("refresh_token") val refreshToken: String,
@@ -44,7 +56,7 @@ object EmailHttpClient {
     val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
     fun create(): HttpClient = HttpClient(CIO) {
         expectSuccess = false
-        install(ContentNegotiation) { json(EmailHttpClient.json) }
+        install(ContentNegotiation) { json(json) }
         install(HttpTimeout) { requestTimeoutMillis = 15_000; connectTimeoutMillis = 10_000 }
     }
 }
@@ -68,7 +80,19 @@ class EmailVerificationApi(
     }
 
     override suspend fun signup(email: String, challenge: String): String {
-        val response = client.post("$root/signup") { contentType(ContentType.Application.Json); setBody(SignupBody(email, challenge)) }
+
+        val response: HttpResponse = client.post("$root/signup") {
+            contentType(ContentType.Application.Json);
+            setBody(
+                SignupBody(
+                    email,
+                    challenge,
+                    "S256"
+                )
+            )
+        }
+
+        val x = response.bodyAsText()
         response.requireStatus(202, "signup")
         return response.body<SignupReply>().requestId
     }
