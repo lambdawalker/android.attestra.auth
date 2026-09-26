@@ -2,6 +2,16 @@ package com.apexfission.android.attestra.auth.email
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import com.apexfission.android.attestra.auth.passkey.AndroidPasskeyManager
+import com.apexfission.android.attestra.auth.passkey.PasskeyRegistrationApi
+import com.apexfission.android.attestra.auth.passkey.PasskeyApiException
+import com.apexfission.android.attestra.auth.passkey.PasskeyCancelled
+import com.apexfission.android.attestra.auth.passkey.PasskeyUnsupported
+import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyFailedScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyUnsupportedScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityStartScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -35,10 +45,10 @@ fun EmailOnboardingHost(
     link: VerificationLink?,
     onLinkConsumed: () -> Unit,
     onSignInRequired: () -> Unit,
-    onPasskeyRequested: () -> Unit,
     onPasskeyDeferred: () -> Unit,
 ) {
-    val context: Context = LocalContext.current.applicationContext
+    val activityContext: Context = LocalContext.current
+    val context: Context = activityContext.applicationContext
     val storage = remember(context) { SecureAuthStorage(context) }
     val client = remember(apiBaseUrl) { EmailHttpClient.create() }
     DisposableEffect(client) { onDispose { client.close() } }
@@ -55,6 +65,40 @@ fun EmailOnboardingHost(
         }
     }
     var clock by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    val passkeyApi = remember(apiBaseUrl, client) { PasskeyRegistrationApi(apiBaseUrl, client) }
+    val passkeyManager = remember(activityContext) { AndroidPasskeyManager(activityContext) }
+    var passkeyScreen by remember { mutableStateOf("start") }
+    var passkeyAdded by remember { mutableStateOf(false) }
+    val createPasskey: () -> Unit = {
+        if (passkeyScreen != "opening" && passkeyScreen != "saving") {
+            scope.launch {
+                val token = storage.session()?.accessToken
+                if (token.isNullOrBlank()) {
+                    Log.e("EmailDebugX", "Passkey setup requires email sign-in")
+                    passkeyScreen = "recovery"
+                } else {
+                    passkeyScreen = "opening"
+                    try {
+                        val options = passkeyApi.options(token)
+                        val credential = passkeyManager.create(options)
+                        passkeyScreen = "saving"
+                        passkeyApi.complete(token, credential)
+                        passkeyAdded = true
+                        passkeyScreen = "identity"
+                    } catch (error: PasskeyCancelled) {
+                        passkeyScreen = "cancelled"
+                    } catch (error: PasskeyUnsupported) {
+                        passkeyScreen = "unsupported"
+                    } catch (error: PasskeyApiException) {
+                        passkeyScreen = if (error.signInRequired) "recovery" else "failed"
+                    } catch (error: Exception) {
+                        Log.e("EmailDebugX", "Passkey registration failed", error)
+                        passkeyScreen = "failed"
+                    }
+                }
+            }
+        }
+    }
     val screen = controller.screen
     LaunchedEffect(screen) {
         while (screen is EmailScreen.Wait || screen is EmailScreen.Code || screen is EmailScreen.Limit || screen is EmailScreen.Unusable) {
@@ -83,7 +127,16 @@ fun EmailOnboardingHost(
             screen.email, changeEmail, resend, changeEmail, canRequestEmail = screen.requestId != null && canResend,
         )
         EmailScreen.Recovery -> EmailSessionRecoveryScreen(changeEmail, onSignInRequired)
-        EmailScreen.Verified -> PasskeyStartScreen(onPasskeyDeferred, onPasskeyRequested, onPasskeyDeferred)
+        EmailScreen.Verified -> when (passkeyScreen) {
+            "opening" -> OnboardingLoadingScreen(LoadingTask.OPEN_PASSKEY_MANAGER, onBack = {})
+            "saving" -> OnboardingLoadingScreen(LoadingTask.SAVE_PASSKEY, onBack = {})
+            "failed" -> PasskeyFailedScreen({ passkeyScreen = "start" }, createPasskey, { passkeyScreen = "identity" }, false)
+            "cancelled" -> PasskeyFailedScreen({ passkeyScreen = "start" }, createPasskey, { passkeyScreen = "identity" }, true)
+            "unsupported" -> PasskeyUnsupportedScreen({ passkeyScreen = "start" }, { passkeyScreen = "identity" }, createPasskey)
+            "recovery" -> EmailSessionRecoveryScreen({ passkeyScreen = "start" }, onSignInRequired)
+            "identity" -> IdentityStartScreen({ passkeyScreen = "start" }, onPasskeyDeferred, onPasskeyDeferred, passkeyAdded)
+            else -> PasskeyStartScreen(onPasskeyDeferred, createPasskey, { passkeyScreen = "identity" })
+        }
         is EmailScreen.Loading -> OnboardingLoadingScreen(
             when (screen.task) {
                 LoadingStep.REQUEST_EMAIL -> LoadingTask.REQUEST_EMAIL

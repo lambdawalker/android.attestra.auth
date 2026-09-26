@@ -72,7 +72,6 @@ class MainActivity : ComponentActivity() {
                                 link = incomingLink,
                                 onLinkConsumed = ::clearIncomingLink,
                                 onSignInRequired = { notice("Email sign-in will be available with the login flow.") },
-                                onPasskeyRequested = { notice("Passkey creation will be available with the passkey flow.") },
                                 onPasskeyDeferred = { notice("Your email is verified. You can add a passkey later.") },
                             )
                         }
