@@ -42,6 +42,39 @@ Use your own stack's `apiUrl` if it differs from this example; when `pulumi stac
 
 The launcher opens a choice screen in the existing `MainActivity`: **Start onboarding** runs the live email flow, and **Open UI catalog** previews every screen without calling the backend. With no API URL, Start onboarding explains how to configure `attestraApiBaseUrl`; the catalog still works. The system Back action returns to the choice screen, or to the catalog list when previewing an individual screen. A valid HTTPS `/verify-email` App Link opens live onboarding directly, including when the catalog is currently visible. The manifest accepts links only for the configured host, and the activity checks the incoming origin again before handling one. Visiting a link never calls the backend with B alone.
 
+### Verify Android App Links on a device
+
+The manifest's `android:autoVerify="true"` filter matches `https://<attestraLinkHost>/verify-email`. Serve `https://attestrabond.com/.well-known/assetlinks.json` as public JSON without redirects. Its `package_name` must match this app's Gradle `applicationId`, **`com.apexfission.android.attestra.auth`** (not `com.apexfission.android`), and `sha256_cert_fingerprints` must include the certificate of the **installed build**. A debug APK and a release or Play-signed APK may use different certificates. To find the fingerprint for your build, run `.\gradlew.bat :app:signingReport` or inspect the installed package's `Signatures` in the command below. For example:
+
+```json
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.apexfission.android.attestra.auth",
+      "sha256_cert_fingerprints": ["<SHA-256 fingerprint of the installed app>"]
+    }
+  }
+]
+```
+
+You can keep other relations and fingerprints needed for other builds. If the same domain serves multiple apps, give each application ID its own statement. The website must also serve `/verify-email` for users without the Android app; opening the page alone must not confirm an address.
+
+In Android Studio's PowerShell terminal, use the SDK's `adb.exe` if `adb` is not on `PATH`. Select the intended device serial when multiple devices or emulators are connected:
+
+```powershell
+$adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
+& $adb devices
+$serial = 'emulator-5556' # replace with your device's serial from `devices`
+& $adb -s $serial shell pm verify-app-links --re-verify com.apexfission.android.attestra.auth
+# Wait for verification to finish, then check for `attestrabond.com: verified`:
+& $adb -s $serial shell pm get-app-links com.apexfission.android.attestra.auth
+& $adb -s $serial shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d 'https://attestrabond.com/verify-email?request_id=test&b=test'
+```
+
+The last command only checks routing; `test` values cannot confirm an email. Then open a **fresh signup email** on that device to test confirmation. If the domain shows `1024` instead of `verified`, first compare the listed `Signatures` fingerprint against the public `assetlinks.json`, then check its HTTPS response, JSON content type, and redirect behavior. If the email opens a browser despite a verified domain, check whether the mail client rewrites the tapped URL onto another host.
+
 ## Android integration
 
 Follow the [email proof protocol](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/architecture.md) and [screen inventory](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/README.md) in the design repo. On Android, `:auth` creates A, sends its S256 challenge through Ktor, and saves A with the request ID in Keystore encrypted preferences. App Links use matching local A for confirmation; on another device the app presents the manual-code screen. The app persists a successful session before opening passkey setup.
