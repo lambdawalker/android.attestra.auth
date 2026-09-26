@@ -21,6 +21,7 @@ class EmailVerificationApiTest {
             assertEquals("https://api.example.test/signup", request.url.toString())
             val body = (request.body as TextContent).text
             assertTrue(body.contains("code_challenge"))
+            assertTrue(body.contains("\"code_challenge_method\":\"S256\""))
             assertFalse(body.contains("token_a"))
             respond("""{"request_id":"request-1"}""", HttpStatusCode.Accepted, headersOf(HttpHeaders.ContentType, "application/json"))
         }) { install(ContentNegotiation) { json(EmailHttpClient.json) } }
