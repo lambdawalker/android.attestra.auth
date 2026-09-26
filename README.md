@@ -104,3 +104,7 @@ Set `attestraApiBaseUrl` as for email verification. The HTTPS `attestraLinkHost`
 The app opens live onboarding when it finds a saved pending proof or session. A pending signup older than 10 minutes shows that the previous link expired and offers **Resend email**, while **Already verified? Sign in** handles confirmation on another device. A stored session is refreshed through `/auth/refresh`; `/auth/status` checks Cognito for passkey registration after authentication. Without a usable session, the sign-in choice offers a passkey or a fresh Cognito email OTP. Existing accounts should use sign-in rather than repeating `/signup`.
 
 The new Go deployment must be applied before testing these screens. Passkey sign-in uses Credential Manager's `GetPublicKeyCredentialOption`. The existing `EmailDebugX` logs show request outcomes without credential or token contents.
+
+### Welcome after deferring the ID check
+
+The live onboarding flow opens `WelcomeScreen` when the user selects **Skip for now · Go to dashboard** on the optional ID check. It shows verified email, passkey status, and that identity verification is still pending. **Verify my ID** returns to the ID start screen. The deferred choice is stored locally and restored after the session has been refreshed and passkey status checked. The UI catalog includes the welcome screen. ID capture remains the separate provider integration.

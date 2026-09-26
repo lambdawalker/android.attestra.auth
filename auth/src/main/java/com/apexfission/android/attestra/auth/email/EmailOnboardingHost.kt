@@ -19,6 +19,7 @@ import com.apexfission.android.attestra.auth.passkey.PasskeyUnsupported
 import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyFailedScreen
 import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyUnsupportedScreen
 import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityStartScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.welcome.WelcomeScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -80,7 +81,7 @@ fun EmailOnboardingHost(
     val passkeyApi = remember(apiBaseUrl, client) { PasskeyRegistrationApi(apiBaseUrl, client) }
     val passkeyManager = remember(activityContext) { AndroidPasskeyManager(activityContext) }
     val returnApi = remember(apiBaseUrl, client) { ReturnAuthApi(apiBaseUrl, client) }
-    var passkeyScreen by remember { mutableStateOf("start") }
+    var passkeyScreen by remember { mutableStateOf(if (storage.idCheckDeferred()) "welcome" else "start") }
     var passkeyAdded by remember { mutableStateOf(false) }
     var returnMode by remember { mutableStateOf("") }
     var returnEmail by remember { mutableStateOf(storage.email() ?: storage.pending()?.email ?: emailFromSession(storage.session()).orEmpty()) }
@@ -94,7 +95,7 @@ fun EmailOnboardingHost(
         val status = returnApi.status(result.accessToken)
         authenticated = true
         returnMode = ""
-        passkeyScreen = if (status.passkeyRegistered) "identity" else "start"
+        passkeyScreen = if (storage.idCheckDeferred()) "welcome" else if (status.passkeyRegistered) "identity" else "start"
         passkeyAdded = status.passkeyRegistered
         Log.d("EmailDebugX", "Sign-in completed passkey_registered=${status.passkeyRegistered}")
     }
@@ -109,7 +110,7 @@ fun EmailOnboardingHost(
                     storage.saveSession(fresh)
                     val status = returnApi.status(fresh.accessToken)
                     passkeyAdded = status.passkeyRegistered
-                    passkeyScreen = if (status.passkeyRegistered) "identity" else "start"
+                    passkeyScreen = if (storage.idCheckDeferred()) "welcome" else if (status.passkeyRegistered) "identity" else "start"
                     authenticated = true
                     Log.d("EmailDebugX", "Session restored passkey_registered=${status.passkeyRegistered}")
                 }
@@ -226,7 +227,20 @@ fun EmailOnboardingHost(
             "cancelled" -> PasskeyFailedScreen({ passkeyScreen = "start" }, createPasskey, { passkeyScreen = "identity" }, true)
             "unsupported" -> PasskeyUnsupportedScreen({ passkeyScreen = "start" }, { passkeyScreen = "identity" }, createPasskey)
             "recovery" -> EmailSessionRecoveryScreen({ passkeyScreen = "start" }, { returnMode = "choice" })
-            "identity" -> IdentityStartScreen({ passkeyScreen = "start" }, onPasskeyDeferred, onPasskeyDeferred, passkeyAdded)
+            "identity" -> IdentityStartScreen(
+                onBack = { passkeyScreen = "start" },
+                onStartCapture = onPasskeyDeferred,
+                onSkip = {
+                    storage.setIdCheckDeferred(true)
+                    passkeyScreen = "welcome"
+                    Log.d("EmailDebugX", "ID check deferred; showing welcome landing")
+                },
+                passkeyAdded = passkeyAdded,
+            )
+            "welcome" -> WelcomeScreen(passkeyAdded = passkeyAdded, onCheckId = {
+                storage.setIdCheckDeferred(false)
+                passkeyScreen = "identity"
+            })
             else -> PasskeyStartScreen(onPasskeyDeferred, createPasskey, { passkeyScreen = "identity" })
         }
         is EmailScreen.Loading -> OnboardingLoadingScreen(

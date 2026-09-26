@@ -41,6 +41,7 @@ import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityUnsuccessf
 import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyFailedScreen
 import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyStartScreen
 import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyUnsupportedScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.welcome.WelcomeScreen
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
 /**
@@ -77,6 +78,7 @@ private val catalogItems = listOf(
     CatalogItem("passkey_failed", "Passkey setup - failed"),
     CatalogItem("passkey_unsupported", "Passkey setup - unsupported device"),
     CatalogItem("identity_start", "Identity verification - start"),
+    CatalogItem("welcome", "Welcome - ID check postponed"),
     CatalogItem("identity_review", "Identity verification - review details"),
     CatalogItem("identity_unreadable", "Identity verification - unreadable document"),
     CatalogItem("identity_submission", "Identity verification - submission failed"),
@@ -131,7 +133,8 @@ fun OnboardingCatalog(actions: OnboardingBusinessActions) {
         "passkey_start" -> PasskeyStartScreen(back, actions::createPasskey, back)
         "passkey_failed" -> PasskeyFailedScreen(back, actions::createPasskey, back, cancelled = false)
         "passkey_unsupported" -> PasskeyUnsupportedScreen(back, back, actions::checkPasskeySupport)
-        "identity_start" -> IdentityStartScreen(back, actions::openIdentityCapture, back, passkeyAdded = false)
+        "identity_start" -> IdentityStartScreen(back, actions::openIdentityCapture, { selected = "welcome" }, passkeyAdded = false)
+        "welcome" -> WelcomeScreen(passkeyAdded = false, onCheckId = { selected = "identity_start" })
         "identity_review" -> IdentityReviewScreen(IdentityDetails(), back, actions::submitIdentityDetails, actions::openIdentityCapture)
         "identity_unreadable" -> IdentityDocumentUnreadableScreen(back, actions::openIdentityCapture, back)
         "identity_submission" -> IdentitySubmissionFailedScreen(back, actions::reconcileIdentitySubmission, back)
