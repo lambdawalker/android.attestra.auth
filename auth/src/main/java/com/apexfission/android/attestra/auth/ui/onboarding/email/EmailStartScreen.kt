@@ -21,7 +21,7 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFram
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
 @Composable
-fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit, error: String? = null) {
+fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit, error: String? = null, onExistingAccount: (() -> Unit)? = null) {
     var email by rememberSaveable { mutableStateOf("") }
     var attempted by rememberSaveable { mutableStateOf(false) }
     val valid = Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
@@ -29,6 +29,8 @@ fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit, error: St
         title = "Start with your email", icon = Icons.Default.MarkEmailRead, step = "1/5",
         onBack = onBack, primaryLabel = "Continue",
         onPrimary = { attempted = true; if (valid) onContinue(email.trim()) },
+        secondaryLabel = if (onExistingAccount != null) "Already have an account? Sign in" else null,
+        onSecondary = { onExistingAccount?.invoke() },
     ) {
         OnboardingCard {
             BodyText("Enter your email to get a confirmation link and a six-digit code.")

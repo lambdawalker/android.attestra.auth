@@ -10,6 +10,7 @@ enum class LoadingTask(val title: String, val description: String, val step: Str
     REQUEST_EMAIL("Sending your confirmation email", "We are processing your request.", "1/5"),
     CONFIRM_EMAIL("Verifying your email", "We are confirming your email and preparing your session.", "2/5"),
     RESEND_EMAIL("Requesting another email", "We are processing your request.", "2/5"),
+    SIGN_IN("Signing you in", "We are checking your account and preparing your session.", "Account"),
     OPEN_PASSKEY_MANAGER("Opening your passkey manager", "Follow your device or password manager to create a passkey.", "3/5"),
     SAVE_PASSKEY("Saving your passkey", "We are adding the passkey to your account.", "3/5"),
     READ_DOCUMENT("Reading your document", "We are extracting details for you to review.", "ID check"),

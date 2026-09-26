@@ -33,8 +33,8 @@ class EmailFlowController(
     private val now: () -> Long = System::currentTimeMillis,
 ) {
     var screen: EmailScreen by mutableStateOf(
-        storage.pending()?.takeIf { now() - it.createdAtMillis < 60 * 60_000L }
-            ?.let { EmailScreen.Wait(it.email, it.requestId) } ?: EmailScreen.Start(),
+        if (storage.session() != null) EmailScreen.Verified else storage.pending()?.takeIf { now() - it.createdAtMillis < 24 * 60 * 60_000L }
+            ?.let { EmailScreen.Wait(it.email, it.requestId, if (now() - it.createdAtMillis >= 10 * 60_000L) "That link expired. Request a new email to continue." else null) } ?: EmailScreen.Start(),
     )
         private set
 
@@ -163,6 +163,7 @@ class EmailFlowController(
         try {
             Log.d("EmailDebugX", "Confirm returned session request_id=$requestId; saving encrypted session")
             storage.saveSession(session)
+            storage.pending()?.takeIf { it.requestId == requestId }?.let { storage.saveEmail(it.email) }
             Log.d("EmailDebugX", "Encrypted session saved request_id=$requestId")
             if (storage.pending()?.requestId == requestId) storage.clearPending()
             screen = EmailScreen.Verified

@@ -19,6 +19,9 @@ interface AuthStorage {
     fun clearPending()
     fun saveSession(session: AuthSession)
     fun session(): AuthSession?
+    fun email(): String? = null
+    fun saveEmail(email: String) {}
+    fun clearSession() {}
 }
 
 /** Per-install Keystore key; encrypted preferences are excluded from both backup types. */
@@ -47,6 +50,9 @@ class SecureAuthStorage(context: Context) : AuthStorage {
     override fun clearPending() { prefs.edit().remove("pending").commit() }
     override fun saveSession(session: AuthSession) = write("session", json.encodeToString(session))
     override fun session(): AuthSession? = read("session") { json.decodeFromString<AuthSession>(it) }
+    override fun email(): String? = read("email") { it }
+    override fun saveEmail(email: String) = write("email", email)
+    override fun clearSession() { prefs.edit().remove("session").commit() }
 
     private fun write(name: String, value: String) {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")

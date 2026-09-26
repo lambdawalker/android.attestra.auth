@@ -14,12 +14,12 @@ import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 @Composable
 fun EmailWaitScreen(
     email: String, onBack: () -> Unit, onResend: () -> Unit, onChangeEmail: () -> Unit,
-    canResend: Boolean = true, resendHelp: String? = null,
+    canResend: Boolean = true, resendHelp: String? = null, onSignIn: (() -> Unit)? = null,
 ) {
     OnboardingFrame(
         title = "Check your email", icon = Icons.Default.Visibility, step = "2/5", onBack = onBack,
         primaryLabel = "Resend email", onPrimary = onResend, primaryEnabled = canResend,
-        secondaryLabel = "Change email address", onSecondary = onChangeEmail,
+        secondaryLabel = if (onSignIn != null) "Already verified? Sign in" else "Change email address", onSecondary = { if (onSignIn != null) onSignIn() else onChangeEmail() },
     ) {
         OnboardingCard {
             BodyText("If a message arrives, open its confirmation link for:")

@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.apexfission.android.attestra.auth.email.EmailOnboardingHost
+import com.apexfission.android.attestra.auth.email.SecureAuthStorage
 import com.apexfission.android.attestra.auth.email.VerificationLink
 import com.apexfission.android.attestra.auth.email.parseVerificationLink
 import com.apexfission.android.attestra.auth.ui.onboarding.OnboardingBusinessActions
@@ -25,6 +26,7 @@ private enum class EntryScreen { Home, Catalog, Onboarding }
 class MainActivity : ComponentActivity() {
     private companion object { const val TAG = "EmailDebugX" }
     private var incomingLink by mutableStateOf<VerificationLink?>(null)
+    private var hasLocalOnboarding = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,10 +36,12 @@ class MainActivity : ComponentActivity() {
         if (intent?.action == Intent.ACTION_VIEW) {
             Log.d(TAG, if (incomingLink != null) "Verification link received at launch" else "Unrecognized verification link at launch")
         }
+        hasLocalOnboarding = SecureAuthStorage(this).let { it.pending() != null || it.session() != null }
+        Log.d(TAG, "Resume local onboarding=$hasLocalOnboarding")
         enableEdgeToEdge()
         setContent {
             var destination by rememberSaveable {
-                mutableStateOf(if (incomingLink != null) EntryScreen.Onboarding else EntryScreen.Home)
+                mutableStateOf(if (incomingLink != null || hasLocalOnboarding) EntryScreen.Onboarding else EntryScreen.Home)
             }
             LaunchedEffect(incomingLink) {
                 if (incomingLink != null) destination = EntryScreen.Onboarding
@@ -71,7 +75,6 @@ class MainActivity : ComponentActivity() {
                                 apiBaseUrl = BuildConfig.AUTH_API_BASE_URL,
                                 link = incomingLink,
                                 onLinkConsumed = ::clearIncomingLink,
-                                onSignInRequired = { notice("Email sign-in will be available with the login flow.") },
                                 onPasskeyDeferred = { notice("Your email is verified. You can add a passkey later.") },
                             )
                         }
