@@ -22,6 +22,8 @@ interface AuthStorage {
     fun email(): String? = null
     fun saveEmail(email: String) {}
     fun clearSession() {}
+    fun idCheckDeferred(): Boolean = false
+    fun setIdCheckDeferred(deferred: Boolean) {}
 }
 
 /** Per-install Keystore key; encrypted preferences are excluded from both backup types. */
@@ -51,7 +53,12 @@ class SecureAuthStorage(context: Context) : AuthStorage {
     override fun saveSession(session: AuthSession) = write("session", json.encodeToString(session))
     override fun session(): AuthSession? = read("session") { json.decodeFromString<AuthSession>(it) }
     override fun email(): String? = read("email") { it }
-    override fun saveEmail(email: String) = write("email", email)
+    override fun saveEmail(email: String) {
+        if (email() != email) setIdCheckDeferred(false)
+        write("email", email)
+    }
+    override fun idCheckDeferred(): Boolean = read("id_check_deferred") { it == "true" } ?: false
+    override fun setIdCheckDeferred(deferred: Boolean) = write("id_check_deferred", deferred.toString())
     override fun clearSession() { prefs.edit().remove("session").commit() }
 
     private fun write(name: String, value: String) {
