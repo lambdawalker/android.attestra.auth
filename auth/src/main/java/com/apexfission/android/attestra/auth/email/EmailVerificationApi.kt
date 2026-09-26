@@ -56,11 +56,8 @@ interface EmailVerificationGateway {
     suspend fun confirmCode(requestId: String, tokenB: String, tokenC: String): AuthSession
 }
 
-class EmailVerificationApi(
-    baseUrl: String,
-    private val client: HttpClient,
-    private val log: (Int, String) -> Unit = { priority, message -> Log.println(priority, "AttestraEmailApi", message) },
-) : EmailVerificationGateway {
+class EmailVerificationApi(baseUrl: String, private val client: HttpClient) : EmailVerificationGateway {
+    private companion object { const val TAG = "EmailDebugX" }
     private val root = baseUrl.trimEnd('/').also {
         require(it.startsWith("https://") && it.substringAfter("https://").isNotBlank() && !it.contains('?') && !it.contains('#')) {
             "Email API URL must be an HTTPS origin"
@@ -84,15 +81,15 @@ class EmailVerificationApi(
         confirm(ConfirmBody(requestId, tokenB, tokenC = tokenC))
 
     private suspend fun confirm(body: ConfirmBody): AuthSession {
-        log(Log.DEBUG, "POST /confirm request_id=${body.requestId} proof=${if (body.tokenA != null) "A+B" else "B+C"} url=$root/confirm")
+        Log.d(TAG, "POST /confirm request_id=${body.requestId} proof=${if (body.tokenA != null) "A+B" else "B+C"} url=$root/confirm")
         val response = client.post("$root/confirm") { contentType(ContentType.Application.Json); setBody(body) }
         response.requireStatus(200, "confirm")
         return try {
             response.body<AuthSession>().also {
-                log(Log.DEBUG, "POST /confirm decoded session: access=${it.accessToken.isNotEmpty()} id=${it.idToken.isNotEmpty()} refresh=${it.refreshToken.isNotEmpty()} expires=${it.expiresIn}")
+                Log.d(TAG, "POST /confirm decoded session: access=${it.accessToken.isNotEmpty()} id=${it.idToken.isNotEmpty()} refresh=${it.refreshToken.isNotEmpty()} expires=${it.expiresIn}")
             }
         } catch (error: Exception) {
-            log(Log.ERROR, "POST /confirm HTTP 200 but session decoding failed: $error")
+            Log.e(TAG, "POST /confirm HTTP 200 but session decoding failed", error)
             throw error
         }
     }
@@ -100,7 +97,7 @@ class EmailVerificationApi(
     private suspend fun HttpResponse.requireStatus(expected: Int, operation: String) {
         val trace = headers["x-request-id"].orEmpty()
         if (status.value == expected) {
-            log(Log.DEBUG, "$operation returned HTTP ${status.value} trace_id=$trace")
+            Log.d(TAG, "$operation returned HTTP ${status.value} trace_id=$trace")
             return
         }
         val responseText = bodyAsText()
@@ -114,7 +111,7 @@ class EmailVerificationApi(
             "confirmation_in_progress" -> EmailApiError.Kind.IN_PROGRESS
             else -> EmailApiError.Kind.UNAVAILABLE
         }
-        log(Log.ERROR, "$operation returned HTTP ${status.value} trace_id=$trace body=$responseText mapped=$kind")
+        Log.e(TAG, "$operation returned HTTP ${status.value} trace_id=$trace body=$responseText mapped=$kind")
         throw EmailApiError(kind, serverCode?.attemptsRemaining)
     }
 }
