@@ -62,4 +62,17 @@ class EmailFlowControllerTest {
         assertFalse(controller.screen is EmailScreen.Verified)
         assertEquals(0, api.localCalls)
     }
+    @Test fun returningAfterProofExpiryOffersResendWithoutTreatingItAsValid() {
+        val store = MemoryStorage().apply { saved = PendingEmail("person@example.test", token, token, 1_000L) }
+        val controller = EmailFlowController(FakeApi(), store, now = { 12 * 60_000L })
+        assertTrue(controller.screen is EmailScreen.Wait)
+        assertTrue((controller.screen as EmailScreen.Wait).help!!.contains("expired"))
+    }
+
+    @Test fun storedSessionResumesVerifiedStage() {
+        val store = MemoryStorage().apply { tokens = session }
+        val controller = EmailFlowController(FakeApi(), store)
+        assertTrue(controller.screen is EmailScreen.Verified)
+    }
+
 }

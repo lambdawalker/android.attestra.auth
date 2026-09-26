@@ -98,3 +98,9 @@ The design submodule is a pinned reference, not a second copy of the design main
 After a successful email confirmation, **Create passkey** calls the configurable API's `/passkeys/options` with the saved Cognito access token, opens Android Credential Manager, and submits its registration JSON to `/passkeys/complete`. Only `registered: true` advances to the optional ID check with **Passkey added**. Cancellation and failures offer a retry using fresh options; unsupported devices offer a defer path; expired sessions go to email sign-in recovery. Passkey sign-in and ID capture are separate integrations.
 
 Set `attestraApiBaseUrl` as for email verification. The HTTPS `attestraLinkHost` must serve `/.well-known/assetlinks.json` containing `delegate_permission/common.get_login_creds`, the exact app ID, and the installed APK's SHA-256 signing fingerprint. Test on Android 9 or newer with a configured credential provider. Diagnostic messages remain under the `EmailDebugX` tag for now.
+
+### Returning after an unfinished signup
+
+The app opens live onboarding when it finds a saved pending proof or session. A pending signup older than 10 minutes shows that the previous link expired and offers **Resend email**, while **Already verified? Sign in** handles confirmation on another device. A stored session is refreshed through `/auth/refresh`; `/auth/status` checks Cognito for passkey registration after authentication. Without a usable session, the sign-in choice offers a passkey or a fresh Cognito email OTP. Existing accounts should use sign-in rather than repeating `/signup`.
+
+The new Go deployment must be applied before testing these screens. Passkey sign-in uses Credential Manager's `GetPublicKeyCredentialOption`. The existing `EmailDebugX` logs show request outcomes without credential or token contents.

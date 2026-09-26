@@ -5,6 +5,9 @@ import android.os.Build
 import android.util.Log
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialResponse
+import androidx.credentials.GetPublicKeyCredentialOption
+import androidx.credentials.PublicKeyCredential
+import androidx.credentials.GetCredentialRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
@@ -59,6 +62,21 @@ class PasskeyRegistrationApi(baseUrl: String, private val client: HttpClient) {
 }
 
 class AndroidPasskeyManager(private val context: Context) {
+    suspend fun signIn(options: String): String {
+        if (Build.VERSION.SDK_INT < 28) throw PasskeyUnsupported()
+        try {
+            Log.d("EmailDebugX", "Opening Credential Manager passkey sign-in sheet")
+            val response = CredentialManager.create(context).getCredential(context, GetCredentialRequest(listOf(GetPublicKeyCredentialOption(options))))
+            return (response.credential as? PublicKeyCredential)?.authenticationResponseJson ?: throw PasskeyUnsupported()
+        } catch (error: androidx.credentials.exceptions.GetCredentialCancellationException) {
+            Log.d("EmailDebugX", "Passkey sign-in cancelled")
+            throw PasskeyCancelled()
+        } catch (error: androidx.credentials.exceptions.GetCredentialException) {
+            Log.e("EmailDebugX", "Passkey sign-in provider failed", error)
+            throw error
+        }
+    }
+
     suspend fun create(options: String): String {
         if (Build.VERSION.SDK_INT < 28) throw PasskeyUnsupported()
         return try {
