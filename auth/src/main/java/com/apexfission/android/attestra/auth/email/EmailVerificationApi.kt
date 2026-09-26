@@ -84,15 +84,15 @@ class EmailVerificationApi(
         confirm(ConfirmBody(requestId, tokenB, tokenC = tokenC))
 
     private suspend fun confirm(body: ConfirmBody): AuthSession {
-        Log.d("AttestraEmailApi", "POST /confirm request_id=${body.requestId} proof=${if (body.tokenA != null) "A+B" else "B+C"} url=$root/confirm")
+        log(Log.DEBUG, "POST /confirm request_id=${body.requestId} proof=${if (body.tokenA != null) "A+B" else "B+C"} url=$root/confirm")
         val response = client.post("$root/confirm") { contentType(ContentType.Application.Json); setBody(body) }
         response.requireStatus(200, "confirm")
         return try {
             response.body<AuthSession>().also {
-                Log.d("AttestraEmailApi", "POST /confirm decoded session: access=${it.accessToken.isNotEmpty()} id=${it.idToken.isNotEmpty()} refresh=${it.refreshToken.isNotEmpty()} expires=${it.expiresIn}")
+                log(Log.DEBUG, "POST /confirm decoded session: access=${it.accessToken.isNotEmpty()} id=${it.idToken.isNotEmpty()} refresh=${it.refreshToken.isNotEmpty()} expires=${it.expiresIn}")
             }
         } catch (error: Exception) {
-            Log.e("AttestraEmailApi", "POST /confirm HTTP 200 but session decoding failed: ${error.message}", error)
+            log(Log.ERROR, "POST /confirm HTTP 200 but session decoding failed: $error")
             throw error
         }
     }
@@ -114,7 +114,7 @@ class EmailVerificationApi(
             "confirmation_in_progress" -> EmailApiError.Kind.IN_PROGRESS
             else -> EmailApiError.Kind.UNAVAILABLE
         }
-        Log.e("AttestraEmailApi", "$operation returned HTTP ${status.value} trace_id=$trace body=$responseText mapped=$kind")
+        log(Log.ERROR, "$operation returned HTTP ${status.value} trace_id=$trace body=$responseText mapped=$kind")
         throw EmailApiError(kind, serverCode?.attemptsRemaining)
     }
 }

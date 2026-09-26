@@ -22,6 +22,9 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true // JVM tests have no Android Log implementation.
+    }
 }
 
 dependencies {
