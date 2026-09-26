@@ -23,14 +23,14 @@ import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 private enum class EntryScreen { Home, Catalog, Onboarding }
 
 class MainActivity : ComponentActivity() {
-    private companion object { const val TAG = "AttestraAuth" }
+    private companion object { const val TAG = "EmailDebugX" }
     private var incomingLink by mutableStateOf<VerificationLink?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         incomingLink = intent.takeIf { it?.action == Intent.ACTION_VIEW }
             ?.data?.let { parseVerificationLink(it, BuildConfig.AUTH_LINK_HOST) }
-        Log.d("AttestraAuth", "onCreate action=${intent?.action} incoming_verification_link=${incomingLink != null} configured_api=${BuildConfig.AUTH_API_BASE_URL}")
+        Log.d("EmailDebugX", "onCreate action=${intent?.action} incoming_verification_link=${incomingLink != null} configured_api=${BuildConfig.AUTH_API_BASE_URL}")
         if (intent?.action == Intent.ACTION_VIEW) {
             Log.d(TAG, if (incomingLink != null) "Verification link received at launch" else "Unrecognized verification link at launch")
         }
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
         setIntent(intent)
         incomingLink = intent.takeIf { it.action == Intent.ACTION_VIEW }
             ?.data?.let { parseVerificationLink(it, BuildConfig.AUTH_LINK_HOST) }
-        Log.d("AttestraAuth", "onNewIntent action=${intent.action} incoming_verification_link=${incomingLink != null}")
+        Log.d("EmailDebugX", "onNewIntent action=${intent.action} incoming_verification_link=${incomingLink != null}")
         if (intent.action == Intent.ACTION_VIEW) {
             Log.d(TAG, if (incomingLink != null) "Verification link received while app is open" else "Unrecognized verification link while app is open")
         }
