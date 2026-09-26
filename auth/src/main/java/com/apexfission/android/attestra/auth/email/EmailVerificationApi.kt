@@ -84,17 +84,27 @@ class EmailVerificationApi(
         confirm(ConfirmBody(requestId, tokenB, tokenC = tokenC))
 
     private suspend fun confirm(body: ConfirmBody): AuthSession {
+        Log.d("AttestraEmailApi", "POST /confirm request_id=${body.requestId} proof=${if (body.tokenA != null) "A+B" else "B+C"} url=$root/confirm")
         val response = client.post("$root/confirm") { contentType(ContentType.Application.Json); setBody(body) }
         response.requireStatus(200, "confirm")
-        return response.body()
+        return try {
+            response.body<AuthSession>().also {
+                Log.d("AttestraEmailApi", "POST /confirm decoded session: access=${it.accessToken.isNotEmpty()} id=${it.idToken.isNotEmpty()} refresh=${it.refreshToken.isNotEmpty()} expires=${it.expiresIn}")
+            }
+        } catch (error: Exception) {
+            Log.e("AttestraEmailApi", "POST /confirm HTTP 200 but session decoding failed: ${error.message}", error)
+            throw error
+        }
     }
 
     private suspend fun HttpResponse.requireStatus(expected: Int, operation: String) {
+        val trace = headers["x-request-id"].orEmpty()
         if (status.value == expected) {
-            log(Log.DEBUG, "$operation returned HTTP ${status.value}")
+            log(Log.DEBUG, "$operation returned HTTP ${status.value} trace_id=$trace")
             return
         }
-        val serverCode = runCatching { EmailHttpClient.json.decodeFromString<ErrorReply>(bodyAsText()) }.getOrNull()
+        val responseText = bodyAsText()
+        val serverCode = runCatching { EmailHttpClient.json.decodeFromString<ErrorReply>(responseText) }.getOrNull()
         val kind = when (serverCode?.error) {
             "invalid_request" -> EmailApiError.Kind.INVALID_REQUEST
             "incorrect_code" -> EmailApiError.Kind.INCORRECT_CODE
@@ -104,7 +114,7 @@ class EmailVerificationApi(
             "confirmation_in_progress" -> EmailApiError.Kind.IN_PROGRESS
             else -> EmailApiError.Kind.UNAVAILABLE
         }
-        log(Log.WARN, "$operation returned HTTP ${status.value} ($kind)")
+        Log.e("AttestraEmailApi", "$operation returned HTTP ${status.value} trace_id=$trace body=$responseText mapped=$kind")
         throw EmailApiError(kind, serverCode?.attemptsRemaining)
     }
 }

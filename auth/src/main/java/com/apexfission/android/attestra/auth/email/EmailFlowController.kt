@@ -67,6 +67,7 @@ class EmailFlowController(
     suspend fun openLink(link: VerificationLink) = exclusive {
         val pending = storage.pending()?.takeIf { it.requestId == link.requestId && now() - it.createdAtMillis < 60 * 60_000L }
         val email = pending?.email.orEmpty()
+        Log.d("EmailVerification", "Opened verification link request_id=${link.requestId} local_proof=${pending != null} valid_format=${link.isValid()}")
         if (!link.isValid()) {
             Log.w("EmailVerification", "Verification link has invalid proof format")
             screen = EmailScreen.Unusable(email, link.requestId.takeIf { it.matches(Regex("[A-Za-z0-9_-]{43}")) })
@@ -84,14 +85,14 @@ class EmailFlowController(
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: EmailApiError) {
-            Log.e("EmailVerification", "Automatic confirmation rejected", error)
+            Log.e("EmailVerification", "Automatic confirmation rejected request_id=${link.requestId} kind=${error.kind}", error)
             screen = when (error.kind) {
                 EmailApiError.Kind.SIGN_IN_REQUIRED -> EmailScreen.Recovery
                 EmailApiError.Kind.LINK_UNUSABLE -> EmailScreen.Code(email, link, "Automatic verification didn't work. Enter the code from your email.")
                 else -> EmailScreen.Code(email, link, "We couldn't verify automatically. Enter the code from your email or try again.")
             }
         } catch (error: Exception) {
-            Log.e("EmailVerification", "Automatic confirmation failed", error)
+            Log.e("EmailVerification", "Automatic confirmation failed request_id=${link.requestId}", error)
             screen = EmailScreen.Code(email, link, "We couldn't verify automatically. Enter the code from your email or try again.")
         }
     }
@@ -110,7 +111,7 @@ class EmailFlowController(
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: EmailApiError) {
-            Log.e("EmailVerification", "Manual confirmation rejected", error)
+            Log.e("EmailVerification", "Manual confirmation rejected request_id=${current.link.requestId} kind=${error.kind}", error)
             screen = when (error.kind) {
                 EmailApiError.Kind.INCORRECT_CODE -> current.copy(error = "That code didn't match. Try the latest email.", attemptsRemaining = error.attemptsRemaining)
                 EmailApiError.Kind.ATTEMPT_LIMIT -> EmailScreen.Limit(current.email, current.link.requestId)
@@ -160,12 +161,14 @@ class EmailFlowController(
 
     private fun complete(requestId: String, session: AuthSession) {
         try {
+            Log.d("EmailVerification", "Confirm returned session request_id=$requestId; saving encrypted session")
             storage.saveSession(session)
+            Log.d("EmailVerification", "Encrypted session saved request_id=$requestId")
             if (storage.pending()?.requestId == requestId) storage.clearPending()
             screen = EmailScreen.Verified
             Log.d("EmailVerification", "Email verified; session stored")
         } catch (error: Exception) {
-            Log.e("EmailVerification", "Email confirmed but session storage failed")
+            Log.e("EmailVerification", "Email confirmed but session handling failed request_id=$requestId", error)
             // The server already consumed the proof. Retrying it cannot recover tokens.
             screen = EmailScreen.Recovery
         }
