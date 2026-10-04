@@ -1,6 +1,10 @@
 # Attestra Android authentication
 
-The `:auth` module implements the [email confirmation design](https://github.com/lambdawalker/design.attestra/tree/main/auth/onboarding/email-confirmation) through Ktor and the [Go auth backend](https://github.com/lambdawalker/go.attestra.aws.auth). The design repository owns the cross-platform [onboarding flow and screens](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/README.md); this README covers Android setup, App Links, local state, and testing. Passkey registration and ID capture remain follow-up features.
+The `:auth` module implements email confirmation, passkey registration, email/passkey sign-in, session restoration, and ID-check deferral with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. ID capture/provider integration remains pending.
+
+## Documentation ownership
+
+[design.attestra](https://github.com/lambdawalker/design.attestra) owns [system architecture](https://github.com/lambdawalker/design.attestra/blob/main/architecture.md), [onboarding flows and screens](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/README.md), [login](https://github.com/lambdawalker/design.attestra/blob/main/auth/login/architecture.md), and [session recovery](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/resume.md). This README owns Android modules, Gradle configuration, installation, App Links, Credential Manager, storage, tests, and platform gotchas. The [Go repository](https://github.com/lambdawalker/go.attestra.aws.auth) owns backend deployment and exact HTTP contracts. Follow the [shared ownership policy](https://github.com/lambdawalker/design.attestra/blob/main/DOCUMENTATION.md); link to system flows instead of maintaining a second specification.
 
 ## Configure the deployment
 
@@ -12,14 +16,7 @@ bash gradlew :app:assembleDebug \
   -PattestraLinkHost=app.your-domain.com
 ```
 
-To retrieve the actual values after deploying the [Go auth stack](https://github.com/lambdawalker/go.attestra.aws.auth), use PowerShell:
-
-```powershell
-cd D:\dev\go.attestra.aws.auth\infra
-pulumi stack select dev
-pulumi stack output apiUrl
-pulumi config get appOrigin
-```
+Obtain `apiUrl` and `appOrigin` from the deployed backend using its [stack-output instructions](https://github.com/lambdawalker/go.attestra.aws.auth/blob/main/README.md#configure-the-android-api-url). AWS credentials, Pulumi, and SES setup belong in that repository.
 
 `apiUrl` is the value for `attestraApiBaseUrl`: copy the complete HTTPS origin, for example `https://kop22wur83.execute-api.us-east-2.amazonaws.com`. Do not add `/signup`, `/confirm`, `/verify-email`, or a trailing slash. `appOrigin` is the website that hosts the verification link; use **only its hostname** for `attestraLinkHost` (for example, `attestrabond.com` from `https://attestrabond.com`). The two hosts serve different purposes.
 
@@ -83,9 +80,9 @@ For the current session recovery investigation, filter Logcat by `EmailDebugX` (
 
 Follow the [email proof protocol](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/architecture.md) and [screen inventory](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/README.md) in the design repo. On Android, `:auth` creates A, sends its S256 challenge through Ktor, and saves A with the request ID in Keystore encrypted preferences. App Links use matching local A for confirmation; on another device the app presents the manual-code screen. The app persists a successful session before opening passkey setup.
 
-The private preferences file is excluded from cloud backup and device transfer. No A, C, B, or Cognito token is logged or put into a new navigation URL. The original link URL is cleared from the activity after parsing. The app keeps only one local pending signup at a time; opening a link on a different device falls back to code entry. Session storage is in `SecureAuthStorage` for future passkey and login integration.
+The private preferences file is excluded from cloud backup and device transfer. No A, C, B, or Cognito token is logged or put into a new navigation URL. The original link URL is cleared from the activity after parsing. The app keeps only one local pending signup at a time; opening a link on a different device falls back to code entry. `SecureAuthStorage` supplies persisted state to the live passkey and sign-in integrations.
 
-When confirmation succeeds but no session can be issued, the app displays the existing email sign-in recovery screen. Its sign-in action remains a callback until the login feature is implemented. The passkey screen also stays separate: tapping Create passkey explains that the passkey integration is still pending, and it never marks a passkey as registered.
+The live host connects email-session recovery to `ReturnAuthApi` and passkey actions to `PasskeyRegistrationApi`/`AndroidPasskeyManager`. The UI catalog retains preview callbacks; it is not evidence of a successful backend operation.
 
 ## Integration points
 
@@ -95,16 +92,33 @@ The design submodule is a pinned reference, not a second copy of the design main
 
 ### Passkey registration in the live onboarding flow
 
-After a successful email confirmation, **Create passkey** calls the configurable API's `/passkeys/options` with the saved Cognito access token, opens Android Credential Manager, and submits its registration JSON to `/passkeys/complete`. Only `registered: true` advances to the optional ID check with **Passkey added**. Cancellation and failures offer a retry using fresh options; unsupported devices offer a defer path; expired sessions go to email sign-in recovery. Passkey sign-in and ID capture are separate integrations.
+The live host uses `PasskeyRegistrationApi` for registration transport and `AndroidPasskeyManager` for Credential Manager calls. `PasskeyCancelled`, `PasskeyUnsupported`, and `PasskeyApiException` select Android recovery screens. The canonical [registration transitions](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/passkey-creation/architecture.md) define when success or recovery is appropriate; exact HTTP shapes stay in the [backend reference](https://github.com/lambdawalker/go.attestra.aws.auth/blob/main/README.md#passkey-registration).
 
 Set `attestraApiBaseUrl` as for email verification. The HTTPS `attestraLinkHost` must serve `/.well-known/assetlinks.json` containing `delegate_permission/common.get_login_creds`, the exact app ID, and the installed APK's SHA-256 signing fingerprint. Test on Android 9 or newer with a configured credential provider. Diagnostic messages remain under the `EmailDebugX` tag for now.
 
 ### Returning after an unfinished signup
 
-The app opens live onboarding when it finds a saved pending proof or session. A pending signup older than 10 minutes shows that the previous link expired and offers **Resend email**, while **Already verified? Sign in** handles confirmation on another device. A stored session is refreshed through `/auth/refresh`; `/auth/status` checks Cognito for passkey registration after authentication. Without a usable session, the sign-in choice offers a passkey or a fresh Cognito email OTP. Existing accounts should use sign-in rather than repeating `/signup`.
+See the canonical [returning-user flow](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/resume.md). Android implements it in `EmailOnboardingHost`, `EmailFlowController`, `ReturnAuthApi`, and `SecureAuthStorage`. The controller restores a pending signup younger than 24 hours, shows an expiry hint after ten minutes, and uses matching local A for links only within its one-hour local window. These client windows do not extend server proof validity. The host retains the existing refresh token when Cognito omits a replacement and clears its local session if restoration fails. There is no unauthenticated account/passkey lookup; the sign-in choice is explicit.
 
 The new Go deployment must be applied before testing these screens. Passkey sign-in uses Credential Manager's `GetPublicKeyCredentialOption`. The existing `EmailDebugX` logs show request outcomes without credential or token contents.
 
 ### Welcome after deferring the ID check
 
-The live onboarding flow opens `WelcomeScreen` when the user selects **Skip for now · Go to dashboard** on the optional ID check. It shows verified email, passkey status, and that identity verification is still pending. **Verify my ID** returns to the ID start screen. The deferred choice is stored locally and restored after the session has been refreshed and passkey status checked. The UI catalog includes the welcome screen. ID capture remains the separate provider integration.
+The live host renders `WelcomeScreen` after ID deferral and persists the local choice with `SecureAuthStorage.setIdCheckDeferred`. Restoration checks session and passkey status before choosing the screen. `onCheckId` clears the local deferral and returns to the ID entry screen; actual capture remains a host callback. The UI catalog includes the welcome view. Product meaning and transitions are defined in [the design](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/resume.md#welcome-after-id-deferral).
+
+## Build, install, and verify
+
+Use the checked-in Gradle wrapper, JDK 17, Android SDK platform 36, and build tools 36.0.0, matching `.github/workflows/verify.yml`. From the repository root:
+
+```bash
+bash gradlew :auth:testDebugUnitTest :app:assembleDebug \
+  -PattestraApiBaseUrl=https://YOUR-API-ID.execute-api.REGION.amazonaws.com \
+  -PattestraLinkHost=app.your-domain.com
+bash gradlew :app:installDebug \
+  -PattestraApiBaseUrl=https://YOUR-API-ID.execute-api.REGION.amazonaws.com \
+  -PattestraLinkHost=app.your-domain.com
+```
+
+On Windows use `.\gradlew.bat` with the same tasks and properties. `installDebug` requires a connected device/emulator; the APK is under `app/build/outputs/apk/debug/`. The `:auth` module is consumed by `:app`; this repository does not define an independent Maven publishing or production app-store release workflow. CI runs auth unit tests and assembles the demo app with placeholder hosts; it does not validate a deployed AWS stack or real domain associations.
+
+Before a release, exercise fresh same-device and cross-device links, app restarts, invalid/expired proofs, registration cancellation, passkey and OTP sign-in, and ID deferral on a device with the installed build's signing association. Follow the design acceptance criteria for expected outcomes. Keep diagnostic trace cleanup separate from documentation changes.
