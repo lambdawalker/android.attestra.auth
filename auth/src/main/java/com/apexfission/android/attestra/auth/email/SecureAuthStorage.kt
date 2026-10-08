@@ -67,6 +67,11 @@ class SecureAuthStorage(context: Context) : AuthStorage {
         write("identity_$namespace", json.encodeToString(value))
     fun clearIdentityCheckpoint(namespace: String) { prefs.edit().remove("identity_$namespace").commit() }
 
+    /** Reset only this installation; does not revoke remote sessions or delete passkeys. */
+    fun clearLocalUser() {
+        check(prefs.edit().clear().commit()) { "Could not clear local authentication data" }
+    }
+
     private fun write(name: String, value: String) {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key)

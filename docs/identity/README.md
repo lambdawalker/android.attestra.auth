@@ -6,7 +6,9 @@ This change connects the Android flow and proposes a [wire contract](http-contra
 
 ## Try it without a deployment
 
-Build and install a **debug** app, then open **Test ID capture** on the entry screen. No API URL or sign-in is needed. Choose a mock scenario, start the sample check, grant camera permission, capture and review the front, then turn the card over and capture/review the back. Use sample cards, not a real person's ID. Review the synthetic fields and submit. The banner remains visible throughout and all results are labeled simulated.
+Build and install a **debug** app. Launch opens the test menu; saved onboarding does not automatically open identity test options. Open **Test ID capture** to choose a mock scenario explicitly. No API URL or sign-in is needed. Start the sample check, select **Scan government ID**, capture and review the front, then turn the card over and capture/review the back. Camera permission appears only when it is needed; an existing grant opens the scanner directly. Use sample cards, not a real person's ID. Review the synthetic fields and submit. The persistent Local Mock banner has been removed; the test configuration explains the simulation and all results remain labeled simulated.
+
+The catalog's **Confirm your ID → Scan government ID** action also opens capture directly, without the scenario chooser or another Confirm screen.
 
 The default scenario accepts submission as pending. **Check status** advances the mock: first status read completes the automated report, the second returns the provider/policy result. `Stays pending` stays pending regardless of reads. There is no indefinite blocking poll. Leave and reopen to retrieve the current result.
 
@@ -20,18 +22,19 @@ The default scenario accepts submission as pending. **Check status** advances th
 | Submission fails once | First submit returns 503; Retry checks status before replaying the same body |
 | Accepted · response lost | Mock saves acceptance then throws an I/O error; Retry discovers the accepted record without another submit |
 
-**New sample check** discards the local demo checkpoint and returns to scenario selection; ordinary exit/reopen preserves status recovery. Scenario selection is persisted by the mock service, including across activity recreation. This reset exists only in the debug harness.
+**Discard saved sample check** on the explicit test configuration screen clears the local demo checkpoint so another sample can be started. Ordinary exit/reopen preserves status recovery. Scenario selection is persisted by the mock service, including across activity recreation. This reset exists only in the debug harness.
 
-The same mock integration is available after live email/passkey onboarding in debug builds. Each authenticated Cognito issuer/subject gets a separate namespace; the standalone demo is isolated from all real accounts. Actual auth tokens are never forwarded to the mock service. Release builds have neither mock transport nor the offline entry: they display an unavailable screen until the real service is wired.
+The test menu's local reset clears saved session/onboarding state, identity checkpoints, and mock files on this device. It does not delete a remote account or registered passkeys.
+
+The same mock integration is available after live email/passkey onboarding in debug builds. From **Confirm your ID**, **Scan government ID** proceeds directly to permission handling and capture, with no scenario chooser or duplicate start screen. Existing checkpoints are reconciled first so pending/accepted checks are not silently replaced. Each authenticated Cognito issuer/subject gets a separate namespace; the standalone demo is isolated from all real accounts. Actual auth tokens are never forwarded to the mock service. Release builds have neither mock transport nor the offline entry: they display an unavailable screen until the real service is wired.
 
 ## Module boundaries and dependencies
 
-- `:auth` (minSdk 24) contains the models, Ktor client, controller, encrypted identifier checkpoint, and Compose host. Its gateway and capture slot are injectable.
-- `:identity-capture` (minSdk 28) contains the camera adapter and photo review. It depends on the confirmed Permissions `permission~v0.2.3` and bundled detector model `tfmodel~v0.1.2` JitPack artifacts. The latter exports `com.apexfission.android.carddetector:core:0.1.0`. **Do not add another detector artifact alongside it.** Published core `v0.1.0` was inspected for API compatibility.
-- `:identity-mock` (minSdk 24) is a local Ktor MockEngine server. The demo includes it only with `debugImplementation`. Requests exercise the same HTTP serialization/status handling as the real API client; no TCP listener or AWS service is started.
+- `:auth` (minSdk 28) contains the models, Ktor client, controller, encrypted identifier checkpoint, Compose host, camera adapter, and photo review. Capture lives in `com.apexfission.android.attestra.auth.identity.capture`; its gateway and capture slot remain injectable. It depends on the confirmed Permissions `permission~v0.2.3` and bundled detector model `tfmodel~v0.1.2` JitPack artifacts. The latter exports `com.apexfission.android.carddetector:core:0.1.0`. **Do not add another detector artifact alongside it.** Published core `v0.1.0` was inspected for API compatibility.
+- `:identity-mock` (minSdk 28, matching its `:auth` dependency) is a local Ktor MockEngine server. The demo includes it only with `debugImplementation`. Requests exercise the same HTTP serialization/status handling as the real API client; no TCP listener or AWS service is started.
 - `:app` now requires minSdk 28 because it includes real capture. Compile SDK 37 and Java 17 accommodate the published libraries. The existing Gradle, AGP, Kotlin versions and target SDK remain unchanged.
 
-Permissions are requested only when entering capture. Denial stays in the permission UI; Settings recovery is supplied by the permission library. Only camera permission is requested. The host declares camera optional so camera-less devices can still use authentication and display a capture-unavailable message.
+Permissions are requested only when entering capture, and the permission library bypasses its permission screens when camera access is already granted. Denial stays in the permission UI; Settings recovery is supplied by the permission library. Only camera permission is requested. The `:auth` manifest declares camera optional so camera-less devices can still use authentication and display a capture-unavailable message.
 
 ## State and lifecycle
 
@@ -55,7 +58,7 @@ Replace the release `AccountIdentityFlow` binding only after the service impleme
 bash gradlew :auth:testDebugUnitTest :identity-mock:testDebugUnitTest :app:assembleDebug :app:assembleRelease
 ```
 
-The controller tests exercise correction attribution, accepted-versus-approved state, response-loss reconciliation, draft/accepted restart, forbidden retry, cancellation, and stale versions. Mock transport tests exercise HTTP serialization, idempotent draft creation/submission, immutable accepted evidence, distinct outcomes, bad credentials, and restart retrieval. CI runs these alongside existing auth tests and both app variants.
+The controller tests exercise direct scan entry, accepted/failed-status checkpoint preservation, correction attribution, accepted-versus-approved state, response-loss reconciliation, draft/accepted restart, forbidden retry, cancellation, and stale versions. Mock transport tests exercise HTTP serialization, idempotent draft creation/submission, immutable accepted evidence, distinct outcomes, bad credentials, and restart retrieval. CI runs these alongside existing auth tests and both app variants.
 
 In the implementation environment, these commands were attempted but blocked before compilation: the Gradle 9.6.0 distribution could not be downloaded (`Network is unreachable`). No passing compile/test or device results are claimed.
 

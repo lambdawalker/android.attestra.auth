@@ -27,4 +27,4 @@ rootProject.name = "Attestra Auth"
 include(":app")
 include(":auth")
 
-include(":identity-capture", ":identity-mock")
+include(":identity-mock")

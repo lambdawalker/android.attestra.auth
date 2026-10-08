@@ -1,4 +1,4 @@
-package com.apexfission.android.attestra.identitycapture
+package com.apexfission.android.attestra.auth.identity.capture
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image

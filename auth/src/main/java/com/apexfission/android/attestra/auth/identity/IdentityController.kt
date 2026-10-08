@@ -48,6 +48,11 @@ class IdentityController(private val api: IdentityGateway, private val store: Id
         if (record?.accepted == true) show(IdentityState.Result(record))
         else show(IdentityState.CaptureProblem("Your unfinished scan was discarded. Capture both sides again."))
     }
+    /** Entered after the account screen's explicit Scan action; reconcile an existing check first. */
+    suspend fun openCapture() {
+        restore()
+        if (state.value == IdentityState.Start) startCapture()
+    }
     suspend fun startCapture() = operation(IdentityState.CaptureProblem("Could not start the camera. Try again.")) {
         // A result can allow recapture only through explicit server policy. Pending checks cannot be replaced.
         val record = lastRecord

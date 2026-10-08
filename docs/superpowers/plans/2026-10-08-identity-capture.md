@@ -4,7 +4,7 @@
 
 **Goal:** Make the existing optional identity flow usable with real front/back card capture and deterministic mock HTTP endpoints.
 
-**Architecture:** Keep orchestration and an injectable HTTP gateway in `:auth`. Put API-28 camera dependencies in `:identity-capture`. Supply a persistent, local Ktor MockEngine service through debug-only app wiring; release builds cannot mistake mock decisions for identity verification.
+**Architecture:** Keep orchestration, an injectable HTTP gateway, and API-28 camera dependencies together in `:auth`. Supply a persistent, local Ktor MockEngine service through debug-only app wiring; release builds cannot mistake mock decisions for identity verification.
 
 **Tech stack:** Kotlin, Compose, Ktor, Apexfission permissions 0.2.3, bundled detector model 0.1.2.
 
@@ -17,7 +17,7 @@
 - Only a policy decision is approval. Preserve independent autoReport and thirdParty states.
 - Mock OCR uses conspicuously synthetic fields; no real OCR/provider assertion, no liveness claim.
 - No raw evidence in preferences, bundles, backups, logs, or mock-server persistence. Captures are memory-only and are discarded on exit/recreation; server IDs survive restart.
-- Keep auth minSdk 24; scanner and demo app require minSdk 28. Compile SDK 37 and Java 17 for the published capture dependencies.
+- Require minSdk 28 for auth, the demo app, and its debug-only mock dependency. Compile SDK 37 and Java 17 for the published capture dependencies.
 - Use confirmed published coordinates, not unpublished main-branch APIs.
 
 ## Review focus
@@ -37,7 +37,7 @@ Duplicate submission after timeout; account switching; process death after accep
 
 ### Task 3: Capture and UI wiring
 
-- [ ] Add `:identity-capture` using published model and permission APIs; recycle every bitmap, own a scanner-session ViewModelStore, isolate each side.
+- [ ] Add capture under `:auth` using published model and permission APIs; recycle every bitmap, own a scanner-session ViewModelStore, isolate each side.
 - [ ] Connect existing review/error/success screens, add bounded pending/status and capture-error states, and preserve edits during retries.
 - [ ] Add debug-only offline entry with scenario selector; connect authenticated onboarding to the same mock flow, release to unavailable state.
 
@@ -49,9 +49,9 @@ Duplicate submission after timeout; account switching; process death after accep
 
 ## Execution record
 
-- Implemented all four modules/wiring/contracts in the feature branch. Native execution used a new isolated checkout and feature branch; the existing central spec remains system authority.
+- Implemented auth, app, and debug-only mock wiring/contracts in the feature branch. Native execution used a new isolated checkout and feature branch; the existing central spec remains system authority.
 - Ruling: use a bounded synchronous mock extraction and API-proxied uploads for the draft contract; production S3 upload/OCR/provider policy remains a documented backend handoff.
-- Ruling: keep auth API 24 and isolate detector requirements in API-28 capture/demo modules.
+- Updated ruling: identity capture belongs in `:auth`; require API 28 throughout the modules that depend on it. Do not override detector manifest SDK requirements.
 - Test-first sources were written and execution attempted; Gradle bootstrap is blocked by restricted network, so no red/green claim is made.
 - Whole-branch independent review found missing sample reset and lost scenario selection. Both were corrected with regression test sources; test execution has the same environmental blocker.
 - Additional lifecycle review drops personal state on close and ignores late extraction responses.

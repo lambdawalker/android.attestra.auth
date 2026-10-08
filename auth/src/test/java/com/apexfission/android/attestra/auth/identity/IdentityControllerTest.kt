@@ -41,6 +41,31 @@ class IdentityControllerTest {
         c.captured(DocumentSide.FRONT, byteArrayOf(1))
         c.captured(DocumentSide.BACK, byteArrayOf(2))
     }
+    @Test fun scanEntryStartsFrontCaptureWithoutAnotherStartScreen() = runBlocking {
+        val c = IdentityController(Api(), Store())
+        c.openCapture()
+        assertEquals(IdentityState.Capture(DocumentSide.FRONT), c.state.value)
+    }
+    @Test fun scanEntryPreservesAcceptedSubmissionInsteadOfReplacingIt() = runBlocking {
+        val api = Api(); val store = Store(); val first = IdentityController(api, store)
+        reviewed(first); first.submit(api.original)
+        val saved = store.value
+        val resumed = IdentityController(api, store)
+        resumed.openCapture()
+        assertTrue(resumed.state.value is IdentityState.Result)
+        assertEquals(saved, store.value)
+        assertEquals(1, api.submits)
+    }
+    @Test fun scanEntryDoesNotReplaceCheckWhenStatusCannotBeResolved() = runBlocking {
+        val api = Api(); val store = Store(); val first = IdentityController(api, store)
+        reviewed(first); first.submit(api.original)
+        val saved = store.value
+        api.failStatus = true
+        val resumed = IdentityController(api, store)
+        resumed.openCapture()
+        assertEquals(IdentityState.StatusFailed, resumed.state.value)
+        assertEquals(saved, store.value)
+    }
     @Test fun acceptedUploadAndAutoReportAreNotApproval() = runBlocking {
         val api = Api(); val c = IdentityController(api, Store())
         reviewed(c); c.submit(api.original)

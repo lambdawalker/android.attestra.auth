@@ -1,4 +1,4 @@
-package com.apexfission.android.attestra.identitycapture
+package com.apexfission.android.attestra.auth.identity.capture
 
 import android.Manifest
 import android.content.pm.PackageManager

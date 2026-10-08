@@ -49,7 +49,6 @@ android {
 
 dependencies {
     implementation(project(":auth"))
-    implementation(project(":identity-capture"))
     debugImplementation(project(":identity-mock"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
@@ -60,6 +59,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     
     // Ktor client & Serialization
     implementation(libs.ktor.client.core)

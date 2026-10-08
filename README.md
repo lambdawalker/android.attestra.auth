@@ -6,7 +6,7 @@ The `:auth` module implements email confirmation, passkey registration, email/pa
 
 Install a debug build and choose **Test ID capture** from the entry screen. Use a sample card, select a mock result, capture both sides, review the synthetic details, submit, and check status. No API configuration or sign-in is required for this demo. Mock transport is excluded from release builds.
 
-The scanner/demo require **Android 9 (API 28)**; the independent `:auth` library remains API 24+. Builds use compile SDK 37 and Java 17. See the [identity guide](docs/identity/README.md) for lifecycle behavior, recovery scenarios, and remaining device checks.
+The `:auth` library includes identity capture and requires **Android 9 (API 28)**, as do the demo app and debug mock module. Builds use compile SDK 37 and Java 17. See the [identity guide](docs/identity/README.md) for lifecycle behavior, recovery scenarios, and remaining device checks.
 
 ## Documentation ownership
 

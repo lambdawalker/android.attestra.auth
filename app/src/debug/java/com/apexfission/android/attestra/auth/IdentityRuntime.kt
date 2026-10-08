@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.apexfission.android.attestra.auth.email.EmailHttpClient
 import com.apexfission.android.attestra.auth.email.SecureAuthStorage
 import com.apexfission.android.attestra.auth.identity.*
-import com.apexfission.android.attestra.identitycapture.IdentityCamera
+import com.apexfission.android.attestra.auth.identity.capture.IdentityCamera
 import com.apexfission.android.attestra.identitymock.*
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -25,7 +25,10 @@ import java.security.MessageDigest
 internal const val HAS_IDENTITY_DEMO = true
 
 @Composable
-internal fun IdentityDemo(onExit: () -> Unit) = MockIdentityFlow("offline-demo", false, onExit)
+internal fun IdentityDemo(onExit: () -> Unit) = MockIdentityFlow("offline-demo", false, onExit, showTestOptions = true)
+
+@Composable
+internal fun DirectIdentityCapture(onExit: () -> Unit) = MockIdentityFlow("offline-demo", false, onExit)
 
 @Composable
 internal fun AccountIdentityFlow(passkeyAdded: Boolean, onExit: () -> Unit) {
@@ -48,7 +51,12 @@ internal fun AccountIdentityFlow(passkeyAdded: Boolean, onExit: () -> Unit) {
 }
 
 @Composable
-private fun MockIdentityFlow(subject: String, passkeyAdded: Boolean, onExit: () -> Unit) {
+private fun MockIdentityFlow(
+    subject: String,
+    passkeyAdded: Boolean,
+    onExit: () -> Unit,
+    showTestOptions: Boolean = false,
+) {
     val context = LocalContext.current
     val storage = remember(context) { SecureAuthStorage(context) }
     val store = remember(subject) { SecureIdentityCheckpointStore(storage, MockIdentityServer.ORIGIN, subject) }
@@ -65,7 +73,7 @@ private fun MockIdentityFlow(subject: String, passkeyAdded: Boolean, onExit: () 
         })
     }
     var selected by rememberSaveable(subject) { mutableStateOf(server.scenario.name) }
-    var started by rememberSaveable(subject) { mutableStateOf(store.load() != null) }
+    var started by rememberSaveable(subject) { mutableStateOf(!showTestOptions) }
     var generation by remember { mutableIntStateOf(0) }
     SideEffect { if (server.scenario.name != selected) server.scenario = MockScenario.valueOf(selected) }
     val client = remember(server) { server.client() }
@@ -80,34 +88,28 @@ private fun MockIdentityFlow(subject: String, passkeyAdded: Boolean, onExit: () 
         window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         onDispose { if (!alreadySecure) window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
     }
-    Column(Modifier.fillMaxSize()) {
-        Surface(color = MaterialTheme.colorScheme.tertiaryContainer) {
-            Column(Modifier.fillMaxWidth().statusBarsPadding().padding(12.dp)) {
-                Text("LOCAL MOCK • Sample cards only. OCR and identity decisions are simulated; images stay on this device.", style = MaterialTheme.typography.labelMedium)
-                if (started) TextButton(onClick = {
-                    controller.close()
-                    store.clear()
-                    started = false
-                    generation++
-                }) { Text("New sample check") }
+    if (!started) Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Test identity verification", style = MaterialTheme.typography.headlineSmall)
+        Text("Sample cards only. OCR and identity decisions are simulated; images stay on this device.")
+        Text("Choose a simulated service outcome, then capture the front and back of a sample card.")
+        MockScenario.entries.forEach { scenario ->
+            OutlinedButton(onClick = { selected = scenario.name }, modifier = Modifier.fillMaxWidth()) {
+                Text(if (selected == scenario.name) "✓ ${scenario.label}" else scenario.label)
             }
         }
-        Box(Modifier.weight(1f)) {
-            if (!started) Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Test identity verification", style = MaterialTheme.typography.headlineSmall)
-                Text("Choose a simulated service outcome, then capture the front and back of a sample card.")
-                MockScenario.entries.forEach { scenario ->
-                    OutlinedButton(onClick = { selected = scenario.name }, modifier = Modifier.fillMaxWidth()) {
-                        Text(if (selected == scenario.name) "✓ ${scenario.label}" else scenario.label)
-                    }
-                }
-                Button(onClick = { server.scenario = MockScenario.valueOf(selected); started = true }) { Text("Start sample check") }
-                TextButton(onClick = onExit) { Text("Return") }
-            } else {
-                IdentityHost(controller, passkeyAdded, onExit, isMock = true) { side, captured, error, cancel ->
-                    IdentityCamera(side, captured, error, cancel)
-                }
-            }
+        Button(onClick = { server.scenario = MockScenario.valueOf(selected); started = true }) { Text("Start sample check") }
+        if (store.load() != null) TextButton(onClick = {
+            controller.close()
+            store.clear()
+            generation++
+        }) { Text("Discard saved sample check") }
+        TextButton(onClick = onExit) { Text("Return") }
+    } else {
+        IdentityHost(
+            controller, passkeyAdded, onExit, isMock = true,
+            startCaptureOnEntry = !showTestOptions,
+        ) { side, captured, error, cancel ->
+            IdentityCamera(side, captured, error, cancel)
         }
     }
 }

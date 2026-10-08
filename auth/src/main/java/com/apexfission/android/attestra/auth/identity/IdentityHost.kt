@@ -15,11 +15,14 @@ fun IdentityHost(
     passkeyAdded: Boolean,
     onExit: () -> Unit,
     isMock: Boolean = false,
+    startCaptureOnEntry: Boolean = false,
     capture: @Composable (DocumentSide, (ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit,
 ) {
     val state by controller.state.collectAsState()
     val scope = rememberCoroutineScope()
-    LaunchedEffect(controller) { controller.restore() }
+    LaunchedEffect(controller) {
+        if (startCaptureOnEntry) controller.openCapture() else controller.restore()
+    }
     DisposableEffect(controller) { onDispose { controller.close() } }
     BackHandler(onBack = onExit)
     val start = { scope.launch { controller.startCapture() }; Unit }

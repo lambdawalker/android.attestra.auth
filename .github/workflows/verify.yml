@@ -10,14 +10,13 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: platform-tools
-      - name: Install Android platform
-        run: sdkmanager "platforms;android-37" "build-tools;36.0.0"
+          java-version: |
+            17
+            25
+      # Use the hosted Android SDK; AGP resolves the pinned SDK components.
+      - uses: gradle/actions/setup-gradle@v4
       - name: Test auth and assemble app
         run: >-
-          bash gradlew :auth:testDebugUnitTest :identity-mock:testDebugUnitTest :app:assembleDebug :app:assembleRelease
+          bash gradlew :auth:testDebugUnitTest :identity-mock:testDebugUnitTest :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease
           -PattestraApiBaseUrl=https://api.example.invalid
           -PattestraLinkHost=app.example.invalid
