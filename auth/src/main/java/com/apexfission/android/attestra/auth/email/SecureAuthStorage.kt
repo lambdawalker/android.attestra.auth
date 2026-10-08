@@ -61,6 +61,12 @@ class SecureAuthStorage(context: Context) : AuthStorage {
     override fun setIdCheckDeferred(deferred: Boolean) = write("id_check_deferred", deferred.toString())
     override fun clearSession() { prefs.edit().remove("session").commit() }
 
+    fun identityCheckpoint(namespace: String): com.apexfission.android.attestra.auth.identity.IdentityCheckpoint? =
+        read("identity_$namespace") { json.decodeFromString<com.apexfission.android.attestra.auth.identity.IdentityCheckpoint>(it) }
+    fun saveIdentityCheckpoint(namespace: String, value: com.apexfission.android.attestra.auth.identity.IdentityCheckpoint) =
+        write("identity_$namespace", json.encodeToString(value))
+    fun clearIdentityCheckpoint(namespace: String) { prefs.edit().remove("identity_$namespace").commit() }
+
     private fun write(name: String, value: String) {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key)

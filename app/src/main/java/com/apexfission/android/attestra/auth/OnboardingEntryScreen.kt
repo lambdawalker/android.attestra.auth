@@ -25,6 +25,7 @@ internal fun OnboardingEntryScreen(
     hasBackend: Boolean,
     onStart: () -> Unit,
     onCatalog: () -> Unit,
+    onIdentityDemo: (() -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
@@ -35,6 +36,14 @@ internal fun OnboardingEntryScreen(
             Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             Text("Attestra onboarding", style = MaterialTheme.typography.headlineMedium)
             Text("Choose a flow to test.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            if (onIdentityDemo != null) Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Identity capture demo", style = MaterialTheme.typography.titleLarge)
+                    Text("Scan a sample card and test mock identity results without an AWS deployment or sign-in.")
+                    Button(onClick = onIdentityDemo, modifier = Modifier.fillMaxWidth()) { Text("Test ID capture") }
+                }
+            }
 
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {

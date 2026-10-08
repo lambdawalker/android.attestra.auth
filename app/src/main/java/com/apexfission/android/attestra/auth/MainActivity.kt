@@ -21,7 +21,7 @@ import com.apexfission.android.attestra.auth.ui.onboarding.OnboardingBusinessAct
 import com.apexfission.android.attestra.auth.ui.onboarding.OnboardingCatalog
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
-private enum class EntryScreen { Home, Catalog, Onboarding }
+private enum class EntryScreen { Home, Catalog, Onboarding, IdentityDemo }
 
 class MainActivity : ComponentActivity() {
     private companion object { const val TAG = "EmailDebugX" }
@@ -62,7 +62,9 @@ class MainActivity : ComponentActivity() {
                         hasBackend = BuildConfig.AUTH_API_BASE_URL.isNotBlank(),
                         onStart = { destination = EntryScreen.Onboarding },
                         onCatalog = { destination = EntryScreen.Catalog },
+                        onIdentityDemo = if (HAS_IDENTITY_DEMO) { { destination = EntryScreen.IdentityDemo } } else null,
                     )
+                    EntryScreen.IdentityDemo -> IdentityDemo(onExit = { destination = EntryScreen.Home })
                     EntryScreen.Catalog -> OnboardingCatalog(actions = OnboardingBusinessActions())
                     EntryScreen.Onboarding -> {
                         if (BuildConfig.AUTH_API_BASE_URL.isBlank()) {
@@ -75,6 +77,7 @@ class MainActivity : ComponentActivity() {
                                 apiBaseUrl = BuildConfig.AUTH_API_BASE_URL,
                                 link = incomingLink,
                                 onLinkConsumed = ::clearIncomingLink,
+                                identityContent = { passkeyAdded, exit -> AccountIdentityFlow(passkeyAdded, exit) },
                                 onPasskeyDeferred = { notice("Your email is verified. You can add a passkey later.") },
                             )
                         }

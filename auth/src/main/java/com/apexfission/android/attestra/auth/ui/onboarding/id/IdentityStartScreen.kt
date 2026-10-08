@@ -14,6 +14,7 @@ import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 fun IdentityStartScreen(
     onBack: () -> Unit, onStartCapture: () -> Unit, onSkip: () -> Unit,
     passkeyAdded: Boolean,
+    showAccountStatus: Boolean = true,
 ) {
     OnboardingFrame(
         title = "Confirm your ID", icon = Icons.Default.Badge, step = "Optional ID check", onBack = onBack,
@@ -22,13 +23,15 @@ fun IdentityStartScreen(
     ) {
         OnboardingCard {
             BodyText("You can start an identity check now or return to it later.")
+            if (showAccountStatus) {
             StatusRow("Email verified", "Your email was confirmed.")
             StatusRow(
                 if (passkeyAdded) "Passkey added" else "Passkey not added",
                 if (passkeyAdded) "Passkey registration completed." else "You can add a passkey later.",
                 complete = passkeyAdded,
             )
-            BodyText("The document capture flow will open in the selected ID capture provider.")
+            }
+            BodyText("Use a two-sided card. We will ask for camera access, capture each side, and let you review the photos and details.")
         }
     }
 }

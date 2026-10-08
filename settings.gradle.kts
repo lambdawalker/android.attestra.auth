@@ -19,9 +19,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io"); content { includeGroup("com.github.lambdawalker") } }
     }
 }
 
 rootProject.name = "Attestra Auth"
 include(":app")
 include(":auth")
+
+include(":identity-capture", ":identity-mock")

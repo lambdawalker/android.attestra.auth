@@ -18,7 +18,7 @@ fun WelcomeScreen(passkeyAdded: Boolean, onCheckId: () -> Unit) {
         icon = Icons.Default.VerifiedUser,
         step = "Your account",
         onBack = onCheckId,
-        primaryLabel = "Verify my ID",
+        primaryLabel = "Open ID check / status",
         onPrimary = onCheckId,
     ) {
         OnboardingCard {
@@ -29,7 +29,7 @@ fun WelcomeScreen(passkeyAdded: Boolean, onCheckId: () -> Unit) {
                 if (passkeyAdded) "You can sign in with your passkey." else "You can add a passkey later.",
                 complete = passkeyAdded,
             )
-            StatusRow("ID check postponed", "Your identity has not been verified yet.", complete = false)
+            StatusRow("Identity check", "Open your check to start, resume, or retrieve its latest result.", complete = false)
             BodyText("Identity verification is optional for now. Some future actions may require it.")
         }
     }

@@ -59,6 +59,9 @@ fun EmailOnboardingHost(
     link: VerificationLink?,
     onLinkConsumed: () -> Unit,
     onPasskeyDeferred: () -> Unit,
+    identityContent: @Composable (Boolean, () -> Unit) -> Unit = { _, exit ->
+        com.apexfission.android.attestra.auth.identity.IdentityIntegrationUnavailable(exit)
+    },
 ) {
     val activityContext: Context = LocalContext.current
     val context: Context = activityContext.applicationContext
@@ -229,7 +232,7 @@ fun EmailOnboardingHost(
             "recovery" -> EmailSessionRecoveryScreen({ passkeyScreen = "start" }, { returnMode = "choice" })
             "identity" -> IdentityStartScreen(
                 onBack = { passkeyScreen = "start" },
-                onStartCapture = onPasskeyDeferred,
+                onStartCapture = { passkeyScreen = "identity_flow" },
                 onSkip = {
                     storage.setIdCheckDeferred(true)
                     passkeyScreen = "welcome"
@@ -237,6 +240,10 @@ fun EmailOnboardingHost(
                 },
                 passkeyAdded = passkeyAdded,
             )
+            "identity_flow" -> identityContent(passkeyAdded) {
+                storage.setIdCheckDeferred(true)
+                passkeyScreen = "welcome"
+            }
             "welcome" -> WelcomeScreen(passkeyAdded = passkeyAdded, onCheckId = {
                 storage.setIdCheckDeferred(false)
                 passkeyScreen = "identity"

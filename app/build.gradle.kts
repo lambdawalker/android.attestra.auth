@@ -13,12 +13,12 @@ require(authLinkHost.matches(Regex("[A-Za-z0-9.-]+"))) { "attestraLinkHost must 
 android {
     namespace = "com.apexfission.android.attestra.auth"
     compileSdk {
-        version = release(36)
+        version = release(37)
     }
 
     defaultConfig {
         applicationId = "com.apexfission.android.attestra.auth"
-        minSdk = 24
+        minSdk = 28
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -38,8 +38,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -49,6 +49,8 @@ android {
 
 dependencies {
     implementation(project(":auth"))
+    implementation(project(":identity-capture"))
+    debugImplementation(project(":identity-mock"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

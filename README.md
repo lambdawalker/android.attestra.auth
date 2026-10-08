@@ -1,6 +1,12 @@
 # Attestra Android authentication
 
-The `:auth` module implements email confirmation, passkey registration, email/passkey sign-in, session restoration, and ID-check deferral with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. ID capture/provider integration remains pending.
+The `:auth` module implements email confirmation, passkey registration, email/passkey sign-in, session restoration, and ID-check deferral with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. The optional ID flow now supports front/back capture and debug-only mock identity endpoints. Production OCR/provider integration remains pending. See [Android identity integration](docs/identity/README.md) and the [proposed backend contract](docs/identity/http-contract.md).
+
+## Test ID capture without deploying the backend
+
+Install a debug build and choose **Test ID capture** from the entry screen. Use a sample card, select a mock result, capture both sides, review the synthetic details, submit, and check status. No API configuration or sign-in is required for this demo. Mock transport is excluded from release builds.
+
+The scanner/demo require **Android 9 (API 28)**; the independent `:auth` library remains API 24+. Builds use compile SDK 37 and Java 17. See the [identity guide](docs/identity/README.md) for lifecycle behavior, recovery scenarios, and remaining device checks.
 
 ## Documentation ownership
 
