@@ -1,143 +1,125 @@
 package com.apexfission.android.attestra.identitymock
 
-import com.apexfission.android.attestra.auth.identity.*
-import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityDetails
+import com.apexfission.android.attestra.auth.capture.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestData
 import io.ktor.http.*
 import io.ktor.http.content.OutgoingContent
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.IOException
 import java.security.MessageDigest
+import java.util.Base64
 import java.util.UUID
 
 interface MockStateStore { fun read(): String?; fun write(value: String) }
 enum class MockScenario(val label: String) {
-    APPROVED("Approved"), PENDING("Stays pending"), REJECTED("Rejected · no retry"),
-    INCONCLUSIVE("Inconclusive · retry allowed"), UNREADABLE("Unreadable document"),
-    SUBMISSION_FAILURE("Submission fails once"), RESPONSE_LOST("Accepted · response lost"),
+    READY("Capture ready"), PENDING("File checks remain pending"), INVALID_IMAGE("Recapture required"),
+    UPLOAD_FAILURE("Upload fails once"), RESPONSE_LOST("Finalize response lost"), FAILED("File checks fail once"),
 }
-@Serializable private data class StoredSubmission(
-    val record: IdentityRecord,
-    val scenario: MockScenario,
-    val uploads: Set<DocumentSide> = emptySet(),
-    val extracted: Boolean = false,
-    val submissionHash: String? = null,
+@Serializable private data class SavedUpload(val request: RegisterUpload, val id: String, val uploaded: Boolean = false)
+@Serializable private data class Snapshot(
+    val record: CaptureRecord? = null,
+    val create: CreateCapture? = null,
+    val uploads: Map<String, SavedUpload> = emptyMap(),
+    val finalize: FinalizeCapture? = null,
     val polls: Int = 0,
     val failureSent: Boolean = false,
+    val scenario: MockScenario = MockScenario.READY,
 )
-@Serializable private data class MockSnapshot(
-    val scenario: MockScenario = MockScenario.APPROVED,
-    val records: Map<String, StoredSubmission> = emptyMap(),
-)
-private data class Reply(val status: Int, val body: String = "")
-
-/** Local transport, not a listening server. Only identifiers/coarse state/hashes reach the store. */
-class MockIdentityServer(private val store: MockStateStore, initialScenario: MockScenario? = null) {
+private data class Reply(val status: Int, val body: String)
+/** In-process HTTP mock. Persists identifiers/coarse state/checksums, never image bytes or signed URLs. */
+class MockCaptureServer(private val store: MockStateStore) {
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
     private val mutex = Mutex()
-    private val restored = store.read()?.let { json.decodeFromString<MockSnapshot>(it) } ?: MockSnapshot()
-    private var records: Map<String, StoredSubmission> = restored.records
-    var scenario: MockScenario = initialScenario ?: restored.scenario
-        set(value) { synchronized(this) { field = value; persist() } }
-    private fun persist() { store.write(json.encodeToString(MockSnapshot(scenario, records))) }
-
+    private var snapshot = store.read()?.let { runCatching { json.decodeFromString<Snapshot>(it) }.getOrNull() } ?: Snapshot()
+    var scenario: MockScenario
+        get() = snapshot.scenario
+        set(value) { snapshot = snapshot.copy(scenario = value); persist() }
+    private fun persist() { store.write(json.encodeToString(snapshot)) }
+    fun reset() { snapshot = Snapshot(scenario = scenario); persist() }
     fun client() = HttpClient(MockEngine { request ->
-        delay(300)
         val result = mutex.withLock { handle(request) }
         respond(result.body, HttpStatusCode.fromValue(result.status), headersOf(HttpHeaders.ContentType, "application/json"))
-    }) {
-        expectSuccess = false
-        install(ContentNegotiation) { json(this@MockIdentityServer.json) }
-        install(HttpTimeout) { requestTimeoutMillis = 15_000 }
+    }) { followRedirects = false; expectSuccess = false; install(ContentNegotiation) { json(this@MockCaptureServer.json) } }
+    private fun error(status: Int, code: String) = Reply(status, "{\"error\":\"$code\"}")
+    private fun response(record: CaptureRecord, status: Int = 200) = Reply(status, json.encodeToString(record))
+    private fun bytes(request: HttpRequestData) = (request.body as OutgoingContent.ByteArrayContent).bytes()
+    private inline fun <reified T> body(request: HttpRequestData): T = json.decodeFromString(bytes(request).decodeToString())
+    private fun id() = UUID.randomUUID().toString().replace("-", "")
+    private fun advance(): CaptureRecord? {
+        var r = snapshot.record ?: return null
+        if (r.state == "finalizing") {
+            val polls = snapshot.polls + 1
+            if (polls >= 2 && scenario != MockScenario.PENDING) r = r.copy(revision = r.revision + 1, state = when {
+                scenario == MockScenario.INVALID_IMAGE -> "requires_recapture"
+                scenario == MockScenario.FAILED && !snapshot.failureSent -> "failed"
+                else -> "ready"
+            })
+            snapshot = snapshot.copy(record = r, polls = polls); persist()
+        }
+        return r
     }
-    private fun save(id: String, value: StoredSubmission) {
-        records = records + (id to value)
-        persist()
-    }
-    private fun response(status: Int, value: IdentityRecord) = Reply(status, json.encodeToString(value))
-    private fun error(status: Int) = Reply(status, "{\"error\":\"mock_request_failed\"}")
-    @Synchronized
     private fun handle(request: HttpRequestData): Reply {
-        if (request.url.host != "identity.mock.invalid") return error(404)
-        if (request.headers[HttpHeaders.Authorization] != "Bearer $TOKEN") return error(401)
-        val parts = request.url.encodedPath.trim('/').split('/')
-        if (parts.take(3) != listOf("identity", "v1", "submissions") || parts.size < 4) return error(404)
-        val id = parts[3]
-        if (runCatching { UUID.fromString(id).toString() == id }.getOrDefault(false).not()) return error(400)
-        val old = records[id]
-        val verb = request.method
-        if (parts.size == 4 && verb == HttpMethod.Put) {
-            if (old != null) return response(200, old.record)
-            val next = IdentityRecord(id, (records.values.maxOfOrNull { it.record.evidenceVersion } ?: 0) + 1)
-            save(id, StoredSubmission(next, scenario))
-            return response(201, next)
+        if (request.url.host == "capture-mock.s3.us-east-1.amazonaws.com") {
+            if (request.headers[HttpHeaders.Authorization] != null) return error(400, "bearer_leaked")
+            val upload = snapshot.uploads.values.firstOrNull { it.id == request.url.encodedPath.trim('/') } ?: return error(404, "not_found")
+            if (scenario == MockScenario.UPLOAD_FAILURE && !snapshot.failureSent) { snapshot = snapshot.copy(failureSent = true); persist(); return error(503, "upload_failed") }
+            val b = bytes(request)
+            val hash = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA-256").digest(b))
+            if (b.size.toLong() != upload.request.size || hash != upload.request.sha256 || request.headers["x-amz-checksum-sha256"] != hash) return error(400, "bad_checksum")
+            snapshot = snapshot.copy(uploads = snapshot.uploads + (upload.request.key to upload.copy(uploaded = true))); persist()
+            return Reply(200, "")
         }
-        if (old == null) return error(404)
-        if (parts.size == 4 && verb == HttpMethod.Get) {
-            if (!old.record.accepted) return response(200, old.record)
-            val polls = old.polls + 1
-            val outcome = if (polls < 2) IdentityOutcome.PENDING else when (old.scenario) {
-                MockScenario.PENDING -> IdentityOutcome.PENDING
-                MockScenario.REJECTED -> IdentityOutcome.REJECTED
-                MockScenario.INCONCLUSIVE -> IdentityOutcome.INCONCLUSIVE
-                else -> IdentityOutcome.APPROVED
+        if (request.url.host != "capture.mock.invalid") return error(404, "not_found")
+        if (request.headers[HttpHeaders.Authorization] != "Bearer $TOKEN") return error(401, "sign_in_required")
+        val path = request.url.encodedPath.removePrefix("/onboarding/id/")
+        if (path == "document-policy") return Reply(200, json.encodeToString(CapturePolicy(true, "capture-v1", "sample_card", listOf("front", "back"), "image/jpeg", 4194304)))
+        if (path == "status") return Reply(200, json.encodeToString(CaptureStatus(advance())))
+        if (path == "captures" && request.method == HttpMethod.Post) {
+            val create = body<CreateCapture>(request)
+            snapshot.record?.let { if (snapshot.create == create) return response(it); if (it.state in setOf("uploading", "finalizing")) return error(409, "revision_conflict") }
+            val r = CaptureRecord(id(), (snapshot.record?.evidenceVersion ?: 0) + 1, 1, "capture-v1", create.documentType, "uploading", System.currentTimeMillis() / 1000 + 86400)
+            snapshot = Snapshot(record = r, create = create, scenario = scenario); persist(); return response(r)
+        }
+        val parts = path.split('/')
+        val r = snapshot.record ?: return error(404, "not_found")
+        if (parts.size !in 2..3 || parts[0] != "captures" || parts[1] != r.id) return error(404, "not_found")
+        if (parts.size == 2 && request.method == HttpMethod.Get) return response(requireNotNull(advance()))
+        if (request.method != HttpMethod.Post) return error(404, "not_found")
+        when (parts.last()) {
+            "uploads" -> {
+                val input = body<RegisterUpload>(request)
+                if (r.state != "uploading") return error(409, "revision_conflict")
+                var upload = snapshot.uploads[input.key]
+                if (upload == null) {
+                    if (r.revision != input.revision) return error(409, "revision_conflict")
+                    upload = SavedUpload(input, id())
+                    snapshot = snapshot.copy(record = r.copy(revision = r.revision + 1, selected = r.selected + (input.slot to upload.id)), uploads = snapshot.uploads + (input.key to upload))
+                    persist()
+                } else if (upload.request != input || r.selected[input.slot] != upload.id) return error(409, "revision_conflict")
+                return Reply(200, json.encodeToString(UploadInstructions(requireNotNull(snapshot.record), upload.id, "https://capture-mock.s3.us-east-1.amazonaws.com/${upload.id}", mapOf("Content-Type" to "image/jpeg", "x-amz-checksum-sha256" to input.sha256, "x-amz-server-side-encryption" to "AES256"), 300)))
             }
-            val record = old.record.copy(
-                decision = outcome, autoReport = IdentityOutcome.APPROVED, thirdParty = outcome,
-                canRetry = outcome == IdentityOutcome.INCONCLUSIVE,
-            )
-            save(id, old.copy(record = record, polls = polls))
-            return response(200, record)
+            "finalize" -> {
+                val input = body<FinalizeCapture>(request)
+                if (snapshot.finalize == input) return response(r, 202)
+                if (r.state != "uploading" || r.revision != input.revision || r.selected != input.uploads) return error(409, "revision_conflict")
+                if (input.uploads.keys != setOf("front", "back") || input.uploads.values.any { id -> snapshot.uploads.values.none { it.id == id && it.uploaded } }) return error(409, "uploads_incomplete")
+                val next = r.copy(state = "finalizing", revision = r.revision + 1)
+                snapshot = snapshot.copy(record = next, finalize = input); persist()
+                if (scenario == MockScenario.RESPONSE_LOST && !snapshot.failureSent) { snapshot = snapshot.copy(failureSent = true); persist(); throw IOException("Simulated response loss") }
+                return response(next, 202)
+            }
+            "retry-finalization" -> { if (r.state != "failed") return response(r); snapshot = snapshot.copy(record = r.copy(state = "finalizing", revision = r.revision + 1), polls = 0, failureSent = true); persist(); return response(requireNotNull(snapshot.record), 202) }
+            "cancel" -> { snapshot = snapshot.copy(record = r.copy(state = "cancelled", revision = r.revision + 1), uploads = emptyMap()); persist(); return response(requireNotNull(snapshot.record)) }
         }
-        val bytes = (request.body as? OutgoingContent.ByteArrayContent)?.bytes() ?: return error(400)
-        if (parts.size == 6 && parts[4] == "assets" && verb == HttpMethod.Put) {
-            if (old.record.accepted) return error(409)
-            if (request.url.parameters["evidence_version"]?.toIntOrNull() != old.record.evidenceVersion) return error(409)
-            val side = DocumentSide.entries.firstOrNull { it.name.lowercase() == parts[5] } ?: return error(400)
-            if (bytes.size !in 4..IdentityApi.MAX_JPEG_BYTES || bytes[0] != 0xff.toByte() || bytes[1] != 0xd8.toByte()) return error(422)
-            // Bytes are inspected then discarded. No document image is written to the mock store.
-            save(id, old.copy(uploads = old.uploads + side))
-            return Reply(204)
-        }
-        if (parts.size != 5 || verb != HttpMethod.Post) return error(404)
-        if (parts[4] == "extraction") {
-            val body = runCatching { json.decodeFromString<EvidenceVersion>(bytes.decodeToString()) }.getOrNull() ?: return error(400)
-            if (old.record.accepted || body.evidenceVersion != old.record.evidenceVersion) return error(409)
-            if (old.uploads.size != 2) return error(422)
-            save(id, old.copy(extracted = true))
-            return Reply(200, json.encodeToString(Extraction(old.scenario != MockScenario.UNREADABLE, fixture)))
-        }
-        if (parts[4] != "submit") return error(404)
-        val body = runCatching { json.decodeFromString<SubmitIdentity>(bytes.decodeToString()) }.getOrNull() ?: return error(400)
-        if (body.evidenceVersion != old.record.evidenceVersion || request.headers["Idempotency-Key"] != id) return error(409)
-        if (old.uploads.size != 2 || !old.extracted || old.scenario == MockScenario.UNREADABLE || body.extracted != fixture) return error(422)
-        if (body.corrected.fullName.isBlank() || body.corrected.dateOfBirth.isBlank() || body.corrected.address.isBlank()) return error(422)
-        val hash = MessageDigest.getInstance("SHA-256").digest(json.encodeToString(body).toByteArray()).joinToString("") { "%02x".format(it) }
-        if (old.record.accepted) return if (old.submissionHash == hash) response(200, old.record) else error(409)
-        if (old.scenario == MockScenario.SUBMISSION_FAILURE && !old.failureSent) {
-            save(id, old.copy(failureSent = true)); return error(503)
-        }
-        val record = old.record.copy(accepted = true, decision = IdentityOutcome.PENDING, autoReport = IdentityOutcome.PENDING, thirdParty = IdentityOutcome.PENDING)
-        save(id, old.copy(record = record, submissionHash = hash, failureSent = true))
-        if (old.scenario == MockScenario.RESPONSE_LOST && !old.failureSent) throw IOException("Simulated response loss")
-        return response(202, record)
+        return error(404, "not_found")
     }
-    companion object {
-        const val ORIGIN = "https://identity.mock.invalid"
-        const val TOKEN = "local-mock-session"
-        private val fixture = IdentityDetails(
-            fullName = "SAMPLE PERSON", dateOfBirth = "1990-01-02", address = "123 Example Street, Sample City",
-            documentNumber = "SAMPLE-0001", issuingCountry = "TEST", documentType = "Sample two-sided ID", expirationDate = "2030-01-01",
-        )
-    }
+    companion object { const val ORIGIN = "https://capture.mock.invalid"; const val TOKEN = "mock-capture-only" }
 }

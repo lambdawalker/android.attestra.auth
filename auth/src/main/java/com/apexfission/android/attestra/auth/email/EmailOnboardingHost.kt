@@ -241,8 +241,14 @@ fun EmailOnboardingHost(
                 passkeyAdded = passkeyAdded,
             )
             "identity_flow" -> identityContent(passkeyAdded) {
-                storage.setIdCheckDeferred(true)
-                passkeyScreen = "welcome"
+                if (storage.session() == null) {
+                    authenticated = false
+                    returnMode = "choice"
+                    returnError = "Sign in to resume your capture."
+                } else {
+                    storage.setIdCheckDeferred(true)
+                    passkeyScreen = "welcome"
+                }
             }
             "welcome" -> WelcomeScreen(passkeyAdded = passkeyAdded, onCheckId = {
                 storage.setIdCheckDeferred(false)

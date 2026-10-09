@@ -17,7 +17,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.apexfission.android.attestra.auth.identity.DocumentSide
-import com.apexfission.android.attestra.auth.identity.IdentityApi
+import com.apexfission.android.attestra.auth.capture.CaptureApi
 import com.apexfission.android.carddetector.domain.ModelCatalog
 import com.apexfission.android.carddetector.tfmodel.cardClasses
 import com.apexfission.android.carddetector.tfmodel.classes
@@ -117,7 +117,7 @@ private fun encodeJpeg(bitmap: Bitmap): ByteArray {
     try {
         return ByteArrayOutputStream().use { out ->
             check(scaled.compress(Bitmap.CompressFormat.JPEG, 90, out))
-            out.toByteArray().also { require(it.size <= IdentityApi.MAX_JPEG_BYTES) }
+            out.toByteArray().also { require(it.size <= CaptureApi.MAX_JPEG_BYTES) }
         }
     } finally { if (scaled !== bitmap) scaled.recycle() }
 }
