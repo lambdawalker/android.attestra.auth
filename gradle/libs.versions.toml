@@ -17,6 +17,10 @@ ktor = "3.6.0"
 kotlinxSerialization = "1.11.0"
 
 [libraries]
+apexfission-permissions = { module = "com.github.lambdawalker:android.apexfission.permissions", version = "permission~v0.2.3" }
+apexfission-card-model = { module = "com.github.lambdawalker:android.apexfission.carddetector", version = "tfmodel~v0.1.2" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }

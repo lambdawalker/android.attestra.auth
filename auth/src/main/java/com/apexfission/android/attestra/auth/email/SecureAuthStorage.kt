@@ -61,6 +61,17 @@ class SecureAuthStorage(context: Context) : AuthStorage {
     override fun setIdCheckDeferred(deferred: Boolean) = write("id_check_deferred", deferred.toString())
     override fun clearSession() { prefs.edit().remove("session").commit() }
 
+    fun captureCheckpoint(namespace: String): com.apexfission.android.attestra.auth.capture.CaptureCheckpoint? =
+        read("capture_$namespace") { json.decodeFromString<com.apexfission.android.attestra.auth.capture.CaptureCheckpoint>(it) }
+    fun saveCaptureCheckpoint(namespace: String, value: com.apexfission.android.attestra.auth.capture.CaptureCheckpoint) =
+        write("capture_$namespace", json.encodeToString(value))
+    fun clearCaptureCheckpoint(namespace: String) { check(prefs.edit().remove("capture_$namespace").commit()) }
+
+    /** Reset only this installation; does not revoke remote sessions or delete passkeys. */
+    fun clearLocalUser() {
+        check(prefs.edit().clear().commit()) { "Could not clear local authentication data" }
+    }
+
     private fun write(name: String, value: String) {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key)

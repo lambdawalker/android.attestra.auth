@@ -49,7 +49,7 @@ import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
  * requests, authentication/session state, passkey APIs, deep links and the ID plugin.
  * None of these methods should infer a successful result from a button tap.
  */
-class OnboardingBusinessActions {
+class OnboardingBusinessActions(private val onOpenIdentityCapture: () -> Unit = {}) {
     fun requestEmail(email: String) {}
     fun resendEmail() {}
     fun confirmWithCode(code: String) {}
@@ -57,7 +57,7 @@ class OnboardingBusinessActions {
     fun createPasskey() {}
     fun finishPasskeyRegistration() {}
     fun checkPasskeySupport() {}
-    fun openIdentityCapture() {}
+    fun openIdentityCapture() = onOpenIdentityCapture()
     fun submitIdentityDetails(details: IdentityDetails) {}
     fun reconcileIdentitySubmission() {}
     fun retryIdentityCheck() {}

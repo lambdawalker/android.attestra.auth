@@ -2,6 +2,7 @@ package com.apexfission.android.attestra.auth
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -14,19 +15,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.apexfission.android.attestra.auth.email.EmailOnboardingHost
-import com.apexfission.android.attestra.auth.email.SecureAuthStorage
 import com.apexfission.android.attestra.auth.email.VerificationLink
 import com.apexfission.android.attestra.auth.email.parseVerificationLink
 import com.apexfission.android.attestra.auth.ui.onboarding.OnboardingBusinessActions
 import com.apexfission.android.attestra.auth.ui.onboarding.OnboardingCatalog
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
-private enum class EntryScreen { Home, Catalog, Onboarding }
+private enum class EntryScreen { Home, Catalog, Onboarding, IdentityDemo, IdentityCapture }
 
 class MainActivity : ComponentActivity() {
     private companion object { const val TAG = "EmailDebugX" }
+    private val localReset by lazy { ViewModelProvider(this)[LocalUserResetViewModel::class.java] }
     private var incomingLink by mutableStateOf<VerificationLink?>(null)
-    private var hasLocalOnboarding = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,15 +36,14 @@ class MainActivity : ComponentActivity() {
         if (intent?.action == Intent.ACTION_VIEW) {
             Log.d(TAG, if (incomingLink != null) "Verification link received at launch" else "Unrecognized verification link at launch")
         }
-        hasLocalOnboarding = SecureAuthStorage(this).let { it.pending() != null || it.session() != null }
-        Log.d(TAG, "Resume local onboarding=$hasLocalOnboarding")
         enableEdgeToEdge()
         setContent {
             var destination by rememberSaveable {
-                mutableStateOf(if (incomingLink != null || hasLocalOnboarding) EntryScreen.Onboarding else EntryScreen.Home)
+                mutableStateOf(if (incomingLink != null && !localReset.resetting) EntryScreen.Onboarding else EntryScreen.Home)
             }
-            LaunchedEffect(incomingLink) {
-                if (incomingLink != null) destination = EntryScreen.Onboarding
+            val resetting = localReset.resetting
+            LaunchedEffect(incomingLink, resetting) {
+                if (incomingLink != null && !resetting) destination = EntryScreen.Onboarding
             }
             LaunchedEffect(destination) {
                 Log.d(TAG, "Showing ${destination.name} screen")
@@ -56,14 +55,28 @@ class MainActivity : ComponentActivity() {
                 destination = EntryScreen.Home
                 clearIncomingLink()
             }
+            BackHandler(enabled = resetting) { /* Finish the local reset before leaving. */ }
             AttestraAuthTheme {
                 when (destination) {
                     EntryScreen.Home -> OnboardingEntryScreen(
                         hasBackend = BuildConfig.AUTH_API_BASE_URL.isNotBlank(),
+                        resetting = resetting,
+                        resetMessage = localReset.message,
+                        onDeleteLocalUser = {
+                            if (!resetting) {
+                                clearIncomingLink()
+                                localReset.deleteLocalUser()
+                            }
+                        },
                         onStart = { destination = EntryScreen.Onboarding },
                         onCatalog = { destination = EntryScreen.Catalog },
+                        onIdentityDemo = if (HAS_IDENTITY_DEMO) { { destination = EntryScreen.IdentityDemo } } else null,
                     )
-                    EntryScreen.Catalog -> OnboardingCatalog(actions = OnboardingBusinessActions())
+                    EntryScreen.IdentityDemo -> IdentityDemo(onExit = { destination = EntryScreen.Home })
+                    EntryScreen.IdentityCapture -> DirectIdentityCapture(onExit = { destination = EntryScreen.Catalog })
+                    EntryScreen.Catalog -> OnboardingCatalog(actions = OnboardingBusinessActions(
+                        onOpenIdentityCapture = { destination = EntryScreen.IdentityCapture },
+                    ))
                     EntryScreen.Onboarding -> {
                         if (BuildConfig.AUTH_API_BASE_URL.isBlank()) {
                             BackendNotConfiguredScreen(onBack = {
@@ -75,6 +88,7 @@ class MainActivity : ComponentActivity() {
                                 apiBaseUrl = BuildConfig.AUTH_API_BASE_URL,
                                 link = incomingLink,
                                 onLinkConsumed = ::clearIncomingLink,
+                                identityContent = { passkeyAdded, exit -> AccountIdentityFlow(passkeyAdded, exit) },
                                 onPasskeyDeferred = { notice("Your email is verified. You can add a passkey later.") },
                             )
                         }
