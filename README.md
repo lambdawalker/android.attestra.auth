@@ -1,10 +1,10 @@
 # Attestra Android authentication
 
-The `:auth` module implements email confirmation, passkey registration, email/passkey sign-in, session restoration, and ID-check deferral with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. The optional ID flow now supports front/back capture and debug-only mock identity endpoints. Production OCR/provider integration remains pending. See [Android identity integration](docs/identity/README.md) and the [proposed backend contract](docs/identity/http-contract.md).
+The `:auth` module implements email confirmation, passkey registration, email/passkey sign-in, session restoration, and ID-check deferral with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. The optional ID flow supports front/back capture, direct private S3 uploads, asynchronous file checks, recovery and cancellation. A debug-only capture mock works without deployment. Parsing and identity validation remain separate future features. See [Android capture](docs/identity-capture.md) and the [backend contract](docs/identity/http-contract.md).
 
 ## Test ID capture without deploying the backend
 
-Install a debug build and choose **Test ID capture** from the entry screen. Use a sample card, select a mock result, capture both sides, review the synthetic details, submit, and check status. No API configuration or sign-in is required for this demo. Mock transport is excluded from release builds.
+Install a debug build and choose **Test ID capture** from the entry screen. Use a sample card, select a capture scenario, capture and preview both sides, upload, and finish capture. The flow ends at “Document captured”; it does not parse details or approve an identity. No API configuration or sign-in is required for this demo. Mock transport is excluded from release builds.
 
 The `:auth` library includes identity capture and requires **Android 9 (API 28)**, as do the demo app and debug mock module. Builds use compile SDK 37 and Java 17. See the [identity guide](docs/identity/README.md) for lifecycle behavior, recovery scenarios, and remaining device checks.
 

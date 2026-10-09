@@ -65,6 +65,7 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
     private fun record(r: CaptureRecord) {
         if (closed) throw CancellationException("Capture closed")
         require(r.id.matches(Regex("[a-f0-9]{32}")) && r.evidenceVersion > 0)
+        if (state.value.record?.id != r.id) discard()
         save(checkpoint.copy(id = r.id, create = null))
         acknowledged = if (state.value.record?.id == r.id) acknowledged.filter { (slot, id) -> r.selected[slot] == id } else emptyMap()
         show(state.value.copy(record = r, uploaded = acknowledged.keys))
@@ -79,7 +80,7 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
             record(r)
             checkpoint.finalize?.let { if (r.state == "uploading") record(api.finalize(r.id, it)) }
             checkpoint.retry?.let { if (r.state == "failed") record(api.retry(r.id, it)); save(checkpoint.copy(retry = null)) }
-        } else { store.clear(); checkpoint = CaptureCheckpoint(); show(state.value.copy(record = null)) }
+        } else { discard(); acknowledged = emptyMap(); store.clear(); checkpoint = CaptureCheckpoint(); show(state.value.copy(record = null, uploaded = emptySet())) }
     }
     suspend fun start() = operation {
         val policy = api.policy()

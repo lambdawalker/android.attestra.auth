@@ -76,5 +76,12 @@ class CaptureControllerTest {
         c.camera(DocumentSide.FRONT); api.failPut = true; c.captured(DocumentSide.FRONT, byteArrayOf(5, 6, 7, 8))
         assertTrue(c.state.value.uploaded.isEmpty()); c.upload(); assertEquals(setOf("front"), c.state.value.uploaded)
     }
+    @Test fun discoveringAnotherCaptureDiscardsOldPendingImage() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store); c.start()
+        c.camera(DocumentSide.FRONT); api.failPut = true
+        val bytes = byteArrayOf(1, 2, 3, 4); c.captured(DocumentSide.FRONT, bytes)
+        api.record = api.record?.copy(id = "b".repeat(32), revision = 1, selected = emptyMap())
+        c.restore(); assertTrue(bytes.all { it == 0.toByte() }); assertTrue(c.state.value.uploaded.isEmpty())
+    }
     @Test fun checksumUsesStandardPaddedBase64() { assertEquals("47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", checksum(byteArrayOf())) }
 }
