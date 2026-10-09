@@ -44,9 +44,9 @@ internal fun OnboardingEntryScreen(
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Onboarding", style = MaterialTheme.typography.titleLarge)
-                Text("In development · Start or resume email confirmation, passkey setup, and your ID check.")
+                Text("In development · Start or resume email confirmation, passkey setup, and ID capture.")
                 Button(onClick = onStart, enabled = !resetting, modifier = Modifier.fillMaxWidth()) { Text("Open onboarding") }
-                if (!hasBackend) Text("Live email onboarding needs a configured backend. You can still use the UI catalog and identity test below.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (!hasBackend) Text("Live email onboarding needs a configured backend. You can still use the UI catalog and capture test below.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         Card(Modifier.fillMaxWidth()) {
@@ -63,9 +63,9 @@ internal fun OnboardingEntryScreen(
         }
         if (onIdentityDemo != null) Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Identity verification", style = MaterialTheme.typography.titleLarge)
-                Text("Use a sample card to test capture and simulated service outcomes. This does not verify a real identity.")
-                OutlinedButton(onClick = onIdentityDemo, enabled = !resetting, modifier = Modifier.fillMaxWidth()) { Text("Test identity verification") }
+                Text("ID capture", style = MaterialTheme.typography.titleLarge)
+                Text("Use a sample card to test capture, uploads and file-check recovery. This does not verify a real identity.")
+                OutlinedButton(onClick = onIdentityDemo, enabled = !resetting, modifier = Modifier.fillMaxWidth()) { Text("Test ID capture") }
             }
         }
         OutlinedButton(onClick = onCatalog, enabled = !resetting, modifier = Modifier.fillMaxWidth()) { Text("Open UI catalog") }

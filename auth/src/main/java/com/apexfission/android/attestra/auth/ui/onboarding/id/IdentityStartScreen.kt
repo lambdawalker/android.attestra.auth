@@ -17,12 +17,12 @@ fun IdentityStartScreen(
     showAccountStatus: Boolean = true,
 ) {
     OnboardingFrame(
-        title = "Confirm your ID", icon = Icons.Default.Badge, step = "Optional ID check", onBack = onBack,
-        primaryLabel = "Scan government ID", onPrimary = onStartCapture,
+        title = "Capture your ID", icon = Icons.Default.Badge, step = "Optional ID capture", onBack = onBack,
+        primaryLabel = "Continue to capture", onPrimary = onStartCapture,
         secondaryLabel = "Skip for now · Go to dashboard", onSecondary = onSkip,
     ) {
         OnboardingCard {
-            BodyText("You can start an identity check now or return to it later.")
+            BodyText("You can save document photos now or return later. Capturing a document does not verify your identity.")
             if (showAccountStatus) {
             StatusRow("Email verified", "Your email was confirmed.")
             StatusRow(
@@ -31,7 +31,7 @@ fun IdentityStartScreen(
                 complete = passkeyAdded,
             )
             }
-            BodyText("Use a two-sided card. We will ask for camera access, capture each side, and let you review the photos and details.")
+            BodyText("Use a two-sided card. We will ask for camera access, capture each side, and let you review the photos before uploading.")
         }
     }
 }
