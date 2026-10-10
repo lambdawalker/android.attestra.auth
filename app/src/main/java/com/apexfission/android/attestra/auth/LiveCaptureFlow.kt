@@ -27,6 +27,13 @@ import kotlinx.serialization.json.jsonPrimitive
     }
 }
 @Composable internal fun LiveCaptureFlow(onExit: () -> Unit) {
+    if (!BuildConfig.CAPTURE_ENABLED) {
+        Column(Modifier.padding(24.dp)) {
+            Text("ID capture is not enabled for this environment.")
+            Button(onClick = onExit) { Text("Return") }
+        }
+        return
+    }
     CapturePrivacy()
     val context = LocalContext.current
     val storage = remember(context) { SecureAuthStorage(context) }

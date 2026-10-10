@@ -128,3 +128,20 @@ bash gradlew :app:installDebug \
 On Windows use `.\gradlew.bat` with the same tasks and properties. `installDebug` requires a connected device/emulator; the APK is under `app/build/outputs/apk/debug/`. The `:auth` module is consumed by `:app`; this repository does not define an independent Maven publishing or production app-store release workflow. CI runs auth unit tests and assembles the demo app with placeholder hosts; it does not validate a deployed AWS stack or real domain associations.
 
 Before a release, exercise fresh same-device and cross-device links, app restarts, invalid/expired proofs, registration cancellation, passkey and OTP sign-in, and ID deferral on a device with the installed build's signing association. Follow the design acceptance criteria for expected outcomes. Keep diagnostic trace cleanup separate from documentation changes.
+
+
+### Import a deployed environment
+
+The backend setup wizard exports `android-config/<environment>.properties`, containing public API, link-host, Cognito, region, and capture settings. Load it directly when building this app:
+
+```powershell
+.\gradlew.bat :app:assembleDebug -PattestraConfigFile=D:/dev/go.attestra.aws.auth/android-config/qa.properties
+```
+
+```sh
+./gradlew :app:assembleDebug -PattestraConfigFile=../go.attestra.aws.auth/android-config/qa.properties
+```
+
+Paths are relative to the Android repository root unless absolute. Explicit Gradle properties override file values. Missing or malformed file settings fail the build. Cognito IDs and environment metadata become `BuildConfig` fields; existing backend API authentication remains unchanged. `attestraCaptureEnabled=false` disables the live capture screen; local debug mock capture is separate. Without this property, live capture defaults to disabled. The server's document policy remains authoritative; enabling the client does not enable the server.
+
+The file contains public configuration, never AWS keys, GitHub/Cloudflare tokens, or Pulumi passphrases. Re-export and rebuild when switching environments or replacing deployed resources.
