@@ -1,0 +1,60 @@
+name: Build approved Android APK
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub environment containing the approved signing identity
+        type: environment
+        required: true
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            17
+            25
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+      - name: Build and verify the approved identity
+        shell: bash
+        env:
+          ATTESTRA_ENVIRONMENT: ${{ inputs.environment }}
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ATTESTRA_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ATTESTRA_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ATTESTRA_KEY_ALIAS: ${{ vars.ANDROID_KEY_ALIAS || 'attestra' }}
+          EXPECTED_SHA256: ${{ vars.ANDROID_SIGNING_SHA256 }}
+          APP_LINK_HOST: ${{ vars.ATTESTRA_LINK_HOST }}
+          INDEX_URL: ${{ vars.ATTESTRA_INDEX_URL || 'https://index.attestrabond.com/v1/environments' }}
+        run: |
+          set -euo pipefail
+          : "${KEYSTORE_BASE64:?Set ANDROID_KEYSTORE_BASE64 in this GitHub environment}"
+          : "${ATTESTRA_KEYSTORE_PASSWORD:?Set ANDROID_KEYSTORE_PASSWORD}"
+          : "${EXPECTED_SHA256:?Set the approved ANDROID_SIGNING_SHA256}"
+          : "${APP_LINK_HOST:?Set ATTESTRA_LINK_HOST to the environment app hostname}"
+          export ATTESTRA_KEYSTORE_PATH="$RUNNER_TEMP/attestra-signing.p12"
+          trap 'rm -f "$ATTESTRA_KEYSTORE_PATH"; rm -rf .gradle/configuration-cache' EXIT
+          umask 077
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$ATTESTRA_KEYSTORE_PATH"
+          unset KEYSTORE_BASE64
+          bash gradlew --no-configuration-cache :app:assembleRelease \
+            "-PattestraEnvironment=$ATTESTRA_ENVIRONMENT" \
+            "-PattestraLinkHost=$APP_LINK_HOST" \
+            "-PattestraIndexUrl=$INDEX_URL" -PattestraApiBaseUrl=
+          python3 scripts/signing/signing.py verify-apk \
+            --apk app/build/outputs/apk/release/app-release.apk \
+            --expected-sha256 "$EXPECTED_SHA256" \
+            --url "https://$APP_LINK_HOST/.well-known/assetlinks.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: approved-android-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error

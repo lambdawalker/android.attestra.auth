@@ -71,7 +71,25 @@ android {
         buildConfigField("String", "CAPTURE_DOCUMENT_TYPE", quoted(setting("attestraCaptureDocumentType", "sample_card")))
     }
 
+    // Persistent signing is opt-in; ordinary local debug builds retain their own key.
+    val signingPath = providers.environmentVariable("ATTESTRA_KEYSTORE_PATH").orNull
+    val signingPassword = providers.environmentVariable("ATTESTRA_KEYSTORE_PASSWORD").orNull
+    val signingAlias = providers.environmentVariable("ATTESTRA_KEY_ALIAS").orNull ?: "attestra"
+    if (signingPath != null) {
+        require(rootProject.file(signingPath).isFile) { "Signing keystore not found" }
+        require(!signingPassword.isNullOrBlank()) { "ATTESTRA_KEYSTORE_PASSWORD is required" }
+        signingConfigs.create("registered") {
+            storeFile = rootProject.file(signingPath)
+            storePassword = signingPassword
+            keyAlias = signingAlias
+            keyPassword = providers.environmentVariable("ATTESTRA_KEY_PASSWORD").orNull?.takeIf { it.isNotBlank() } ?: signingPassword
+        }
+    }
     buildTypes {
+        if (signingPath != null) {
+            getByName("debug") { signingConfig = signingConfigs.getByName("registered") }
+            getByName("release") { signingConfig = signingConfigs.getByName("registered") }
+        }
         release {
             optimization {
                 enable = false

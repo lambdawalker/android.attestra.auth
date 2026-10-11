@@ -159,3 +159,7 @@ The backend setup wizard exports `android-config/<environment>.properties`, cont
 Paths are relative to the Android repository root unless absolute. Explicit Gradle properties override file values. Missing or malformed file settings fail the build. Cognito IDs and environment metadata become `BuildConfig` fields; existing backend API authentication remains unchanged. `attestraCaptureEnabled=false` disables the live capture screen; local debug mock capture is separate. In static mode, omitting this property disables live capture. In discovery mode, the index’s `features.idCapture` controls the client flag. The server's document policy remains authoritative; enabling the client does not enable the server.
 
 The file contains public configuration, never AWS keys, GitHub/Cloudflare tokens, or Pulumi passphrases. Re-export and rebuild when switching environments or replacing deployed resources.
+
+## Persistent signing and domain associations
+
+See [Android signing](docs/android-signing.md) to generate/export a developer certificate, configure persistent local/CI signing, and verify the installed-build identity against the published `assetlinks.json`. Fingerprints are reviewed public configuration; private keys are never registered with the public endpoint.
