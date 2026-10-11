@@ -22,6 +22,17 @@ class SigningTests(unittest.TestCase):
         self.assertFalse(signing.approved(doc,'com.example.qa',fp))
         self.assertFalse(signing.approved([], 'com.example.qa',fp))
 
+    def test_apk_signer_formats_and_unexpected_signer(self):
+        import argparse
+        args = argparse.Namespace(expected_sha256='ab'*32, apksigner='apksigner',
+            aapt='aapt', apk='app.apk', package='com.example.qa', url='unused')
+        for label in ('Signer #1', 'Signer (minSdkVersion=28, maxSdkVersion=32)', 'V2 Signer:', 'V3.1 Signer:'):
+            output = label + ' certificate SHA-256 digest: ' + 'ab'*32 + '\n'
+            with patch.object(signing, 'run', side_effect=[output, "package: name='com.example.qa'"]), patch.object(signing, 'fetch'), patch.object(signing, 'approved', return_value=True):
+                signing.verify(args)
+            with patch.object(signing, 'run', return_value=output + 'V2 Signer: certificate SHA-256 digest: ' + 'cd'*32 + '\n'):
+                with self.assertRaises(ValueError): signing.verify(args)
+
     def test_rejects_non_https_and_redirect(self):
         with self.assertRaises(ValueError): signing.fetch('http://dev.example.com/.well-known/assetlinks.json')
         self.assertIsNone(signing.NoRedirect().redirect_request(None,None,302,'',{},'https://elsewhere.example'))

@@ -125,7 +125,7 @@ def approved(document, package, digest):
 def verify(args):
     expected = fingerprint(args.expected_sha256)
     certs = run([args.apksigner or sdk_tool("apksigner"), "verify", "--print-certs", args.apk])
-    hashes = {fingerprint(v) for v in re.findall(r"^Signer[^\n]* certificate SHA-256 digest:\s*([0-9a-fA-F:]+)\s*$", certs, re.M)}
+    hashes = {fingerprint(v) for v in re.findall(r"^(?:V[1-4](?:\.\d+)? )?Signer[^\n]* certificate SHA-256 digest:\s*([0-9a-fA-F:]+)\s*$", certs, re.M)}
     if hashes != {expected}:
         observed = ", ".join(sorted(hashes)) or "no supported signer certificate found"
         raise ValueError(f"APK signing certificate differs from the approved expected fingerprint: expected {expected}; observed {observed}")
