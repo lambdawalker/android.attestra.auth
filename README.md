@@ -14,7 +14,7 @@ The `:auth` library includes identity capture and requires **Android 9 (API 28)*
 
 ## Configure the deployment
 
-The demo app now resolves `dev` from `https://index.attestrabond.com/v1/environments` by default. To select QA on Windows:
+The checked-in configuration uses index discovery: a normal build resolves `dev` from `https://index.attestrabond.com/v1/environments` by default. To select QA on Windows:
 
 ```powershell
 .\gradlew.bat :app:assembleDebug '-PattestraEnvironment=qa'
@@ -23,6 +23,8 @@ The demo app now resolves `dev` from `https://index.attestrabond.com/v1/environm
 Set `attestraIndexUrl` to use another trusted index. The app resolves configuration before creating authenticated clients, and applies the published API URL and ID-capture flag. See [environment discovery](docs/environment-discovery.md) for caching, library integration and session isolation.
 
 App Links still require a build-time manifest hostname. The default is `<environment>.attestrabond.com`; override `attestraLinkHost` for a different domain. Discovery does not configure your website, `assetlinks.json` or Android signing association.
+
+The index and a fixed API URL are alternatives: setting `attestraApiBaseUrl` skips discovery. That URL may use a custom domain (such as `https://dev.api.attestrabond.com`) or AWS API Gateway's direct `execute-api` hostname. See the [configuration comparison and switching instructions](docs/environment-discovery.md#index-discovery-versus-a-fixed-api-url).
 
 ### Explicit static configuration
 
@@ -112,7 +114,7 @@ The design submodule is a pinned reference, not a second copy of the design main
 
 The live host uses `PasskeyRegistrationApi` for registration transport and `AndroidPasskeyManager` for Credential Manager calls. `PasskeyCancelled`, `PasskeyUnsupported`, and `PasskeyApiException` select Android recovery screens. The canonical [registration transitions](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/passkey-creation/architecture.md) define when success or recovery is appropriate; exact HTTP shapes stay in the [backend reference](https://github.com/lambdawalker/go.attestra.aws.auth/blob/main/README.md#passkey-registration).
 
-Set `attestraApiBaseUrl` as for email verification. The HTTPS `attestraLinkHost` must serve `/.well-known/assetlinks.json` containing `delegate_permission/common.get_login_creds`, the exact app ID, and the installed APK's SHA-256 signing fingerprint. Test on Android 9 or newer with a configured credential provider. Diagnostic messages remain under the `EmailDebugX` tag for now.
+Use the same discovered environment as email verification, or explicitly set `attestraApiBaseUrl` for static mode. The HTTPS `attestraLinkHost` must serve `/.well-known/assetlinks.json` containing `delegate_permission/common.get_login_creds`, the exact app ID, and the installed APK's SHA-256 signing fingerprint. Test on Android 9 or newer with a configured credential provider. Diagnostic messages remain under the `EmailDebugX` tag for now.
 
 ### Returning after an unfinished signup
 
@@ -154,6 +156,6 @@ The backend setup wizard exports `android-config/<environment>.properties`, cont
 ./gradlew :app:assembleDebug -PattestraConfigFile=../go.attestra.aws.auth/android-config/qa.properties
 ```
 
-Paths are relative to the Android repository root unless absolute. Explicit Gradle properties override file values. Missing or malformed file settings fail the build. Cognito IDs and environment metadata become `BuildConfig` fields; existing backend API authentication remains unchanged. `attestraCaptureEnabled=false` disables the live capture screen; local debug mock capture is separate. Without this property, live capture defaults to disabled. The server's document policy remains authoritative; enabling the client does not enable the server.
+Paths are relative to the Android repository root unless absolute. Explicit Gradle properties override file values. Missing or malformed file settings fail the build. Cognito IDs and environment metadata become `BuildConfig` fields; existing backend API authentication remains unchanged. `attestraCaptureEnabled=false` disables the live capture screen; local debug mock capture is separate. In static mode, omitting this property disables live capture. In discovery mode, the index’s `features.idCapture` controls the client flag. The server's document policy remains authoritative; enabling the client does not enable the server.
 
 The file contains public configuration, never AWS keys, GitHub/Cloudflare tokens, or Pulumi passphrases. Re-export and rebuild when switching environments or replacing deployed resources.

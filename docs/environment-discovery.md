@@ -4,6 +4,27 @@ The public schema-v1 endpoint is `https://index.attestrabond.com/v1/environments
 
 The response contains `schemaVersion` and `environments`, each with `id`, `configuration`, `configHash`, `revision`, and `updatedAt`. Configuration supplies `apiUrl`, `awsRegion`, `cognitoUserPoolId`, `cognitoClientId`, and `features.idCapture`. Existing email, passkey, sign-in and capture clients append their existing paths to this API base. Cognito values are exposed to library consumers and included in the app's saved-session binding; the demo continues authenticating through the Go API rather than calling Cognito directly.
 
+## Index discovery versus a fixed API URL
+
+These are alternative configuration modes. A custom domain is usable in either mode; DNS naming and index discovery are separate concerns.
+
+| Mode | Configuration | Result |
+| --- | --- | --- |
+| Index discovery (default) | Leave `attestraApiBaseUrl` unset; environment defaults to `dev` | Fetch that environment's API URL, Cognito IDs, region and capture flag from the index |
+| Fixed API URL | Set `attestraApiBaseUrl=https://dev.api.attestrabond.com` or an AWS `https://…execute-api.us-east-2.amazonaws.com` URL | Skip the index and use build-time configuration |
+
+The `execute-api` hostname is AWS API Gateway's direct address. It is not the index endpoint. A fixed URL is useful for explicit testing or installations without an index; use discovery for normal Attestra builds.
+
+For the default dev build on Windows:
+
+```powershell
+.\gradlew.bat :app:assembleDebug
+```
+
+Remove any old `attestraApiBaseUrl` and `attestraLinkHost` overrides from project or user-level Gradle properties (including `%USERPROFILE%\.gradle\gradle.properties`) to use the defaults. Do not pass `attestraConfigFile` when you want discovery: exported files contain a fixed API URL. Rebuild and reinstall after changing build properties. Updating an existing installation can clear its saved authentication when its backend binding changes.
+
+The default `dev` value lives in `app/build.gradle.kts`, rather than an active project property, so a QA/prod export can still supply its own environment. Command-line `-PattestraEnvironment=qa` explicitly selects QA.
+
 ## Library use
 
 ```kotlin
