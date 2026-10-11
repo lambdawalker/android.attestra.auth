@@ -1,6 +1,7 @@
 """CI-only signature integration test using an ephemeral certificate and a fake website."""
 import argparse
 import json
+import subprocess
 from unittest.mock import patch
 import signing
 
@@ -15,6 +16,10 @@ namespace = argparse.Namespace(apk=args.apk, package=approved['packageName'], ex
                                url='https://qa.example.invalid/.well-known/assetlinks.json', apksigner=None, aapt=None)
 document = [{'relation': sorted(signing.RELATIONS), 'target': {'namespace': 'android_app',
             'package_name': namespace.package, 'sha256_cert_fingerprints': [digest]}}]
+# Certificates are public; retain actual SDK output to diagnose tool-version differences.
+result = subprocess.run([signing.sdk_tool('apksigner'), 'verify', '--print-certs', args.apk], capture_output=True, text=True, check=True)
+print('apksigner stdout:', repr(result.stdout), flush=True)
+print('apksigner stderr:', repr(result.stderr), flush=True)
 with patch.object(signing, 'fetch', return_value=document):
     signing.verify(namespace)
     namespace.expected_sha256 = '00' * 32
