@@ -18,5 +18,9 @@ jobs:
       - name: Test auth and assemble app
         run: >-
           bash gradlew :auth:testDebugUnitTest :identity-mock:testDebugUnitTest :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease
+          -PattestraEnvironment=qa
+      - name: Check explicit API override
+        run: >-
+          bash gradlew :app:generateDebugBuildConfig
           -PattestraApiBaseUrl=https://api.example.invalid
           -PattestraLinkHost=app.example.invalid
