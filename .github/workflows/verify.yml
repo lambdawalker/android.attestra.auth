@@ -26,3 +26,12 @@ jobs:
           bash gradlew :app:generateDebugBuildConfig
           -PattestraApiBaseUrl=https://api.example.invalid
           -PattestraLinkHost=app.example.invalid
+      - name: Exercise persistent signing with an ephemeral test certificate
+        env:
+          ATTESTRA_KEYSTORE_PASSWORD: ci-test-only-password
+        run: |
+          export ATTESTRA_KEYSTORE_PATH="$RUNNER_TEMP/attestra-test.p12"
+          trap 'rm -f "$ATTESTRA_KEYSTORE_PATH"; rm -rf .gradle/configuration-cache' EXIT
+          python3 scripts/signing/signing.py generate --keystore "$ATTESTRA_KEYSTORE_PATH" --output "$RUNNER_TEMP/association-test.json"
+          bash gradlew --no-configuration-cache :app:assembleRelease -PattestraEnvironment=qa
+          python3 scripts/signing/smoke.py --associations "$RUNNER_TEMP/association-test.json" --apk app/build/outputs/apk/release/app-release.apk
