@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Local signing setup and public association verification; no private-key upload."""
 import argparse
+import base64
 import getpass
 import hashlib
 import json
@@ -27,6 +28,15 @@ def fingerprint(value):
     if not re.fullmatch(r"[0-9A-F]{64}", value):
         raise ValueError("Expected a SHA-256 certificate fingerprint")
     return ":".join(value[i:i+2] for i in range(0, 64, 2))
+
+
+def certificate_fingerprint(output):
+    # JVM startup warnings can precede stdout; hash only the PEM certificate bytes.
+    match = re.search(rb"-----BEGIN CERTIFICATE-----\s*(.*?)\s*-----END CERTIFICATE-----", output, re.S)
+    if not match:
+        raise ValueError("keytool did not return a PEM certificate")
+    der = base64.b64decode(re.sub(rb"\s+", b"", match[1]), validate=True)
+    return fingerprint(hashlib.sha256(der).hexdigest())
 
 
 def password_env():
@@ -67,11 +77,11 @@ def export(args, generate=False):
     if not path.is_file():
         raise ValueError("Keystore does not exist")
     # Fingerprint the DER certificate bytes, independent of keytool's display language.
-    result = subprocess.run(["keytool", "-exportcert", "-keystore", str(path), "-alias", args.alias,
+    result = subprocess.run(["keytool", "-exportcert", "-rfc", "-keystore", str(path), "-alias", args.alias,
                              "-storepass:env", "ATTESTRA_KEYSTORE_PASSWORD"], env=env, capture_output=True)
     if result.returncode:
         raise RuntimeError("Certificate export failed; check keystore, password and alias")
-    digest = fingerprint(hashlib.sha256(result.stdout).hexdigest())
+    digest = certificate_fingerprint(result.stdout)
     document = [{"packageName": args.package, "sha256CertFingerprints": [digest]}]
     with open(args.output, "x", encoding="utf-8") as output:
         json.dump(document, output, indent=2)
@@ -115,9 +125,10 @@ def approved(document, package, digest):
 def verify(args):
     expected = fingerprint(args.expected_sha256)
     certs = run([args.apksigner or sdk_tool("apksigner"), "verify", "--print-certs", args.apk])
-    hashes = re.findall(r"Signer #\d+ certificate SHA-256 digest:\s*([0-9a-fA-F]+)", certs)
-    if len(hashes) != 1 or fingerprint(hashes[0]) != expected:
-        raise ValueError("APK signing certificate differs from the approved expected fingerprint")
+    hashes = {fingerprint(v) for v in re.findall(r"^Signer[^\n]* certificate SHA-256 digest:\s*([0-9a-fA-F:]+)\s*$", certs, re.M)}
+    if hashes != {expected}:
+        observed = ", ".join(sorted(hashes)) or "no supported signer certificate found"
+        raise ValueError(f"APK signing certificate differs from the approved expected fingerprint: expected {expected}; observed {observed}")
     badging = run([args.aapt or sdk_tool("aapt"), "dump", "badging", args.apk])
     match = re.search(r"^package: name='([^']+)'", badging, re.M)
     if not match or match[1] != args.package:

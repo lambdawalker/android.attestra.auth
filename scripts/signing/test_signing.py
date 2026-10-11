@@ -3,6 +3,11 @@ from unittest.mock import patch
 import signing
 
 class SigningTests(unittest.TestCase):
+    def test_export_ignores_jvm_stdout_warnings(self):
+        import hashlib
+        expected = signing.fingerprint(hashlib.sha256(b'certificate').hexdigest())
+        self.assertEqual(expected, signing.certificate_fingerprint(b'[0.1s][warning] JVM warning\n-----BEGIN CERTIFICATE-----\nY2VydGlmaWNhdGU=\n-----END CERTIFICATE-----'))
+
     def test_fingerprint(self):
         self.assertEqual(signing.fingerprint('ab'*32), ':'.join(['AB']*32))
         with self.assertRaises(ValueError): signing.fingerprint('AB')
