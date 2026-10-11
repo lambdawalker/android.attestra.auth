@@ -46,7 +46,7 @@ internal fun OnboardingEntryScreen(
                 Text("Onboarding", style = MaterialTheme.typography.titleLarge)
                 Text("In development · Start or resume email confirmation, passkey setup, and ID capture.")
                 Button(onClick = onStart, enabled = !resetting, modifier = Modifier.fillMaxWidth()) { Text("Open onboarding") }
-                if (!hasBackend) Text("Live email onboarding needs a configured backend. You can still use the UI catalog and capture test below.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (!hasBackend) Text("Environment settings are not ready. Open onboarding to check or retry. The UI catalog and local capture demo remain available.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         Card(Modifier.fillMaxWidth()) {
@@ -80,14 +80,15 @@ internal fun OnboardingEntryScreen(
 }
 
 @Composable
-internal fun BackendNotConfiguredScreen(onBack: () -> Unit) {
+internal fun EnvironmentStatusScreen(loading: Boolean, message: String?, onRetry: () -> Unit, onBack: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Backend not configured", style = MaterialTheme.typography.headlineMedium)
-        Text("Build the app with attestraApiBaseUrl set to the Go stack's apiUrl to test live onboarding.", modifier = Modifier.padding(vertical = 20.dp))
+        Text(if (loading) "Loading environment…" else "Environment unavailable", style = MaterialTheme.typography.headlineMedium)
+        Text(message ?: "Retrieving the selected environment’s public configuration.", modifier = Modifier.padding(vertical = 20.dp))
+        if (!loading) Button(onClick = onRetry) { Text("Retry") }
         OutlinedButton(onClick = onBack) { Text("Back to test menu") }
     }
 }

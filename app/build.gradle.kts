@@ -25,7 +25,14 @@ if (environmentFile != null) {
         .forEach { require(setting(it).isNotBlank()) { "Missing $it in Attestra environment configuration" } }
 }
 val authApiBaseUrl = setting("attestraApiBaseUrl")
-val authLinkHost = setting("attestraLinkHost", "example.invalid")
+val selectedEnvironment = setting("attestraEnvironment", "dev")
+require(selectedEnvironment.matches(Regex("[a-z][a-z0-9-]{0,31}"))) { "Invalid attestraEnvironment" }
+val indexUrl = setting("attestraIndexUrl", "https://index.attestrabond.com/v1/environments")
+require(runCatching {
+    val uri = java.net.URI(indexUrl)
+    uri.scheme == "https" && !uri.host.isNullOrBlank() && uri.userInfo == null && uri.query == null && uri.fragment == null
+}.getOrDefault(false)) { "attestraIndexUrl must be an HTTPS URL" }
+val authLinkHost = setting("attestraLinkHost", "$selectedEnvironment.attestrabond.com")
 val captureEnabled = setting("attestraCaptureEnabled", "false").toBooleanStrictOrNull()
     ?: error("attestraCaptureEnabled must be true or false")
 require(authApiBaseUrl.isEmpty() || runCatching {
@@ -52,7 +59,8 @@ android {
 
         buildConfigField("String", "AUTH_API_BASE_URL", "\"${authApiBaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         buildConfigField("String", "AUTH_LINK_HOST", "\"$authLinkHost\"")
-        buildConfigField("String", "ATTESTRA_ENVIRONMENT", quoted(setting("attestraEnvironment")))
+        buildConfigField("String", "ATTESTRA_ENVIRONMENT", quoted(selectedEnvironment))
+        buildConfigField("String", "ATTESTRA_INDEX_URL", quoted(indexUrl))
         buildConfigField("String", "AWS_REGION", quoted(setting("attestraAwsRegion")))
         buildConfigField("String", "COGNITO_USER_POOL_ID", quoted(setting("attestraCognitoUserPoolId")))
         buildConfigField("String", "COGNITO_CLIENT_ID", quoted(setting("attestraCognitoClientId")))

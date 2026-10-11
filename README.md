@@ -14,7 +14,19 @@ The `:auth` library includes identity capture and requires **Android 9 (API 28)*
 
 ## Configure the deployment
 
-Build with two Gradle properties; neither URL is hardcoded in the auth module:
+The demo app now resolves `dev` from `https://index.attestrabond.com/v1/environments` by default. To select QA on Windows:
+
+```powershell
+.\gradlew.bat :app:assembleDebug '-PattestraEnvironment=qa'
+```
+
+Set `attestraIndexUrl` to use another trusted index. The app resolves configuration before creating authenticated clients, and applies the published API URL and ID-capture flag. See [environment discovery](docs/environment-discovery.md) for caching, library integration and session isolation.
+
+App Links still require a build-time manifest hostname. The default is `<environment>.attestrabond.com`; override `attestraLinkHost` for a different domain. Discovery does not configure your website, `assetlinks.json` or Android signing association.
+
+### Explicit static configuration
+
+Existing exported `.properties` files and an explicitly supplied `attestraApiBaseUrl` select static mode and bypass discovery. Remove any old `attestraApiBaseUrl` from local Gradle properties to use the index. For a static override:
 
 ```bash
 bash gradlew :app:assembleDebug \
@@ -43,7 +55,7 @@ attestraLinkHost=attestrabond.com
 
 Use your own stack's `apiUrl` if it differs from this example; when `pulumi stack output apiUrl` is missing, verify the selected stack and finish `pulumi up`. These values can also be passed through CI. The link host must serve `https://HOST/.well-known/assetlinks.json` with the app's package `com.apexfission.android.attestra.auth` and signing certificate SHA-256 to make Android App Links open directly in the app. On other devices or when the app isn't associated, the website must host `/verify-email` and show the manual code screen.
 
-The launcher opens a choice screen in the existing `MainActivity`: **Start onboarding** runs the live email flow, and **Open UI catalog** previews every screen without calling the backend. With no API URL, Start onboarding explains how to configure `attestraApiBaseUrl`; the catalog still works. The system Back action returns to the choice screen, or to the catalog list when previewing an individual screen. A valid HTTPS `/verify-email` App Link opens live onboarding directly, including when the catalog is currently visible. The manifest accepts links only for the configured host, and the activity checks the incoming origin again before handling one. Visiting a link never calls the backend with B alone.
+The launcher opens a choice screen in the existing `MainActivity`: **Start onboarding** runs the live email flow, and **Open UI catalog** previews every screen without calling the backend. With no explicit API URL, Start onboarding waits for index discovery and offers Retry if unavailable; the catalog still works. The system Back action returns to the choice screen, or to the catalog list when previewing an individual screen. A valid HTTPS `/verify-email` App Link opens live onboarding directly, including when the catalog is currently visible. The manifest accepts links only for the configured host, and the activity checks the incoming origin again before handling one. Visiting a link never calls the backend with B alone.
 
 ### Verify Android App Links on a device
 

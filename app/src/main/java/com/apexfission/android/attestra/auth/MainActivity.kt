@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,7 @@ private enum class EntryScreen { Home, Catalog, Onboarding, IdentityDemo, Identi
 
 class MainActivity : ComponentActivity() {
     private companion object { const val TAG = "EmailDebugX" }
+    private val environment by lazy { ViewModelProvider(this)[EnvironmentViewModel::class.java] }
     private val localReset by lazy { ViewModelProvider(this)[LocalUserResetViewModel::class.java] }
     private var incomingLink by mutableStateOf<VerificationLink?>(null)
 
@@ -47,8 +49,8 @@ class MainActivity : ComponentActivity() {
             }
             LaunchedEffect(destination) {
                 Log.d(TAG, "Showing ${destination.name} screen")
-                if (destination == EntryScreen.Onboarding && BuildConfig.AUTH_API_BASE_URL.isBlank()) {
-                    Log.w(TAG, "Live onboarding unavailable: attestraApiBaseUrl is missing")
+                if (destination == EntryScreen.Onboarding && environment.configuration == null) {
+                    Log.w(TAG, "Waiting for environment configuration")
                 }
             }
             BackHandler(enabled = destination != EntryScreen.Home) {
@@ -59,9 +61,9 @@ class MainActivity : ComponentActivity() {
             AttestraAuthTheme {
                 when (destination) {
                     EntryScreen.Home -> OnboardingEntryScreen(
-                        hasBackend = BuildConfig.AUTH_API_BASE_URL.isNotBlank(),
+                        hasBackend = environment.configuration != null,
                         resetting = resetting,
-                        resetMessage = localReset.message,
+                        resetMessage = localReset.message ?: environment.message,
                         onDeleteLocalUser = {
                             if (!resetting) {
                                 clearIncomingLink()
@@ -73,24 +75,33 @@ class MainActivity : ComponentActivity() {
                         onIdentityDemo = if (HAS_IDENTITY_DEMO) { { destination = EntryScreen.IdentityDemo } } else null,
                     )
                     EntryScreen.IdentityDemo -> IdentityDemo(onExit = { destination = EntryScreen.Home })
-                    EntryScreen.IdentityCapture -> DirectIdentityCapture(onExit = { destination = EntryScreen.Catalog })
+                    EntryScreen.IdentityCapture -> {
+                        val config = environment.configuration
+                        if (HAS_IDENTITY_DEMO) DirectIdentityCapture(onExit = { destination = EntryScreen.Catalog })
+                        else if (config != null) CompositionLocalProvider(LocalBackendConfiguration provides config) {
+                            DirectIdentityCapture(onExit = { destination = EntryScreen.Catalog })
+                        } else EnvironmentStatusScreen(environment.loading, environment.message, environment::load) { destination = EntryScreen.Catalog }
+                    }
                     EntryScreen.Catalog -> OnboardingCatalog(actions = OnboardingBusinessActions(
                         onOpenIdentityCapture = { destination = EntryScreen.IdentityCapture },
                     ))
                     EntryScreen.Onboarding -> {
-                        if (BuildConfig.AUTH_API_BASE_URL.isBlank()) {
-                            BackendNotConfiguredScreen(onBack = {
+                        if (environment.configuration == null) {
+                            EnvironmentStatusScreen(environment.loading, environment.message, environment::load, onBack = {
                                 destination = EntryScreen.Home
                                 clearIncomingLink()
                             })
                         } else {
+                            val config = requireNotNull(environment.configuration)
+                            CompositionLocalProvider(LocalBackendConfiguration provides config) {
                             EmailOnboardingHost(
-                                apiBaseUrl = BuildConfig.AUTH_API_BASE_URL,
+                                apiBaseUrl = config.apiUrl,
                                 link = incomingLink,
                                 onLinkConsumed = ::clearIncomingLink,
                                 identityContent = { passkeyAdded, exit -> AccountIdentityFlow(passkeyAdded, exit) },
                                 onPasskeyDeferred = { notice("Your email is verified. You can add a passkey later.") },
                             )
+                            }
                         }
                     }
                 }

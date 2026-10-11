@@ -2,8 +2,10 @@
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="sharedpref" path="attestra_auth_private.xml" />
+        <exclude domain="sharedpref" path="attestra_environment.xml" />
     </cloud-backup>
     <device-transfer>
         <exclude domain="sharedpref" path="attestra_auth_private.xml" />
+        <exclude domain="sharedpref" path="attestra_environment.xml" />
     </device-transfer>
 </data-extraction-rules>

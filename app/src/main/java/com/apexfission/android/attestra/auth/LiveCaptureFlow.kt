@@ -27,7 +27,8 @@ import kotlinx.serialization.json.jsonPrimitive
     }
 }
 @Composable internal fun LiveCaptureFlow(onExit: () -> Unit) {
-    if (!BuildConfig.CAPTURE_ENABLED) {
+    val config = LocalBackendConfiguration.current
+    if (!config.captureEnabled) {
         Column(Modifier.padding(24.dp)) {
             Text("ID capture is not enabled for this environment.")
             Button(onClick = onExit) { Text("Return") }
@@ -46,7 +47,7 @@ import kotlinx.serialization.json.jsonPrimitive
         "${claims["iss"]?.jsonPrimitive?.content}:$sub"
     }.getOrNull()
     val account = remember(storage) { subject() }
-    if (account == null || BuildConfig.AUTH_API_BASE_URL.isBlank()) {
+    if (account == null || config.apiUrl.isBlank()) {
         Column(Modifier.padding(24.dp)) { Text("Sign in to the configured service to capture your ID."); Button(onClick = onExit) { Text("Return") } }
         return
     }
@@ -55,10 +56,10 @@ import kotlinx.serialization.json.jsonPrimitive
     DisposableEffect(client, uploads) { onDispose { client.close(); uploads.close() } }
     val controller = remember(account) {
         CaptureController(
-            CaptureApi(BuildConfig.AUTH_API_BASE_URL, client, uploads) {
+            CaptureApi(config.apiUrl, client, uploads) {
                 if (subject() != account) "" else storage.session()?.accessToken.orEmpty()
             },
-            SecureCaptureCheckpointStore(storage, BuildConfig.AUTH_API_BASE_URL, account),
+            SecureCaptureCheckpointStore(storage, config.apiUrl, account),
         )
     }
     CaptureHost(controller, {
