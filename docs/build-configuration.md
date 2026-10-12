@@ -71,3 +71,15 @@ Studio must inherit these variables when launched; typing them in the embedded t
 Add a focused `attestra.<feature>.gradle.kts` under the same buildSrc source directory and apply its ID in the app. Keep inputs, validation and generated Android configuration together. Do not add credentials to the public endpoint resolver. Do not duplicate dependency/plugin versions; use the shared catalog in the buildSrc build script.
 
 CI runs `scripts/verification/verify_conventions.py`: default/index mode, exported values, explicit overrides, invalid inputs, signing-cache rejection and a real APK signed with a disposable certificate. This does not deploy infrastructure or register that certificate with any environment.
+
+## Signed debug variant
+
+When the configured keystore exists and its store password, alias and key password unlock a private key with a certificate, sync creates **signedDebug**. Select it in Android Studio's Build Variants window, or run:
+
+```powershell
+.\gradlew.bat --no-configuration-cache :app:assembleSignedDebug '-PattestraEnvironment=dev'
+```
+
+It is debuggable, shares the debug capture-mock source and dependencies, and resolves library dependencies through their debug variants. It keeps the same application ID so approved App Links/passkey associations still match. It does not select a server environment by itself.
+
+Without a configured path the variant is absent. Invalid configured credentials fail sync with an actionable error; they do not silently fall back to the standard debug key. Correct the values and resync. Existing debug/release signing behavior is unchanged. Validation supports Java-detectable JKS/PKCS12 files and checks credentials locally without uploading them.
