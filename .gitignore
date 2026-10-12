@@ -14,3 +14,9 @@
 .cxx
 local.properties
 build
+# Private signing identities and Python tool caches
+*.jks
+*.keystore
+*.p12
+*.pfx
+__pycache__/

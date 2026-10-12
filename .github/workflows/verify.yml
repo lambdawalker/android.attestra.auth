@@ -24,3 +24,5 @@ jobs:
           bash gradlew :app:generateDebugBuildConfig
           -PattestraApiBaseUrl=https://api.example.invalid
           -PattestraLinkHost=app.example.invalid
+      - name: Verify feature conventions
+        run: python3 scripts/verification/verify_conventions.py
