@@ -15,6 +15,8 @@ jobs:
             25
       # Use the hosted Android SDK; AGP resolves the pinned SDK components.
       - uses: gradle/actions/setup-gradle@v4
+      - name: Test signing tools
+        run: python3 -m unittest discover -s scripts/signing
       - name: Test auth and assemble app
         run: >-
           bash gradlew :auth:testDebugUnitTest :identity-mock:testDebugUnitTest :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease
@@ -26,3 +28,12 @@ jobs:
           -PattestraLinkHost=app.example.invalid
       - name: Verify feature conventions
         run: python3 scripts/verification/verify_conventions.py
+      - name: Exercise persistent signing with an ephemeral test certificate
+        env:
+          ATTESTRA_KEYSTORE_PASSWORD: ci-test-only-password
+        run: |
+          export ATTESTRA_KEYSTORE_PATH="$RUNNER_TEMP/attestra-test.p12"
+          trap 'rm -f "$ATTESTRA_KEYSTORE_PATH"; rm -rf .gradle/configuration-cache' EXIT
+          python3 scripts/signing/signing.py generate --keystore "$ATTESTRA_KEYSTORE_PATH" --output "$RUNNER_TEMP/association-test.json"
+          bash gradlew --no-configuration-cache :app:assembleRelease -PattestraEnvironment=qa
+          python3 scripts/signing/smoke.py --associations "$RUNNER_TEMP/association-test.json" --apk app/build/outputs/apk/release/app-release.apk
