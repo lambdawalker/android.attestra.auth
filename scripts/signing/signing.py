@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["rich==14.1.0"]
+# ///
 """Local signing setup and public association verification; no private-key upload."""
 import argparse
 import base64
@@ -17,7 +21,7 @@ RELATIONS = {"delegate_permission/common.handle_all_urls", "delegate_permission/
 
 
 def run(args, env=None):
-    result = subprocess.run([str(a) for a in args], env=env, capture_output=True, text=True)
+    result = subprocess.run([str(a) for a in args], env=env, capture_output=True, text=True, timeout=120)
     if result.returncode:
         raise RuntimeError(f"{Path(str(args[0])).name} failed (exit {result.returncode}); check the path, alias, password and installed tools")
     return result.stdout
@@ -59,13 +63,16 @@ def sdk_tool(name):
     return found
 
 
-def export(args, generate=False):
+def export(args, generate=False, env=None):
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+", args.package):
         raise ValueError("Invalid Android application ID")
     path = Path(args.keystore).expanduser().resolve()
-    if Path(args.output).exists():
+    if Path(args.output).expanduser().exists():
         raise ValueError("Output exists; choose a new path to avoid replacing an approval file")
-    env = password_env()
+    output_path = Path(args.output).expanduser().resolve()
+    if not output_path.parent.is_dir():
+        raise ValueError("Output directory does not exist")
+    env = password_env() if env is None else env
     if generate:
         if path.exists():
             raise ValueError("Keystore already exists; use export to preserve its signing identity")
@@ -78,12 +85,12 @@ def export(args, generate=False):
         raise ValueError("Keystore does not exist")
     # Fingerprint the DER certificate bytes, independent of keytool's display language.
     result = subprocess.run(["keytool", "-exportcert", "-rfc", "-keystore", str(path), "-alias", args.alias,
-                             "-storepass:env", "ATTESTRA_KEYSTORE_PASSWORD"], env=env, capture_output=True)
+                             "-storepass:env", "ATTESTRA_KEYSTORE_PASSWORD"], env=env, capture_output=True, timeout=120)
     if result.returncode:
         raise RuntimeError("Certificate export failed; check keystore, password and alias")
     digest = certificate_fingerprint(result.stdout)
     document = [{"packageName": args.package, "sha256CertFingerprints": [digest]}]
-    with open(args.output, "x", encoding="utf-8") as output:
+    with open(output_path, "x", encoding="utf-8") as output:
         json.dump(document, output, indent=2)
         output.write("\n")
     print(f"Public fingerprint: {digest}\nPublic association file: {args.output}")
@@ -114,11 +121,21 @@ def approved(document, package, digest):
         return False
     relations = set()
     for item in document:
+        if not isinstance(item, dict):
+            continue
         target = item.get("target", {})
+        if not isinstance(target, dict):
+            continue
+        fingerprints = target.get("sha256_cert_fingerprints", [])
+        relation = item.get("relation", [])
+        if not isinstance(fingerprints, list) or not all(isinstance(v, str) for v in fingerprints):
+            continue
+        if not isinstance(relation, list) or not all(isinstance(v, str) for v in relation):
+            continue
         if target.get("namespace") == "android_app" and target.get("package_name") == package:
-            values = {fingerprint(v) for v in target.get("sha256_cert_fingerprints", [])}
+            values = {fingerprint(v) for v in fingerprints}
             if digest in values:
-                relations.update(item.get("relation", []))
+                relations.update(relation)
     return RELATIONS <= relations
 
 
@@ -140,7 +157,8 @@ def verify(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    commands = parser.add_subparsers(dest="command", required=True)
+    commands = parser.add_subparsers(dest="command", required=False)
+    commands.add_parser("wizard", help="guided interactive signing setup (default)")
     for name in ("generate", "export"):
         p = commands.add_parser(name)
         p.add_argument("--keystore", required=True)
@@ -156,9 +174,22 @@ def main():
     p.add_argument("--aapt")
     args = parser.parse_args()
     try:
+        if args.command in (None, "wizard"):
+            if not sys.stdin.isatty():
+                parser.error("The wizard requires an interactive terminal; use generate, export or verify-apk for automation")
+            try:
+                from wizard import wizard
+            except ModuleNotFoundError as error:
+                if error.name != "rich":
+                    raise
+                raise RuntimeError("Run with uv run scripts/signing/signing.py to install the wizard dependencies") from None
+            return wizard()
         if args.command == "verify-apk": verify(args)
         else: export(args, args.command == "generate")
-    except (ValueError, RuntimeError, OSError) as error:
+    except (EOFError, KeyboardInterrupt):
+        print("\nSigning setup cancelled; existing files are retained.", file=sys.stderr)
+        return 130
+    except (ValueError, RuntimeError, OSError, subprocess.TimeoutExpired) as error:
         print(f"Signing setup stopped: {error}", file=sys.stderr)
         return 1
     return 0
