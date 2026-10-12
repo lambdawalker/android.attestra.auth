@@ -75,6 +75,22 @@ class WizardTests(unittest.TestCase):
             self.assertEqual('/sdk', self.ui.sdk)
         self.assertIn('SDK root folder', ' '.join(self.output.getvalue().split()))
 
+    def test_public_copy_is_environment_scoped_and_preserves_previous(self):
+        with tempfile.TemporaryDirectory() as directory, patch('pathlib.Path.home', return_value=Path(directory)):
+            source = Path(directory) / 'public.json'
+            source.write_text('[{"packageName":"com.example.app"}]')
+            dev = signing.save_public_copy(source, 'dev')
+            self.assertEqual(dev, Path(directory) / '.attestra/associations/dev/developer-associations.json')
+            original = dev.read_bytes()
+            source.write_text('[]')
+            qa = signing.save_public_copy(source, 'qa')
+            self.assertEqual(original, dev.read_bytes())
+            signing.save_public_copy(source, 'dev')
+            self.assertEqual(b'[]', dev.read_bytes())
+            self.assertEqual(1, len(list(dev.parent.glob('developer-associations-*.json'))))
+            with self.assertRaises(ValueError):
+                signing.save_public_copy(source, '../prod')
+
     def test_real_key_generation_export_and_overwrite_protection(self):
         with tempfile.TemporaryDirectory() as directory:
             key = Path(directory) / 'test.p12'
