@@ -18,7 +18,9 @@ The output contains only `packageName` and `sha256CertFingerprints`. Submit it t
 
 Signing is configured by `buildSrc/src/main/kotlin/attestra.signing.gradle.kts`, applied by the app. See [build configuration](build-configuration.md) for input sources and precedence. Do not duplicate the signing configuration in `app/build.gradle.kts`.
 
-Set `ATTESTRA_KEYSTORE_PATH`, `ATTESTRA_KEYSTORE_PASSWORD`, and optionally `ATTESTRA_KEY_ALIAS` (default `attestra`) and `ATTESTRA_KEY_PASSWORD` (defaults to the store password). Supply passwords through your local secret manager/session, not checked-in Gradle properties or shell history. Then:
+Set these inputs in your process environment or repository-root `local.properties` (same uppercase names; environment values win per setting). See the [local.properties example](build-configuration.md#signing-settings).
+
+Set `ATTESTRA_KEYSTORE_PATH`, `ATTESTRA_KEYSTORE_PASSWORD`, and optionally `ATTESTRA_KEY_ALIAS` (default `attestra`) and `ATTESTRA_KEY_PASSWORD` (defaults to the store password). You can supply passwords through your local secret manager/session, or the ignored local.properties file; the latter stores them as plaintext. Never check them in or put them in shell history. Then:
 
 ```powershell
 .\gradlew.bat --no-configuration-cache :app:assembleDebug '-PattestraEnvironment=dev'
