@@ -34,6 +34,7 @@ class Wizard:
         self.package = PACKAGE
         self.keystore = None
         self.digest = None
+        self.sdk = None
 
     def ask(self, label, default=None, validate=None, password=False):
         while True:
@@ -102,8 +103,25 @@ class Wizard:
         self.console.print("✓ Public signing association exported.", style="green")
         self.guidance()
 
+    def sdk_tools(self):
+        try:
+            return signing.sdk_tool("apksigner", self.sdk), signing.sdk_tool("aapt", self.sdk)
+        except ValueError:
+            self.console.print("Android SDK Build-Tools were not found. In Android Studio, open Settings → Languages & Frameworks → Android SDK. Install Android SDK Build-Tools under SDK Tools, then enter the Android SDK Location below.", style="yellow")
+        while True:
+            path = self.ask("Android SDK folder (Ctrl+C to return to menu)", self.sdk)
+            try:
+                tools = signing.sdk_tool("apksigner", path), signing.sdk_tool("aapt", path)
+            except ValueError:
+                self.console.print("That folder does not contain both apksigner and aapt under build-tools/<version>. Select the SDK root folder, or install Build-Tools first.", style="yellow")
+                continue
+            self.sdk = path
+            self.console.print("SDK folder selected for this session.", style="green")
+            return tools
+
     def verify(self):
-        apksigner, aapt = signing.sdk_tool("apksigner"), signing.sdk_tool("aapt")
+        self.console.print("Read-only check: verifies the local APK and reads the published assetlinks.json. No data is uploaded or published.")
+        apksigner, aapt = self.sdk_tools()
         self.context()
         apk = self.ask("APK path", str(ROOT / "app/build/outputs/apk/signedDebug/app-signedDebug.apk"), lambda v: Path(v).expanduser().is_file())
         def valid_digest(value):
@@ -122,7 +140,7 @@ class Wizard:
         self.console.print(Panel("Create a private signing identity, export its public fingerprint, or verify an APK.\nEnter accepts defaults. Ctrl+C cancels an action. Keys and passwords are never uploaded.", title="Attestra • Android signing", border_style="cyan"))
         while True:
             menu = Table(title="Choose an action", show_header=False, box=None, padding=(0, 2))
-            for number, label in [("1", "Generate a new signing key"), ("2", "Export an existing key's public fingerprint"), ("3", "Verify APK and published domain associations"), ("4", "Show Android Studio configuration guidance"), ("0", "Exit")]:
+            for number, label in [("1", "Generate a new signing key"), ("2", "Export an existing key's public fingerprint"), ("3", "Verify APK against published associations (read-only)"), ("4", "Show Android Studio configuration guidance"), ("0", "Exit")]:
                 menu.add_row(number, label)
             self.console.print(menu)
             try:

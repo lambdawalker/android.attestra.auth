@@ -49,6 +49,32 @@ class WizardTests(unittest.TestCase):
     def test_malformed_associations_fail_closed(self):
         self.assertFalse(signing.approved([None, {'target': None}, {'target': {'sha256_cert_fingerprints': None}}], 'com.example.app', 'AB'))
 
+    def test_sdk_properties_unescapes_windows_path(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {}, clear=True):
+            root = Path(directory)
+            (root / 'local.properties').write_text(r'sdk.dir=C\:\\Users\\David\\Android\\Sdk' + '\n')
+            with patch.object(signing, '__file__', str(root / 'scripts/signing/signing.py')):
+                self.assertIn(r'C:\Users\David\Android\Sdk', signing.sdk_candidates()[0])
+
+    def test_sdk_falls_back_from_stale_environment_to_properties(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {'ANDROID_HOME': '/missing-sdk'}, clear=True):
+            root = Path(directory)
+            sdk = root / 'sdk'
+            tools = sdk / 'build-tools/35.0.0'
+            tools.mkdir(parents=True)
+            suffix = '.bat' if os.name == 'nt' else ''
+            tool = tools / ('apksigner' + suffix)
+            tool.touch()
+            (root / 'local.properties').write_text('sdk.dir=sdk\n')
+            with patch.object(signing, '__file__', str(root / 'scripts/signing/signing.py')):
+                self.assertEqual(str(tool), signing.sdk_tool('apksigner'))
+
+    def test_sdk_prompt_retries_and_remembers_valid_folder(self):
+        with patch('wizard.Prompt.ask', side_effect=['bad', '/sdk']), patch('signing.sdk_tool', side_effect=[ValueError(), ValueError(), '/sdk/apksigner', '/sdk/aapt']):
+            self.assertEqual(('/sdk/apksigner', '/sdk/aapt'), self.ui.sdk_tools())
+            self.assertEqual('/sdk', self.ui.sdk)
+        self.assertIn('SDK root folder', ' '.join(self.output.getvalue().split()))
+
     def test_real_key_generation_export_and_overwrite_protection(self):
         with tempfile.TemporaryDirectory() as directory:
             key = Path(directory) / 'test.p12'
