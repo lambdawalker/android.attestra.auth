@@ -2,6 +2,24 @@
 
 Each developer testing real passkeys has a private signing key. Ordinary UI development can retain its normal debug key. Only public certificate fingerprints are approved for each environment. No build automatically grants trust to a newly encountered certificate.
 
+## Guided setup
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run from this repository:
+
+```sh
+uv run scripts/signing/signing.py
+```
+
+`uv` installs the pinned Rich terminal UI dependency in an isolated environment. The menu offers key generation, public fingerprint export, APK verification, and Android Studio guidance. All choices are visible; Enter accepts defaults and Ctrl+C cancels the current action. Run in an interactive terminal, including Android Studio's Terminal window.
+
+The default environment is `dev`; enter `qa` or a custom name when prompted. Defaults include `~/.attestra/signing/<environment>.p12`, alias `attestra`, the app's application ID, and `https://<environment>.attestrabond.com/.well-known/assetlinks.json`. The public JSON defaults to `developer-associations-<environment>.json` in the checkout, with a numbered suffix if it already exists. Verification defaults to the signedDebug APK; any path or URL can be overridden.
+
+Generation requires JDK `keytool` on PATH. APK verification also requires Android SDK Build Tools (`ANDROID_HOME` or `ANDROID_SDK_ROOT`, or tools on PATH). Missing tools and failed actions return to the menu. Existing keys and output files are never overwritten. If key generation succeeds but export fails, choose Export to recover using the same key.
+
+Passwords are hidden and confirmed for new keys. You can reuse `ATTESTRA_KEYSTORE_PASSWORD` from the invoking process; the wizard never writes passwords or modifies your shell environment. It does not automatically edit Gradle configuration or approve/upload fingerprints. Keep the key and password in secure storage. Selecting an environment only sets defaults; it does not grant trust there.
+
+For automation, the explicit commands below retain their arguments and can still run with standard-library Python. Use `ATTESTRA_KEYSTORE_PASSWORD` to avoid a password prompt. `wizard` is also an explicit command. Running without a command in a noninteractive process fails with usage guidance.
+
 ## Generate once, export before building
 
 Requires Python 3 and JDK `keytool`. From this repository on Windows:
