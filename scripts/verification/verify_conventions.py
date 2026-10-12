@@ -34,6 +34,7 @@ attestraCaptureEnabled=true
 attestraCaptureDocumentType=sample_card
 attestraIndexUrl=https://index.example.com/v1/environments
 """)
+    gradle(":app:assembleSignedDebug", failure="assembleSignedDebug")
     gradle(":app:generateDebugBuildConfig")
     assert 'ATTESTRA_ENVIRONMENT = "dev"' in config()
     assert 'AUTH_API_BASE_URL = ""' in config()
@@ -62,6 +63,14 @@ attestraIndexUrl=https://index.example.com/v1/environments
     missing = env.copy()
     del missing["ATTESTRA_KEYSTORE_PASSWORD"]
     gradle(":app:signingReport", env=missing, failure="Set ATTESTRA_KEYSTORE_PASSWORD")
+    for name, value, message in [
+        ("ATTESTRA_KEYSTORE_PASSWORD", "wrong-password", "Cannot open signing keystore"),
+        ("ATTESTRA_KEY_ALIAS", "missing-alias", "ATTESTRA_KEY_ALIAS must identify"),
+        ("ATTESTRA_KEY_PASSWORD", "wrong-password", "Cannot unlock signing key"),
+    ]:
+        invalid = env.copy()
+        invalid[name] = value
+        gradle(":app:assembleSignedDebug", env=invalid, failure=message)
     gradle(":app:assembleDebug", env=env)
     local = ROOT / "local.properties"
     original = local.read_bytes() if local.exists() else None
@@ -70,7 +79,7 @@ attestraIndexUrl=https://index.example.com/v1/environments
         local.write_text(prefix + f"ATTESTRA_KEYSTORE_PATH={Path(env['ATTESTRA_KEYSTORE_PATH']).as_posix()}\n"
                          + "ATTESTRA_KEYSTORE_PASSWORD=throwaway-ci-only\nATTESTRA_KEY_ALIAS=attestra\n", encoding='utf-8')
         clean_env = {k: v for k, v in os.environ.items() if not k.startswith('ATTESTRA_KEY')}
-        gradle(":app:assembleDebug", env=clean_env)
+        gradle(":app:assembleSignedDebug", env=clean_env)
         gradle(":app:signingReport", "--configuration-cache", env=clean_env,
                failure="Registered signing requires --no-configuration-cache")
         # Every environment field must override a conflicting local value.
@@ -89,7 +98,7 @@ attestraIndexUrl=https://index.example.com/v1/environments
     sdk = Path(os.environ["ANDROID_HOME"])
     apksigners = sorted((sdk / "build-tools").glob("*/apksigner"))
     output = subprocess.check_output([str(apksigners[-1]), "verify", "--print-certs",
-             "app/build/outputs/apk/debug/app-debug.apk"], cwd=ROOT, text=True)
+             "app/build/outputs/apk/signedDebug/app-signedDebug.apk"], cwd=ROOT, text=True)
     import hashlib
     cert = subprocess.check_output(["keytool", "-exportcert", "-rfc", "-keystore", env["ATTESTRA_KEYSTORE_PATH"],
              "-alias", "attestra", "-storepass:env", "ATTESTRA_KEYSTORE_PASSWORD"], env=env)

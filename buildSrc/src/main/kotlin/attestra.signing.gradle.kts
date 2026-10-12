@@ -1,4 +1,6 @@
 import java.util.Properties
+import java.security.KeyStore
+import java.security.PrivateKey
 
 plugins { id("com.android.application") }
 
@@ -26,6 +28,28 @@ if (keystorePath != null) {
         ?.takeIf { it.isNotBlank() } ?: "attestra"
     val keyPassword = signingSetting("ATTESTRA_KEY_PASSWORD")
         ?.takeIf { it.isNotBlank() } ?: password
+    // Validate before exposing a variant; never log passwords or provider exceptions.
+    val storeChars = password.toCharArray()
+    val keyChars = keyPassword.toCharArray()
+    try {
+        val store = try {
+            KeyStore.getInstance(keystore, storeChars)
+        } catch (_: Exception) {
+            throw GradleException("Cannot open signing keystore; check ATTESTRA_KEYSTORE_PASSWORD and the keystore format")
+        }
+        require(store.isKeyEntry(alias) && store.getCertificate(alias) != null) {
+            "ATTESTRA_KEY_ALIAS must identify a private signing key with a certificate"
+        }
+        val key = try {
+            store.getKey(alias, keyChars)
+        } catch (_: Exception) {
+            throw GradleException("Cannot unlock signing key; check ATTESTRA_KEY_PASSWORD (defaults to the store password)")
+        }
+        require(key is PrivateKey) { "ATTESTRA_KEY_ALIAS must identify a private signing key" }
+    } finally {
+        storeChars.fill('\u0000')
+        keyChars.fill('\u0000')
+    }
     android {
         val registered = signingConfigs.create("registered") {
             storeFile = keystore
@@ -35,5 +59,18 @@ if (keystorePath != null) {
         }
         buildTypes.named("debug") { signingConfig = registered }
         buildTypes.named("release") { signingConfig = registered }
+        buildTypes.create("signedDebug") {
+            initWith(buildTypes.getByName("debug"))
+            signingConfig = registered
+            matchingFallbacks += "debug"
+        }
+        // The app's debug IdentityRuntime supplies the capture mock entry point.
+        sourceSets.getByName("signedDebug").java.srcDir("src/debug/java")
+    }
+    // BuildType.initWith does not inherit dependency configurations.
+    listOf("Implementation", "CompileOnly", "RuntimeOnly", "AnnotationProcessor").forEach { scope ->
+        configurations.named("signedDebug$scope") {
+            extendsFrom(configurations.getByName("debug$scope"))
+        }
     }
 }
