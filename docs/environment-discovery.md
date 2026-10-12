@@ -23,7 +23,7 @@ For the default dev build on Windows:
 
 Remove any old `attestraApiBaseUrl` and `attestraLinkHost` overrides from project or user-level Gradle properties (including `%USERPROFILE%\.gradle\gradle.properties`) to use the defaults. Do not pass `attestraConfigFile` when you want discovery: exported files contain a fixed API URL. Rebuild and reinstall after changing build properties. Updating an existing installation can clear its saved authentication when its backend binding changes.
 
-The default `dev` value lives in `app/build.gradle.kts`, rather than an active project property, so a QA/prod export can still supply its own environment. Command-line `-PattestraEnvironment=qa` explicitly selects QA.
+The default `dev` value lives in `buildSrc/src/main/kotlin/attestra.endpoints.gradle.kts`, rather than an active project property, so a QA/prod export can still supply its own environment. Command-line `-PattestraEnvironment=qa` explicitly selects QA.
 
 ## Library use
 

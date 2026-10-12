@@ -16,6 +16,8 @@ The output contains only `packageName` and `sha256CertFingerprints`. Submit it t
 
 ## Build using your persistent key
 
+Signing is configured by `buildSrc/src/main/kotlin/attestra.signing.gradle.kts`, applied by the app. See [build configuration](build-configuration.md) for input sources and precedence. Do not duplicate the signing configuration in `app/build.gradle.kts`.
+
 Set `ATTESTRA_KEYSTORE_PATH`, `ATTESTRA_KEYSTORE_PASSWORD`, and optionally `ATTESTRA_KEY_ALIAS` (default `attestra`) and `ATTESTRA_KEY_PASSWORD` (defaults to the store password). Supply passwords through your local secret manager/session, not checked-in Gradle properties or shell history. Then:
 
 ```powershell

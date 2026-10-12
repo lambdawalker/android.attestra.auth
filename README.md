@@ -2,6 +2,8 @@
 
 The `:auth` module implements email confirmation, passkey registration, email/passkey sign-in, session restoration, and ID-check deferral with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. The optional ID flow supports front/back capture, direct private S3 uploads, asynchronous file checks, recovery and cancellation. A debug-only capture mock works without deployment. Parsing and identity validation remain separate future features. See [Android capture](docs/identity-capture.md) and the [backend contract](docs/identity/http-contract.md).
 
+Build settings are organized as local Gradle convention plugins. See [build configuration](docs/build-configuration.md) for feature scripts, value precedence, and signing inputs.
+
 ## Test ID capture without deploying the backend
 
 Install a debug build and choose **Test ID capture** from the entry screen. Use a sample card, select a capture scenario, capture and preview both sides, upload, and finish capture. The flow ends at “Document captured”; it does not parse details or approve an identity. No API configuration or sign-in is required for this demo. Mock transport is excluded from release builds.

@@ -14,8 +14,7 @@
 .cxx
 local.properties
 build
-
-# Private Android signing material
+# Private signing identities and Python tool caches
 *.jks
 *.keystore
 *.p12
