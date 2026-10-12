@@ -36,14 +36,26 @@ Do not store secrets in this exported file: these values become app configuratio
 
 ## Signing settings
 
-Signing inputs use **process environment variables only**. Passwords are never read from Gradle properties or the environment export.
+Signing inputs use **process environment variable → root `local.properties` → default**, independently for each setting. Use the same uppercase names in both sources. An explicitly empty environment value overrides the file; an empty keystore path disables registered signing. Signing values are never read from `-P`, `gradle.properties`, or the endpoint export.
 
-| Environment variable | Behavior |
+| Environment variable / local.properties key | Behavior |
 |---|---|
 | `ATTESTRA_KEYSTORE_PATH` | Enables registered signing; relative paths resolve from the repository root |
 | `ATTESTRA_KEYSTORE_PASSWORD` | Required when the path is supplied |
 | `ATTESTRA_KEY_ALIAS` | Defaults to `attestra` |
 | `ATTESTRA_KEY_PASSWORD` | Defaults to the store password |
+
+For Android Studio, add the following to the repository-root `local.properties`, preserving any existing `sdk.dir` line. This file is already ignored by Git. Use forward slashes in Windows paths (or double each backslash); Java properties interpret single backslashes as escapes.
+
+```properties
+ATTESTRA_KEYSTORE_PATH=C:/Users/D/.attestra/signing/dev.p12
+ATTESTRA_KEYSTORE_PASSWORD=your-keystore-password
+ATTESTRA_KEY_ALIAS=attestra
+# Optional if different from the store password:
+# ATTESTRA_KEY_PASSWORD=your-key-password
+```
+
+File-stored passwords are plaintext; you can keep only the path/alias here and supply passwords through the environment instead. Never commit the file. Resync Studio after changes. Registered signing also requires `org.gradle.configuration-cache=false` in your user Gradle properties for IDE builds; `--no-configuration-cache` applies to command-line builds.
 
 Without a nonblank keystore path, debug keeps its normal Android debug key and release remains unsigned. With a path, both use `registered`. Missing file/password fails clearly. Pass `--no-configuration-cache`; the convention refuses registered signing with configuration caching enabled. Keep keystores outside the repository and obtain secrets from a trusted local secret provider/session. No passwords are committed by this change.
 

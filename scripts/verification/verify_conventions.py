@@ -63,6 +63,29 @@ attestraIndexUrl=https://index.example.com/v1/environments
     del missing["ATTESTRA_KEYSTORE_PASSWORD"]
     gradle(":app:signingReport", env=missing, failure="Set ATTESTRA_KEYSTORE_PASSWORD")
     gradle(":app:assembleDebug", env=env)
+    local = ROOT / "local.properties"
+    original = local.read_bytes() if local.exists() else None
+    try:
+        prefix = original.decode('utf-8') + '\n' if original is not None else ''
+        local.write_text(prefix + f"ATTESTRA_KEYSTORE_PATH={Path(env['ATTESTRA_KEYSTORE_PATH']).as_posix()}\n"
+                         + "ATTESTRA_KEYSTORE_PASSWORD=throwaway-ci-only\nATTESTRA_KEY_ALIAS=attestra\n", encoding='utf-8')
+        clean_env = {k: v for k, v in os.environ.items() if not k.startswith('ATTESTRA_KEY')}
+        gradle(":app:assembleDebug", env=clean_env)
+        gradle(":app:signingReport", "--configuration-cache", env=clean_env,
+               failure="Registered signing requires --no-configuration-cache")
+        # Every environment field must override a conflicting local value.
+        local.write_text(prefix + "ATTESTRA_KEYSTORE_PATH=missing-file.p12\n"
+                         + "ATTESTRA_KEYSTORE_PASSWORD=wrong\nATTESTRA_KEY_ALIAS=wrong\n"
+                         + "ATTESTRA_KEY_PASSWORD=wrong\n", encoding='utf-8')
+        override = env.copy()
+        override['ATTESTRA_KEY_ALIAS'] = 'attestra'
+        override['ATTESTRA_KEY_PASSWORD'] = env['ATTESTRA_KEYSTORE_PASSWORD']
+        gradle(":app:assembleDebug", env=override)
+    finally:
+        if original is None:
+            local.unlink(missing_ok=True)
+        else:
+            local.write_bytes(original)
     sdk = Path(os.environ["ANDROID_HOME"])
     apksigners = sorted((sdk / "build-tools").glob("*/apksigner"))
     output = subprocess.check_output([str(apksigners[-1]), "verify", "--print-certs",

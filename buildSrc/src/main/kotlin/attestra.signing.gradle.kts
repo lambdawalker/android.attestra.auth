@@ -1,7 +1,18 @@
+import java.util.Properties
+
 plugins { id("com.android.application") }
 
-// Secrets never come from Gradle properties or the exported endpoint file.
-val keystorePath = providers.environmentVariable("ATTESTRA_KEYSTORE_PATH").orNull
+// Per setting: environment variable > root local.properties > existing default.
+// An explicitly empty environment value overrides the file too.
+// No signing inputs are read from -P, gradle.properties or the endpoint export.
+val localSigning = Properties().apply {
+    val contents = providers.fileContents(rootProject.layout.projectDirectory.file("local.properties")).asText.orNull
+    contents?.reader()?.use { load(it) }
+}
+fun signingSetting(name: String): String? =
+    providers.environmentVariable(name).orNull ?: localSigning.getProperty(name)
+
+val keystorePath = signingSetting("ATTESTRA_KEYSTORE_PATH")
     ?.takeIf { it.isNotBlank() }
 if (keystorePath != null) {
     require(!gradle.startParameter.isConfigurationCacheRequested) {
@@ -9,11 +20,11 @@ if (keystorePath != null) {
     }
     val keystore = rootProject.file(keystorePath)
     require(keystore.isFile) { "ATTESTRA_KEYSTORE_PATH must reference an existing keystore" }
-    val password = providers.environmentVariable("ATTESTRA_KEYSTORE_PASSWORD").orNull
+    val password = signingSetting("ATTESTRA_KEYSTORE_PASSWORD")
     require(!password.isNullOrBlank()) { "Set ATTESTRA_KEYSTORE_PASSWORD when ATTESTRA_KEYSTORE_PATH is set" }
-    val alias = providers.environmentVariable("ATTESTRA_KEY_ALIAS").orNull
+    val alias = signingSetting("ATTESTRA_KEY_ALIAS")
         ?.takeIf { it.isNotBlank() } ?: "attestra"
-    val keyPassword = providers.environmentVariable("ATTESTRA_KEY_PASSWORD").orNull
+    val keyPassword = signingSetting("ATTESTRA_KEY_PASSWORD")
         ?.takeIf { it.isNotBlank() } ?: password
     android {
         val registered = signingConfigs.create("registered") {
