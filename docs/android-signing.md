@@ -10,6 +10,18 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run 
 uv run scripts/signing/signing.py
 ```
 
+Root launchers are also available (install `uv` first):
+
+```powershell
+.\signing.bat
+```
+
+```sh
+./signing.sh
+```
+
+Both forward arguments, for example `signing.bat export --keystore ... --output ...` or `./signing.sh --help`. They locate the tool relative to the launcher and preserve your current directory for relative input/output paths.
+
 `uv` installs the pinned Rich terminal UI dependency in an isolated environment. The menu offers key generation, public fingerprint export, APK verification, and Android Studio guidance. All choices are visible; Enter accepts defaults and Ctrl+C cancels the current action. Run in an interactive terminal, including Android Studio's Terminal window.
 
 The default environment is `dev`; enter `qa` or a custom name when prompted. Defaults include `~/.attestra/signing/<environment>.p12`, alias `attestra`, the app's application ID, and `https://<environment>.attestrabond.com/.well-known/assetlinks.json`. The public JSON defaults to `developer-associations-<environment>.json` in the checkout, with a numbered suffix if it already exists. Verification defaults to the signedDebug APK; any path or URL can be overridden.
