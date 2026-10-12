@@ -52,14 +52,34 @@ def password_env():
     return env
 
 
-def sdk_tool(name):
-    home = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
+def sdk_candidates():
+    """Read only sdk.dir; never expose signing settings from local.properties."""
+    candidates = [os.environ.get("ANDROID_HOME"), os.environ.get("ANDROID_SDK_ROOT")]
+    properties = Path(__file__).resolve().parents[2] / "local.properties"
+    if properties.is_file():
+        for line in properties.read_text(encoding="utf-8").splitlines():
+            match = re.match(r"^\s*sdk\.dir\s*[=:]\s*(.*)$", line)
+            if match:
+                # Java properties escape Windows separators, colons and spaces.
+                value = re.sub(r"\\(u[0-9a-fA-F]{4}|.)", lambda m: chr(int(m[1][1:], 16)) if m[1].startswith("u") and len(m[1]) == 5 else {"t": "\t", "n": "\n", "r": "\r", "f": "\f"}.get(m[1], m[1]), match[1])
+                path = Path(value).expanduser()
+                candidates.append(str(path if path.is_absolute() else properties.parent / path))
+    if os.environ.get("LOCALAPPDATA"):
+        candidates.append(str(Path(os.environ["LOCALAPPDATA"]) / "Android/Sdk"))
+    candidates.extend(str(Path.home() / p) for p in ("AppData/Local/Android/Sdk", "Library/Android/sdk", "Android/Sdk"))
+    return list(dict.fromkeys(p for p in candidates if p))
+
+
+def sdk_tool(name, sdk=None):
     suffix = ".bat" if os.name == "nt" and name == "apksigner" else ".exe" if os.name == "nt" else ""
-    paths = list((Path(home)/"build-tools").glob("*/" + name + suffix)) if home else []
-    paths.sort(key=lambda p: tuple(int(n) for n in re.findall(r"\d+", p.parent.name)), reverse=True)
-    found = str(paths[0]) if paths else shutil.which(name + suffix)
+    for home in [sdk] if sdk is not None else sdk_candidates():
+        paths = [p for p in (Path(home).expanduser() / "build-tools").glob("*/" + name + suffix) if p.is_file()]
+        paths.sort(key=lambda p: tuple(int(n) for n in re.findall(r"\d+", p.parent.name)), reverse=True)
+        if paths:
+            return str(paths[0])
+    found = shutil.which(name + suffix) if sdk is None else None
     if not found:
-        raise ValueError(f"Install Android SDK Build Tools and set ANDROID_HOME, or pass --{name}")
+        raise ValueError(f"Cannot find {name}. Install Android SDK Build-Tools in Android Studio's SDK Manager; configure sdk.dir in local.properties or ANDROID_HOME. CLI users can pass --{name}.")
     return found
 
 
