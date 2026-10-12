@@ -65,7 +65,7 @@ if (keystorePath != null) {
             matchingFallbacks += "debug"
         }
         // The app's debug IdentityRuntime supplies the capture mock entry point.
-        sourceSets.getByName("signedDebug").java.srcDir("src/debug/java")
+        sourceSets.getByName("signedDebug").kotlin.srcDir("src/debug/java")
     }
     // BuildType.initWith does not inherit dependency configurations.
     listOf("Implementation", "CompileOnly", "RuntimeOnly", "AnnotationProcessor").forEach { scope ->
