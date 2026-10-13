@@ -63,7 +63,7 @@ The launcher opens a choice screen in the existing `MainActivity`: **Start onboa
 
 ### Verify Android App Links on a device
 
-The manifest's `android:autoVerify="true"` filter matches `https://<attestraLinkHost>/verify-email`. Serve `https://attestrabond.com/.well-known/assetlinks.json` as public JSON without redirects. Its `package_name` must match this app's Gradle `applicationId`, **`com.apexfission.android.attestra.auth`** (not `com.apexfission.android`), and `sha256_cert_fingerprints` must include the certificate of the **installed build**. A debug APK and a release or Play-signed APK may use different certificates. To find the fingerprint for your build, run `.\gradlew.bat :app:signingReport` or inspect the installed package's `Signatures` in the command below. For example:
+The manifest's `android:autoVerify="true"` filter matches `https://<attestraLinkHost>/verify-email`. Serve `https://<attestraLinkHost>/.well-known/assetlinks.json` (default: `https://dev.attestrabond.com/.well-known/assetlinks.json`) as public JSON without redirects. Its `package_name` must match this app's Gradle `applicationId`, **`com.apexfission.android.attestra.auth`** (not `com.apexfission.android`), and `sha256_cert_fingerprints` must include the certificate of the **installed build**. A debug APK and a release or Play-signed APK may use different certificates. To find the fingerprint for your build, run `.\gradlew.bat :app:signingReport` or inspect the installed package's `Signatures` in the command below. For example:
 
 ```json
 [
@@ -87,9 +87,9 @@ $adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
 & $adb devices
 $serial = 'emulator-5556' # replace with your device's serial from `devices`
 & $adb -s $serial shell pm verify-app-links --re-verify com.apexfission.android.attestra.auth
-# Wait for verification to finish, then check for `attestrabond.com: verified`:
+# Wait for verification to finish, then check for `dev.attestrabond.com: verified`:
 & $adb -s $serial shell pm get-app-links com.apexfission.android.attestra.auth
-& $adb -s $serial shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d 'https://attestrabond.com/verify-email?request_id=test&b=test'
+& $adb -s $serial shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d 'https://dev.attestrabond.com/verify-email?request_id=test&b=test'
 ```
 
 The last command only checks routing; `test` values cannot confirm an email. Then open a **fresh signup email** on that device to test confirmation. If the domain shows `1024` instead of `verified`, first compare the listed `Signatures` fingerprint against the public `assetlinks.json`, then check its HTTPS response, JSON content type, and redirect behavior. If the email opens a browser despite a verified domain, check whether the mail client rewrites the tapped URL onto another host.
@@ -165,3 +165,7 @@ The file contains public configuration, never AWS keys, GitHub/Cloudflare tokens
 ## Persistent signing and domain associations
 
 See [Android signing](docs/android-signing.md) to generate/export a developer certificate, configure persistent local/CI signing, and verify the installed-build identity against the published `assetlinks.json`. Fingerprints are reviewed public configuration; private keys are never registered with the public endpoint.
+
+## QA & Testing
+
+Use the [QA & Testing guide](docs/qa-testing.md) for end-to-end onboarding tests, personal signing identities, signedDebug selection, environment-specific App Links and device troubleshooting. Signing approval is required for verified email App Links as well as passkeys. Each developer can keep their own key; dev/QA publish multiple approved public fingerprints.

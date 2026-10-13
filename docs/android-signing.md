@@ -1,6 +1,8 @@
 # Signing identities and domain associations
 
-Each developer testing real passkeys has a private signing key. Ordinary UI development can retain its normal debug key. Only public certificate fingerprints are approved for each environment. No build automatically grants trust to a newly encountered certificate.
+Each developer testing verified App Links (including email-verification onboarding) or real passkeys needs an approved signing identity and keeps a personal private signing key. Dev/QA can approve multiple developer fingerprints for the same package; teammates do not need to share keys or passwords. Ordinary UI development can retain its normal debug key. Only public certificate fingerprints are approved for each environment. No build automatically grants trust to a newly encountered certificate.
+
+See [QA & Testing](qa-testing.md) for variant selection, device verification and troubleshooting.
 
 ## Guided setup
 
