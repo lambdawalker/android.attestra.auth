@@ -27,6 +27,7 @@ private enum class EntryScreen { Home, Catalog, Onboarding, IdentityDemo, Identi
 class MainActivity : ComponentActivity() {
     private companion object { const val TAG = "EmailDebugX" }
     private val environment by lazy { ViewModelProvider(this)[EnvironmentViewModel::class.java] }
+    private val associationCheck by lazy { ViewModelProvider(this)[AssociationCheckViewModel::class.java] }
     private val localReset by lazy { ViewModelProvider(this)[LocalUserResetViewModel::class.java] }
     private var incomingLink by mutableStateOf<VerificationLink?>(null)
 
@@ -40,6 +41,10 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
+            val associationWarning = associationCheck.warning
+            LaunchedEffect(associationWarning) {
+                associationWarning?.let { notice(it); associationCheck.consumeWarning() }
+            }
             var destination by rememberSaveable {
                 mutableStateOf(if (incomingLink != null && !localReset.resetting) EntryScreen.Onboarding else EntryScreen.Home)
             }
