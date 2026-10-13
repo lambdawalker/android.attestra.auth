@@ -91,3 +91,9 @@ The tool checks the APK signature, application ID and both association relations
 ## Backend ownership
 
 [Backend association hosting](https://github.com/lambdawalker/go.attestra.aws.auth/blob/feat/android-domain-associations/docs/android-associations.md) owns DNS, HTTPS, public files, revocation updates and teardown. Removing a fingerprint withdraws its association; it does not stop its owner signing APKs or revoke existing sessions. Private key rotation and backend session revocation remain separate procedures.
+
+## Startup association warning
+
+The demo app checks its actual installed signing certificates against the build-time link host's public `assetlinks.json` on startup. An unapproved package/certificate or missing relation produces a long toast naming the affected feature (passkeys, verified App Links, or both). This runs asynchronously and does not block onboarding. The check and notification survive activity rotation without repeating; a new activity ViewModel lifetime runs a fresh check.
+
+Network, HTTP, or malformed-response failures produce an **approval unknown** toast instead of claiming that the certificate is unapproved. Successful website matching remains advisory: it does not establish Android's device-side verification state, confirm relying-party compatibility, or guarantee a successful passkey ceremony. Use the README’s device App Links checks if routing still fails. The check does not upload keys, fingerprints, or email tokens.
