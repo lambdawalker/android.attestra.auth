@@ -117,6 +117,36 @@ def export(args, generate=False, env=None):
     print("Request approval for the intended environment. Keep the keystore and password private.")
 
 
+def save_public_copy(output, environment):
+    """Keep an environment-specific public handoff, never a key or password."""
+    if not re.fullmatch(r"[a-z][a-z0-9-]{0,62}", environment):
+        raise ValueError("Invalid environment name")
+    directory = Path.home() / ".attestra" / "associations" / environment
+    directory.mkdir(parents=True, exist_ok=True)
+    destination = directory / "developer-associations.json"
+    data = Path(output).expanduser().read_bytes()
+    if destination.exists() and destination.read_bytes() == data:
+        return destination
+    # Retain earlier exports, so replacing this handoff never loses a public identity.
+    if destination.exists():
+        old = destination.read_bytes()
+        backup = directory / ("developer-associations-" + hashlib.sha256(old).hexdigest()[:16] + ".json")
+        if not backup.exists():
+            with backup.open("xb") as stream:
+                stream.write(old)
+    import tempfile
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=directory, delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(data)
+        temporary.replace(destination)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+    return destination
+
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
@@ -181,6 +211,7 @@ def main():
     commands.add_parser("wizard", help="guided interactive signing setup (default)")
     for name in ("generate", "export"):
         p = commands.add_parser(name)
+        p.add_argument("--environment", help="also save a public copy under ~/.attestra/associations/<environment>/")
         p.add_argument("--keystore", required=True)
         p.add_argument("--alias", default="attestra")
         p.add_argument("--package", default="com.apexfission.android.attestra.auth")
@@ -205,7 +236,10 @@ def main():
                 raise RuntimeError("Run with uv run scripts/signing/signing.py to install the wizard dependencies") from None
             return wizard()
         if args.command == "verify-apk": verify(args)
-        else: export(args, args.command == "generate")
+        else:
+            export(args, args.command == "generate")
+            if args.environment:
+                print(f"Public setup copy: {save_public_copy(args.output, args.environment)}")
     except (EOFError, KeyboardInterrupt):
         print("\nSigning setup cancelled; existing files are retained.", file=sys.stderr)
         return 130

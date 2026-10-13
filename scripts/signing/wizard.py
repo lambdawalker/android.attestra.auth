@@ -99,6 +99,11 @@ class Wizard:
             raise
         finally:
             env.pop("ATTESTRA_KEYSTORE_PASSWORD", None)
+        try:
+            shared = signing.save_public_copy(output, self.environment)
+            self.console.print(f"Public setup copy: {shared}\nGo setup can discover this file on this computer; approval is still required.")
+        except OSError as error:
+            self.console.print(f"Public export succeeded, but the setup copy could not be saved: {error}. Select the original JSON manually in Go setup.", style="yellow")
         self.keystore = str(Path(path).expanduser().resolve())
         self.console.print("✓ Public signing association exported.", style="green")
         self.guidance()
