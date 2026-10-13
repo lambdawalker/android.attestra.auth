@@ -34,9 +34,10 @@ class WizardTests(unittest.TestCase):
         self.assertIn('Wrong alias', self.output.getvalue())
 
     def test_password_confirmation_retries_without_persisting(self):
-        with patch.dict(os.environ, {}, clear=True), patch('wizard.Prompt.ask', side_effect=['secret-one', 'different', 'secret-two', 'secret-two']):
+        with patch.dict(os.environ, {}, clear=True), patch('wizard.Prompt.ask', side_effect=['secret-one', 'different', 'secret-two', 'secret-two', 'key-secret', 'key-secret']):
             env = self.ui.credentials(True)
             self.assertEqual(env['ATTESTRA_KEYSTORE_PASSWORD'], 'secret-two')
+            self.assertEqual(env['ATTESTRA_KEY_PASSWORD'], 'key-secret')
             self.assertNotIn('ATTESTRA_KEYSTORE_PASSWORD', os.environ)
         self.assertNotIn('secret-two', self.output.getvalue())
 
@@ -90,6 +91,26 @@ class WizardTests(unittest.TestCase):
             self.assertEqual(1, len(list(dev.parent.glob('developer-associations-*.json'))))
             with self.assertRaises(ValueError):
                 signing.save_public_copy(source, '../prod')
+
+    def test_distinct_jks_passwords_unlock_real_private_key(self):
+        with tempfile.TemporaryDirectory() as directory:
+            key = Path(directory) / 'test.jks'
+            args = argparse.Namespace(keystore=str(key), output=str(Path(directory) / 'public.json'), alias='attestra', package=wizard.PACKAGE, store_type='JKS')
+            env = dict(os.environ, ATTESTRA_KEYSTORE_PASSWORD='store-test-password', ATTESTRA_KEY_PASSWORD='key-test-password')
+            signing.export(args, True, env)
+            command = ['keytool', '-certreq', '-keystore', key, '-alias', 'attestra', '-storepass:env', 'ATTESTRA_KEYSTORE_PASSWORD', '-keypass:env', 'ATTESTRA_KEY_PASSWORD']
+            self.assertIn('CERTIFICATE REQUEST', signing.run(command, env))
+            with self.assertRaises(RuntimeError):
+                signing.run(command, dict(env, ATTESTRA_KEY_PASSWORD='wrong-password'))
+
+    def test_pkcs12_rejects_distinct_passwords_before_creating_key(self):
+        with tempfile.TemporaryDirectory() as directory:
+            key = Path(directory) / 'test.p12'
+            args = argparse.Namespace(keystore=str(key), output=str(Path(directory) / 'public.json'), alias='attestra', package=wizard.PACKAGE)
+            env = dict(os.environ, ATTESTRA_KEYSTORE_PASSWORD='store-test-password', ATTESTRA_KEY_PASSWORD='key-test-password')
+            with self.assertRaisesRegex(ValueError, 'PKCS12'):
+                signing.export(args, True, env)
+            self.assertFalse(key.exists())
 
     def test_real_key_generation_export_and_overwrite_protection(self):
         with tempfile.TemporaryDirectory() as directory:

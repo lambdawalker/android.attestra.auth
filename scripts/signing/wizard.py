@@ -55,25 +55,29 @@ class Wizard:
 
     def credentials(self, generate):
         env = os.environ.copy()
-        if env.get("ATTESTRA_KEYSTORE_PASSWORD"):
-            if Confirm.ask("Use ATTESTRA_KEYSTORE_PASSWORD from this process?", default=True, console=self.console):
-                if len(env["ATTESTRA_KEYSTORE_PASSWORD"]) < 6:
-                    raise ValueError("The supplied password must contain at least six characters")
-                return env
-        self.console.print("Use a long unique password from your password manager (minimum six characters). Passwords are not saved.")
-        while True:
-            password = self.ask("Keystore password", password=True, validate=lambda v: len(v) >= 6)
-            if not generate or self.ask("Confirm password", password=True) == password:
-                env["ATTESTRA_KEYSTORE_PASSWORD"] = password
-                return env
-            self.console.print("Passwords did not match. Try again.", style="yellow")
+        self.console.print("The keystore password protects the container; the key password unlocks the signing key. Neither is a separate vault plugin's unlock PIN. Passwords are not saved (minimum six characters).")
+        fields = [("ATTESTRA_KEYSTORE_PASSWORD", "Keystore password")]
+        if generate:
+            fields.append(("ATTESTRA_KEY_PASSWORD", "Key password"))
+        for variable, label in fields:
+            if env.get(variable) and Confirm.ask(f"Use {variable} from this process?", default=True, console=self.console):
+                if len(env[variable]) < 6:
+                    raise ValueError(f"{label} must contain at least six characters")
+                continue
+            while True:
+                password = self.ask(label, password=True, validate=lambda v: len(v) >= 6)
+                if not generate or self.ask(f"Confirm {label.lower()}", password=True) == password:
+                    env[variable] = password
+                    break
+                self.console.print("Passwords did not match. Try again.", style="yellow")
+        return env
 
     def guidance(self):
         self.console.print(Panel(
-            f"ATTESTRA_KEYSTORE_PATH={self.keystore or Path.home() / '.attestra/signing' / (self.environment + '.p12')}\n"
+            f"ATTESTRA_KEYSTORE_PATH={self.keystore or Path.home() / '.attestra/signing' / (self.environment + '.jks')}\n"
             f"ATTESTRA_KEY_ALIAS={self.alias}\n\n"
             "Provide ATTESTRA_KEYSTORE_PASSWORD through your environment or secret manager before starting Android Studio. "
-            "ATTESTRA_KEY_PASSWORD defaults to the store password. Gradle also supports local.properties, but that stores passwords as plaintext.\n\n"
+            "Set ATTESTRA_KEY_PASSWORD to the separate key password. If omitted, Gradle falls back to the store password. Gradle also supports local.properties, but that stores passwords as plaintext.\n\n"
             "Sync Gradle, then select signedDebug in Build Variants. Disable the Gradle configuration cache for signed builds.\n"
             "Submit the public association JSON for environment approval before testing App Links or passkeys.",
             title="Android Studio • next steps", border_style="cyan"))
@@ -82,7 +86,12 @@ class Wizard:
         if not shutil.which("keytool"):
             raise ValueError("Install a JDK and put its bin directory (keytool) on PATH")
         self.context()
-        path = self.ask("Keystore path", self.keystore or str(Path.home() / ".attestra/signing" / f"{self.environment}.p12"),
+        default_key = Path.home() / ".attestra/signing" / f"{self.environment}.jks"
+        if not generate and not default_key.exists():
+            default_key = default_key.with_suffix(".p12")
+        if generate:
+            self.console.print("New keys use JKS so the keystore and key can have separate passwords. Existing PKCS12 keys can still be exported.")
+        path = self.ask("Keystore path", self.keystore or str(default_key),
                         lambda v: bool(v.strip()) and (not Path(v).expanduser().exists() if generate else Path(v).expanduser().is_file()))
         self.alias = self.ask("Key alias", self.alias, lambda v: bool(v.strip()))
         output = self.ask("Public association JSON", new_output(self.environment),
@@ -92,13 +101,14 @@ class Wizard:
             return
         env = self.credentials(generate)
         try:
-            signing.export(argparse.Namespace(keystore=path, alias=self.alias, package=self.package, output=output), generate, env=env)
+            signing.export(argparse.Namespace(keystore=path, alias=self.alias, package=self.package, output=output, store_type="JKS"), generate, env=env)
         except (ValueError, RuntimeError, OSError, subprocess.TimeoutExpired):
             if generate and Path(path).expanduser().exists():
                 self.console.print("A keystore exists at the selected path. Keep it; choose Export to recover the public JSON.", style="yellow")
             raise
         finally:
             env.pop("ATTESTRA_KEYSTORE_PASSWORD", None)
+            env.pop("ATTESTRA_KEY_PASSWORD", None)
         try:
             shared = signing.save_public_copy(output, self.environment)
             self.console.print(f"Public setup copy: {shared}\nGo setup can discover this file on this computer; approval is still required.")
