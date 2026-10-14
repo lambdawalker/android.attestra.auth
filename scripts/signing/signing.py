@@ -94,12 +94,19 @@ def export(args, generate=False, env=None):
         raise ValueError("Output directory does not exist")
     env = password_env() if env is None else env
     if generate:
+        env = env.copy()
+        store_type = getattr(args, "store_type", None) or ("PKCS12" if path.suffix.lower() in (".p12", ".pfx") else "JKS")
+        env.setdefault("ATTESTRA_KEY_PASSWORD", env["ATTESTRA_KEYSTORE_PASSWORD"])
+        if len(env["ATTESTRA_KEY_PASSWORD"]) < 6:
+            raise ValueError("Key password must have at least six characters")
+        if store_type == "PKCS12" and env["ATTESTRA_KEY_PASSWORD"] != env["ATTESTRA_KEYSTORE_PASSWORD"]:
+            raise ValueError("keytool PKCS12 generation requires matching passwords. Use --store-type JKS and a .jks file for separate passwords.")
         if path.exists():
             raise ValueError("Keystore already exists; use export to preserve its signing identity")
         path.parent.mkdir(parents=True, exist_ok=True)
-        run(["keytool", "-genkeypair", "-keystore", path, "-storetype", "PKCS12", "-alias", args.alias,
+        run(["keytool", "-genkeypair", "-keystore", path, "-storetype", store_type, "-alias", args.alias,
              "-keyalg", "RSA", "-keysize", "3072", "-validity", "3650", "-dname", "CN=Attestra Development",
-             "-storepass:env", "ATTESTRA_KEYSTORE_PASSWORD", "-keypass:env", "ATTESTRA_KEYSTORE_PASSWORD"], env)
+             "-storepass:env", "ATTESTRA_KEYSTORE_PASSWORD", "-keypass:env", "ATTESTRA_KEY_PASSWORD"], env)
         path.chmod(0o600)
     if not path.is_file():
         raise ValueError("Keystore does not exist")
@@ -211,6 +218,8 @@ def main():
     commands.add_parser("wizard", help="guided interactive signing setup (default)")
     for name in ("generate", "export"):
         p = commands.add_parser(name)
+        if name == "generate":
+            p.add_argument("--store-type", choices=["JKS", "PKCS12"], help="default: PKCS12 for .p12/.pfx; JKS otherwise")
         p.add_argument("--environment", help="also save a public copy under ~/.attestra/associations/<environment>/")
         p.add_argument("--keystore", required=True)
         p.add_argument("--alias", default="attestra")

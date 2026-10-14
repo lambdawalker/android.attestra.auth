@@ -26,7 +26,7 @@ Both forward arguments, for example `signing.bat export --keystore ... --output 
 
 `uv` installs the pinned Rich terminal UI dependency in an isolated environment. The menu offers key generation, public fingerprint export, APK verification, and Android Studio guidance. All choices are visible; Enter accepts defaults and Ctrl+C cancels the current action. Run in an interactive terminal, including Android Studio's Terminal window.
 
-The default environment is `dev`; enter `qa` or a custom name when prompted. Defaults include `~/.attestra/signing/<environment>.p12`, alias `attestra`, the app's application ID, and `https://<environment>.attestrabond.com/.well-known/assetlinks.json`. After a successful wizard export, a public copy is also saved to `~/.attestra/associations/<environment>/developer-associations.json`. Older copies are preserved with a content-hash suffix when replaced. Go setup on the same computer discovers this file and displays the package/fingerprints for explicit approval; existing approvals are preserved. For an already-complete setup, run `setup.bat -force-setup` to review the new file. On another computer, transfer only the public JSON or select its path manually. Explicit CLI commands opt in with `--environment dev`. No private keys or passwords are copied.
+The default environment is `dev`; enter `qa` or a custom name when prompted. Defaults include `~/.attestra/signing/<environment>.jks`, alias `attestra`, the app's application ID, and `https://<environment>.attestrabond.com/.well-known/assetlinks.json`. After a successful wizard export, a public copy is also saved to `~/.attestra/associations/<environment>/developer-associations.json`. Older copies are preserved with a content-hash suffix when replaced. Go setup on the same computer discovers this file and displays the package/fingerprints for explicit approval; existing approvals are preserved. For an already-complete setup, run `setup.bat -force-setup` to review the new file. On another computer, transfer only the public JSON or select its path manually. Explicit CLI commands opt in with `--environment dev`. No private keys or passwords are copied.
 
 The public JSON defaults to `developer-associations-<environment>.json` in the checkout, with a numbered suffix if it already exists. Verification defaults to the signedDebug APK; any path or URL can be overridden.
 
@@ -35,6 +35,14 @@ Generation requires JDK `keytool` on PATH. APK verification also requires Androi
 Passwords are hidden and confirmed for new keys. You can reuse `ATTESTRA_KEYSTORE_PASSWORD` from the invoking process; the wizard never writes passwords or modifies your shell environment. It does not automatically edit Gradle configuration or approve/upload fingerprints. Keep the key and password in secure storage. Selecting an environment only sets defaults; it does not grant trust there.
 
 For automation, the explicit commands below retain their arguments and can still run with standard-library Python. Use `ATTESTRA_KEYSTORE_PASSWORD` to avoid a password prompt. `wizard` is also an explicit command. Running without a command in a noninteractive process fails with usage guidance.
+
+## Keystore password and key password
+
+New wizard-generated keys use **JKS** and request two hidden, confirmed values: the **keystore password** (`ATTESTRA_KEYSTORE_PASSWORD`) and **key password** (`ATTESTRA_KEY_PASSWORD`). These correspond to Android Studio's separate signing fields. Supply both when they differ; Gradle still falls back to the store password when the key password is omitted. A vault plugin's unlock PIN/passphrase is a third, separate credential and is not managed by this script.
+
+The wizard uses JKS because `keytool` PKCS12 generation does not support distinct store/key passwords. Existing `.p12` keys continue to export with their keystore password; exporting a public certificate does not need the private key password. Existing files are never converted or replaced. Do not generate a replacement identity just to change password handling: a new key changes the fingerprint and needs approval.
+
+For CLI generation, use a `.jks` path (or `--store-type JKS`) and provide both password environment variables through your secret manager/session. `.p12`/`.pfx` paths retain PKCS12 generation by default; distinct passwords are rejected before creation. If no key password is provided to CLI generation, it retains the previous same-password behavior. Password values never appear in arguments or public JSON. The Go deployment tools need no change.
 
 ## Generate once, export before building
 
