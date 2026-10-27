@@ -2,4 +2,5 @@
 <full-backup-content>
     <exclude domain="sharedpref" path="attestra_auth_private.xml" />
         <exclude domain="sharedpref" path="attestra_environment.xml" />
+        <exclude domain="sharedpref" path="attestra_runtime_config.xml" />
 </full-backup-content>

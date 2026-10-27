@@ -24,8 +24,10 @@ import kotlinx.serialization.Serializable
     @SerialName("expires_at") val expiresAt: Long,
     @SerialName("selected_uploads") val selected: Map<String, String> = emptyMap(),
     val error: String = "",
+    val policy: CapturePolicy? = null,
 )
-@Serializable data class CreateCapture(@SerialName("operation_key") val key: String, @SerialName("document_type") val documentType: String)
+@Serializable data class CreateCapture(@SerialName("operation_key") val key: String, @SerialName("document_type") val documentType: String,
+    @SerialName("expected_policy_version") val expectedPolicyVersion: String = "")
 @Serializable data class RegisterUpload(
     @SerialName("operation_key") val key: String,
     @SerialName("expected_revision") val revision: Long,

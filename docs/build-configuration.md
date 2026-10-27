@@ -34,6 +34,8 @@ Do not store secrets in this exported file: these values become app configuratio
 .\gradlew.bat :app:assembleDebug '-PattestraConfigFile=D:/config/qa.properties'
 ```
 
+`attestraCaptureEnabled` and `attestraCaptureDocumentType` remain accepted for export compatibility. Live app behavior comes from [runtime settings](runtime-configuration.md), including in fixed API mode.
+
 ## Signing settings
 
 Signing inputs use **process environment variable → root `local.properties` → default**, independently for each setting. Use the same uppercase names in both sources. An explicitly empty environment value overrides the file; an empty keystore path disables registered signing. Signing values are never read from `-P`, `gradle.properties`, or the endpoint export.

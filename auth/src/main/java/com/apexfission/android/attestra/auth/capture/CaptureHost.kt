@@ -16,13 +16,14 @@ import kotlinx.coroutines.launch
     controller: CaptureController,
     onExit: () -> Unit,
     startCaptureOnEntry: Boolean = false,
+    allowNewCapture: Boolean = true,
     camera: @Composable (DocumentSide, (ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit,
 ) {
     val ui by controller.state.collectAsState()
     val scope = rememberCoroutineScope()
     LaunchedEffect(controller) {
         controller.restore()
-        if (startCaptureOnEntry) {
+        if (startCaptureOnEntry && allowNewCapture) {
             if (controller.state.value.record == null) controller.start()
             if (controller.state.value.record?.state == "uploading") controller.camera(DocumentSide.FRONT)
         }
@@ -44,11 +45,15 @@ import kotlinx.coroutines.launch
         if (ui.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
         ui.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         val record = ui.record
+        if (record == null || record.state in setOf("requires_recapture", "expired", "cancelled")) {
+            ui.policy?.let { policy ->
+                Text("Document: ${policy.documentType} (${policy.jurisdiction}). JPEG images, up to ${policy.maxBytes / (1024 * 1024)} MiB per side.")
+                Text("${policy.purpose}. Uploaded photos are retained for up to ${policy.retentionDays} days after capture completes. You can cancel to request deletion.")
+            }
+        }
         when (record?.state) {
             null -> {
-                if (ui.policy?.enabled == true) {
-                    Text("Document: ${ui.policy?.documentType} (${ui.policy?.jurisdiction}). JPEG images, up to ${ui.policy?.maxBytes?.div(1024 * 1024)} MiB per side.")
-                    Text("${ui.policy?.purpose}. Uploaded photos are retained for up to ${ui.policy?.retentionDays} days after capture completes. You can cancel to request deletion.")
+                if (allowNewCapture && ui.policy?.enabled == true) {
                     Button(enabled = !ui.busy, onClick = { scope.launch { controller.start() } }) { Text("Start capture") }
                 } else Text("Document capture is not enabled for this service yet.")
             }
@@ -64,7 +69,7 @@ import kotlinx.coroutines.launch
             "finalizing" -> Text("Checking the uploaded files. You can leave and return while this finishes.")
             "ready" -> { Text("Document captured", style = MaterialTheme.typography.headlineSmall); Text("Both sides are saved. Reading document details will be a separate step.") }
             "failed" -> { Text("File checks are temporarily unavailable."); Button(enabled = !ui.busy, onClick = { scope.launch { controller.retry() } }) { Text("Retry file checks") } }
-            "requires_recapture", "expired", "cancelled" -> { Text("Please capture your document again."); Button(enabled = !ui.busy, onClick = { scope.launch { controller.start() } }) { Text("Start again") } }
+            "requires_recapture", "expired", "cancelled" -> { Text("Please capture your document again."); Button(enabled = !ui.busy && allowNewCapture && ui.policy?.enabled == true, onClick = { scope.launch { controller.start() } }) { Text("Start again") } }
             else -> Text("This capture state needs a newer app. Your document has not been marked captured here.")
         }
         if (!ui.signInRequired) TextButton(enabled = !ui.busy, onClick = { scope.launch { controller.restore() } }) { Text("Refresh status") }

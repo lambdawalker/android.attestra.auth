@@ -28,13 +28,7 @@ import kotlinx.serialization.json.jsonPrimitive
 }
 @Composable internal fun LiveCaptureFlow(onExit: () -> Unit) {
     val config = LocalBackendConfiguration.current
-    if (!config.captureEnabled) {
-        Column(Modifier.padding(24.dp)) {
-            Text("ID capture is not enabled for this environment.")
-            Button(onClick = onExit) { Text("Return") }
-        }
-        return
-    }
+    val currentConfiguration = rememberUpdatedState(config)
     CapturePrivacy()
     val context = LocalContext.current
     val storage = remember(context) { SecureAuthStorage(context) }
@@ -60,10 +54,11 @@ import kotlinx.serialization.json.jsonPrimitive
                 if (subject() != account) "" else storage.session()?.accessToken.orEmpty()
             },
             SecureCaptureCheckpointStore(storage, config.apiUrl, account),
+            mayCreate = { currentConfiguration.value.canStartCapture() },
         )
     }
     CaptureHost(controller, {
         if (controller.state.value.signInRequired) storage.clearSession()
         onExit()
-    }) { side, captured, error, cancel -> IdentityCamera(side, captured, error, cancel) }
+    }, allowNewCapture = config.canStartCapture()) { side, captured, error, cancel -> IdentityCamera(side, captured, error, cancel) }
 }

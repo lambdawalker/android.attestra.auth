@@ -33,7 +33,7 @@ data class CaptureUi(
     val signInRequired: Boolean = false,
 )
 /** A stable checkpoint precedes each create/finalize/retry request. GET reconciles uncertain responses. */
-class CaptureController(private val api: CaptureGateway, private val store: CaptureCheckpointStore) {
+class CaptureController(private val api: CaptureGateway, private val store: CaptureCheckpointStore, private val mayCreate: () -> Boolean = { true }) {
     private val mutable = MutableStateFlow(CaptureUi())
     val state = mutable.asStateFlow()
     private val mutex = Mutex()
@@ -68,30 +68,63 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         if (state.value.record?.id != r.id) discard()
         save(checkpoint.copy(id = r.id, create = null))
         acknowledged = if (state.value.record?.id == r.id) acknowledged.filter { (slot, id) -> r.selected[slot] == id } else emptyMap()
-        show(state.value.copy(record = r, uploaded = acknowledged.keys))
+        show(state.value.copy(record = r, policy = r.policy ?: state.value.policy, uploaded = acknowledged.keys))
         if (r.state != "uploading") discard()
     }
     suspend fun restore() = operation {
-        show(state.value.copy(policy = api.policy(), signInRequired = false))
+        // A settings outage must not prevent viewing or deleting an existing capture.
+        val policy = try { api.policy() }
+        catch (cancel: CancellationException) { throw cancel }
+        catch (_: Exception) { null }
+        show(state.value.copy(policy = policy, signInRequired = false))
         val create = checkpoint.create
-        val r = if (create != null) api.create(create) else api.current()
+        val current = api.current()
+        val r = if (create != null && mayCreate() && policy?.enabled == true && create.expectedPolicyVersion.isNotBlank()) {
+            createOrReview(create)
+        } else current
         if (r != null) {
             if (checkpoint.id != r.id) save(CaptureCheckpoint(id = r.id))
             record(r)
             checkpoint.finalize?.let { if (r.state == "uploading") record(api.finalize(r.id, it)) }
             checkpoint.retry?.let { if (r.state == "failed") record(api.retry(r.id, it)); save(checkpoint.copy(retry = null)) }
-        } else { discard(); acknowledged = emptyMap(); store.clear(); checkpoint = CaptureCheckpoint(); show(state.value.copy(record = null, uploaded = emptySet())) }
+        } else if (checkpoint.create == null) {
+            discard(); acknowledged = emptyMap(); store.clear(); checkpoint = CaptureCheckpoint()
+            show(state.value.copy(record = null, uploaded = emptySet()))
+        }
+    }
+    private suspend fun createOrReview(request: CreateCapture): CaptureRecord? = try {
+        api.create(request)
+    } catch (e: CaptureException) {
+        if (e.status != 409 || e.code != "policy_changed") throw e
+        // Server definitively rejected creation: a new intent needs new consent.
+        save(checkpoint.copy(create = null))
+        val policy = api.policy()
+        show(state.value.copy(policy = policy, message = "The capture policy changed. Review the updated details, then select Start capture again."))
+        null
     }
     suspend fun start() = operation {
+        if (!mayCreate()) { show(state.value.copy(message = "New ID capture is disabled until app settings are refreshed.")); return@operation }
+        val reviewed = state.value.policy
         val policy = api.policy()
-        require(policy.enabled && policy.slots == listOf("front", "back") && policy.contentType == "image/jpeg")
         show(state.value.copy(policy = policy))
+        require(policy.enabled && policy.slots == listOf("front", "back") && policy.contentType == "image/jpeg")
         val existing = api.current()
         if (existing != null && existing.state in setOf("uploading", "finalizing", "ready", "failed")) { record(existing); return@operation }
-        val request = checkpoint.create ?: CreateCapture(key(), policy.documentType)
+        val pending = checkpoint.create
+        if (pending == null && (reviewed == null || reviewed != policy)) {
+            show(state.value.copy(message = "Review the current capture policy, then select Start capture again."))
+            return@operation
+        }
+        if (!mayCreate()) { show(state.value.copy(message = "New ID capture is disabled until app settings are refreshed.")); return@operation }
+        val request = pending?.takeIf { it.expectedPolicyVersion.isNotBlank() }
+            ?: CreateCapture(key(), policy.documentType, policy.version)
+        if (pending != null && pending.expectedPolicyVersion.isBlank()) {
+            save(checkpoint.copy(create = null))
+            show(state.value.copy(message = "Review the current capture policy, then select Start capture again."))
+            return@operation
+        }
         save(CaptureCheckpoint(create = request))
-        record(api.create(request))
-        show(state.value.copy(uploaded = emptySet()))
+        createOrReview(request)?.let { record(it); show(state.value.copy(uploaded = emptySet())) }
     }
     fun camera(side: DocumentSide) {
         if (closed || state.value.busy || state.value.record?.state != "uploading") return
