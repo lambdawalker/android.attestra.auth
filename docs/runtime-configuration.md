@@ -1,6 +1,6 @@
 # Runtime app settings
 
-Install an app built with this change once. Afterward, publish settings at `https://admin.attestrabond.com` and reopen the app to refresh them. Changing `attestraCaptureEnabled` in an old APK cannot update that installation.
+Deploy the matching Go backend first, then install an app built with this change once. Afterward, publish settings at `https://admin.attestrabond.com` and reopen the app to refresh them. Changing `attestraCaptureEnabled` in an old APK cannot update that installation.
 
 Both fixed API and index-discovered builds fetch `GET <apiUrl>/v1/app-config` without credentials on launch and foreground. The environment remains selected at build time. Runtime settings never change the API host, Cognito identity, App Links, signing key, or package name.
 
