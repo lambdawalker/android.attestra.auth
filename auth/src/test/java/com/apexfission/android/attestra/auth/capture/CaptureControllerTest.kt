@@ -19,9 +19,17 @@ class CaptureControllerTest {
         var failPut = false
         var failFinalize = false
         var lastUploadKey: String? = null
-        override suspend fun policy() = CapturePolicy(true, "capture-v1", "sample_card", listOf("front", "back"), "image/jpeg", 4194304)
-        override suspend fun current() = record
+        var policyValue = CapturePolicy(true, "capture-v1", "sample_card", listOf("front", "back"), "image/jpeg", 4194304)
+        var policyFailure = false
+        var onCurrent: () -> Unit = {}
+        var onCreate: () -> Unit = {}
+        var createCalls = 0
+        override suspend fun policy(): CapturePolicy { if (policyFailure) throw CaptureException(503); return policyValue }
+        override suspend fun current(): CaptureRecord? { onCurrent(); return record }
         override suspend fun create(request: CreateCapture): CaptureRecord {
+            createCalls++
+            onCreate()
+            if (record == null && request.expectedPolicyVersion != policyValue.version) throw CaptureException(409, "policy_changed")
             assertEquals(request, store.value?.create)
             if (record == null) { creates++; record = CaptureRecord("a".repeat(32), 1, 1, "capture-v1", "sample_card", "uploading", 9999999999) }
             if (failCreate) { failCreate = false; throw CaptureException(503) }
@@ -46,42 +54,88 @@ class CaptureControllerTest {
     }
     @Test fun createResponseLossRecoversWithoutDuplicate() = runBlocking {
         val store = Store(); val api = Gateway(store); api.failCreate = true
-        CaptureController(api, store).start()
+        CaptureController(api, store).apply { restore(); start() }
         val resumed = CaptureController(api, store); resumed.restore()
         assertEquals(1, api.creates); assertEquals("uploading", resumed.state.value.record?.state)
     }
     @Test fun retryUsesSameUploadAndWipesBytesAfterSuccess() = runBlocking {
         val store = Store(); val api = Gateway(store); val controller = CaptureController(api, store)
-        controller.start(); controller.camera(DocumentSide.FRONT); api.failPut = true
+        controller.restore(); controller.start(); controller.camera(DocumentSide.FRONT); api.failPut = true
         val bytes = byteArrayOf(1, 2, 3, 4); controller.captured(DocumentSide.FRONT, bytes)
         val key = api.lastUploadKey; assertFalse(bytes.all { it == 0.toByte() })
         controller.upload(); assertEquals(key, api.lastUploadKey); assertTrue(bytes.all { it == 0.toByte() }); assertEquals(setOf("front"), controller.state.value.uploaded)
     }
     @Test fun lostFinalizeReconcilesAndNeverClaimsIdentityApproval() = runBlocking {
-        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store); c.start()
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store); c.restore(); c.start()
         for (side in DocumentSide.entries) { c.camera(side); c.captured(side, byteArrayOf(1, 2, 3, 4)) }
         api.failFinalize = true; c.finalizeCapture(); c.close()
         val resumed = CaptureController(api, store); resumed.restore(); assertEquals("finalizing", resumed.state.value.record?.state)
         api.record = api.record?.copy(state = "ready"); resumed.restore(); assertEquals("ready", resumed.state.value.record?.state)
     }
     @Test fun closeDiscardsFailedUploadAndIgnoresLateCameraCallback() = runBlocking {
-        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store); c.start(); c.camera(DocumentSide.FRONT)
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store); c.restore(); c.start(); c.camera(DocumentSide.FRONT)
         api.failPut = true; val bytes = byteArrayOf(1, 2, 3, 4); c.captured(DocumentSide.FRONT, bytes); c.close()
         assertTrue(bytes.all { it == 0.toByte() }); val late = byteArrayOf(5, 6, 7, 8); c.captured(DocumentSide.FRONT, late); assertTrue(late.all { it == 0.toByte() })
     }
     @Test fun refreshPreservesSuccessButFailedRetakeInvalidatesIt() = runBlocking {
-        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store); c.start()
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store); c.restore(); c.start()
         c.camera(DocumentSide.FRONT); c.captured(DocumentSide.FRONT, byteArrayOf(1, 2, 3, 4))
         c.restore(); assertEquals(setOf("front"), c.state.value.uploaded)
         c.camera(DocumentSide.FRONT); api.failPut = true; c.captured(DocumentSide.FRONT, byteArrayOf(5, 6, 7, 8))
         assertTrue(c.state.value.uploaded.isEmpty()); c.upload(); assertEquals(setOf("front"), c.state.value.uploaded)
     }
     @Test fun discoveringAnotherCaptureDiscardsOldPendingImage() = runBlocking {
-        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store); c.start()
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store); c.restore(); c.start()
         c.camera(DocumentSide.FRONT); api.failPut = true
         val bytes = byteArrayOf(1, 2, 3, 4); c.captured(DocumentSide.FRONT, bytes)
         api.record = api.record?.copy(id = "b".repeat(32), revision = 1, selected = emptyMap())
         c.restore(); assertTrue(bytes.all { it == 0.toByte() }); assertTrue(c.state.value.uploaded.isEmpty())
     }
     @Test fun checksumUsesStandardPaddedBase64() { assertEquals("47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", checksum(byteArrayOf())) }
+    @Test fun changedDisclosureNeedsSecondExplicitStart() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore()
+        api.policyValue = api.policyValue.copy(version = "changed", purpose = "Different purpose")
+        c.start(); assertEquals(0, api.creates)
+        assertEquals("Different purpose", c.state.value.policy?.purpose)
+        c.start(); assertEquals(1, api.creates)
+    }
+    @Test fun serverPolicyRaceClearsIntentAndRequiresReview() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore()
+        api.onCreate = { api.policyValue = api.policyValue.copy(version = "new", purpose = "New purpose") }
+        c.start(); assertEquals(0, api.creates); assertNull(store.value?.create)
+        assertEquals("New purpose", c.state.value.policy?.purpose)
+        api.onCreate = {}
+        c.start(); assertEquals(1, api.creates)
+    }
+    @Test fun disabledCaptureStillAllowsStatusAndCancellationDuringPolicyOutage() = runBlocking {
+        val store = Store(); val api = Gateway(store); var enabled = true
+        val c = CaptureController(api, store) { enabled }
+        c.restore(); c.start(); enabled = false; api.policyFailure = true
+        c.restore(); assertNotNull(c.state.value.record)
+        c.cancel(); assertEquals("cancelled", api.record?.state)
+        c.start(); assertEquals(1, api.creates)
+    }
+    @Test fun expirationDuringRequestPreventsNewCreate() = runBlocking {
+        val store = Store(); val api = Gateway(store); var enabled = true
+        val c = CaptureController(api, store) { enabled }
+        c.restore(); api.onCurrent = { enabled = false }
+        c.start(); assertEquals(0, api.createCalls)
+    }
+    @Test fun disabledRestorePreservesUncertainCreateWithoutReplayingIt() = runBlocking {
+        val store = Store(); store.value = CaptureCheckpoint(create = CreateCapture("uncertain-key", "sample_card", "capture-v1"))
+        val api = Gateway(store); val c = CaptureController(api, store) { false }
+        c.restore(); assertEquals(0, api.createCalls); assertNotNull(store.value?.create)
+    }
+    @Test fun policyIdentitySurvivesLostResponseAndChangedPolicy() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); api.failCreate = true; c.start()
+        val intent = store.value?.create
+        assertEquals("capture-v1", intent?.expectedPolicyVersion)
+        api.policyValue = api.policyValue.copy(version = "new")
+        val resumed = CaptureController(api, store); resumed.restore()
+        assertEquals(1, api.creates); assertEquals("capture-v1", resumed.state.value.record?.policyVersion)
+    }
+
 }

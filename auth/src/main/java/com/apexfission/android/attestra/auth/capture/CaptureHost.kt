@@ -16,13 +16,14 @@ import kotlinx.coroutines.launch
     controller: CaptureController,
     onExit: () -> Unit,
     startCaptureOnEntry: Boolean = false,
+    allowNewCapture: Boolean = true,
     camera: @Composable (DocumentSide, (ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit,
 ) {
     val ui by controller.state.collectAsState()
     val scope = rememberCoroutineScope()
     LaunchedEffect(controller) {
         controller.restore()
-        if (startCaptureOnEntry) {
+        if (startCaptureOnEntry && allowNewCapture) {
             if (controller.state.value.record == null) controller.start()
             if (controller.state.value.record?.state == "uploading") controller.camera(DocumentSide.FRONT)
         }
@@ -46,7 +47,7 @@ import kotlinx.coroutines.launch
         val record = ui.record
         when (record?.state) {
             null -> {
-                if (ui.policy?.enabled == true) {
+                if (allowNewCapture && ui.policy?.enabled == true) {
                     Text("Document: ${ui.policy?.documentType} (${ui.policy?.jurisdiction}). JPEG images, up to ${ui.policy?.maxBytes?.div(1024 * 1024)} MiB per side.")
                     Text("${ui.policy?.purpose}. Uploaded photos are retained for up to ${ui.policy?.retentionDays} days after capture completes. You can cancel to request deletion.")
                     Button(enabled = !ui.busy, onClick = { scope.launch { controller.start() } }) { Text("Start capture") }
@@ -64,7 +65,7 @@ import kotlinx.coroutines.launch
             "finalizing" -> Text("Checking the uploaded files. You can leave and return while this finishes.")
             "ready" -> { Text("Document captured", style = MaterialTheme.typography.headlineSmall); Text("Both sides are saved. Reading document details will be a separate step.") }
             "failed" -> { Text("File checks are temporarily unavailable."); Button(enabled = !ui.busy, onClick = { scope.launch { controller.retry() } }) { Text("Retry file checks") } }
-            "requires_recapture", "expired", "cancelled" -> { Text("Please capture your document again."); Button(enabled = !ui.busy, onClick = { scope.launch { controller.start() } }) { Text("Start again") } }
+            "requires_recapture", "expired", "cancelled" -> { Text("Please capture your document again."); Button(enabled = !ui.busy && allowNewCapture, onClick = { scope.launch { controller.start() } }) { Text("Start again") } }
             else -> Text("This capture state needs a newer app. Your document has not been marked captured here.")
         }
         if (!ui.signInRequired) TextButton(enabled = !ui.busy, onClick = { scope.launch { controller.restore() } }) { Text("Refresh status") }

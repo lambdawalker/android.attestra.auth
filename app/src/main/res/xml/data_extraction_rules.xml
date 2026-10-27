@@ -3,9 +3,11 @@
     <cloud-backup>
         <exclude domain="sharedpref" path="attestra_auth_private.xml" />
         <exclude domain="sharedpref" path="attestra_environment.xml" />
+        <exclude domain="sharedpref" path="attestra_runtime_config.xml" />
     </cloud-backup>
     <device-transfer>
         <exclude domain="sharedpref" path="attestra_auth_private.xml" />
         <exclude domain="sharedpref" path="attestra_environment.xml" />
+        <exclude domain="sharedpref" path="attestra_runtime_config.xml" />
     </device-transfer>
 </data-extraction-rules>
