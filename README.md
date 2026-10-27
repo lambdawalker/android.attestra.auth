@@ -169,3 +169,5 @@ See [Android signing](docs/android-signing.md) to generate/export a developer ce
 ## QA & Testing
 
 Use the [QA & Testing guide](docs/qa-testing.md) for end-to-end onboarding tests, personal signing identities, signedDebug selection, environment-specific App Links and device troubleshooting. Signing approval is required for verified email App Links as well as passkeys. Each developer can keep their own key; dev/QA publish multiple approved public fingerprints.
+
+See [runtime app settings](docs/runtime-configuration.md) for dashboard publishing, refresh and offline behavior.
