@@ -1,6 +1,6 @@
 # Attestra Android authentication
 
-The `:auth` module implements email confirmation, passkey registration, email/passkey sign-in, session restoration, and ID-check deferral with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. The optional ID flow supports front/back capture, direct private S3 uploads, asynchronous file checks, recovery and cancellation. A debug-only capture mock works without deployment. Parsing and identity validation remain separate future features. See [Android capture](docs/identity-capture.md) and the [backend contract](docs/identity/http-contract.md).
+The `:auth` module implements email confirmation, passkey registration, email/passkey/password sign-in, session restoration, and policy-controlled onboarding with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. The ID capture flow supports front/back capture, direct private S3 uploads, asynchronous file checks, recovery and cancellation. A debug-only capture mock works without deployment. Parsing and identity validation remain separate future features. See [Android capture](docs/identity-capture.md) and the [backend contract](docs/identity/http-contract.md).
 
 Build settings are organized as local Gradle convention plugins. See [build configuration](docs/build-configuration.md) for feature scripts, value precedence, and signing inputs.
 
@@ -100,7 +100,7 @@ The last command only checks routing; `test` values cannot confirm an email. The
 
 For the current session recovery investigation, filter Logcat by `EmailDebugX` (or run `adb logcat -s EmailDebugX:D`). Start a fresh signup and open its new email link. Note the `/confirm` HTTP status, `trace_id` from the `x-request-id` header, whether session decoding succeeded, and whether encrypted storage completed. A `409 confirmed_sign_in_required` means the backend consumed the proof but did not return a usable session; HTTP 200 followed by a storage exception points to Android. The same email link cannot issue a session twice. Remove the temporary trace statements after diagnosis.
 
-Follow the [email proof protocol](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/architecture.md) and [screen inventory](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/README.md) in the design repo. On Android, `:auth` creates A, sends its S256 challenge through Ktor, and saves A with the request ID in Keystore encrypted preferences. App Links use matching local A for confirmation; on another device the app presents the manual-code screen. The app persists a successful session before opening passkey setup.
+Follow the [email proof protocol](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/architecture.md) and [screen inventory](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/email-confirmation/README.md) in the design repo. On Android, `:auth` creates A, sends its S256 challenge through Ktor, and saves A with the request ID in Keystore encrypted preferences. App Links use matching local A for confirmation; on another device the app presents the manual-code screen. The app persists a successful session before checking authoritative enrollment status and routing the configured setup steps.
 
 The private preferences file is excluded from cloud backup and device transfer. No A, C, B, or Cognito token is logged or put into a new navigation URL. The original link URL is cleared from the activity after parsing. The app keeps only one local pending signup at a time; opening a link on a different device falls back to code entry. `SecureAuthStorage` supplies persisted state to the live passkey and sign-in integrations.
 
@@ -124,9 +124,9 @@ See the canonical [returning-user flow](https://github.com/lambdawalker/design.a
 
 The new Go deployment must be applied before testing these screens. Passkey sign-in uses Credential Manager's `GetPublicKeyCredentialOption`. The existing `EmailDebugX` logs show request outcomes without credential or token contents.
 
-### Welcome after deferring the ID check
+### Policy-controlled onboarding completion
 
-The live host renders `WelcomeScreen` after ID deferral and persists the local choice with `SecureAuthStorage.setIdCheckDeferred`. Restoration checks session and passkey status before choosing the screen. `onCheckId` clears the local deferral and returns to the ID entry screen; actual capture remains a host callback. The UI catalog includes the welcome view. Product meaning and transitions are defined in [the design](https://github.com/lambdawalker/design.attestra/blob/main/auth/onboarding/resume.md#welcome-after-id-deferral).
+The live host consumes validated runtime settings and refreshes `/auth/status` after each enrollment and capture exit. Required steps cannot be skipped, optional steps allow an in-memory skip, and disabled steps are omitted. Legacy local ID deferral flags never establish completion. Completion requires the server's `onboarding_complete` plus the required enrollment facts. Passwords entered with email are kept only in memory, bound to that signup request and account, and sent after verification; process loss asks again. See [runtime configuration and password contracts](docs/runtime-configuration.md).
 
 ## Build, install, and verify
 
@@ -143,7 +143,7 @@ bash gradlew :app:installDebug \
 
 On Windows use `.\gradlew.bat` with the same tasks and properties. `installDebug` requires a connected device/emulator; the APK is under `app/build/outputs/apk/debug/`. The `:auth` module is consumed by `:app`; this repository does not define an independent Maven publishing or production app-store release workflow. CI runs auth unit tests and assembles the demo app with placeholder hosts; it does not validate a deployed AWS stack or real domain associations.
 
-Before a release, exercise fresh same-device and cross-device links, app restarts, invalid/expired proofs, registration cancellation, passkey and OTP sign-in, and ID deferral on a device with the installed build's signing association. Follow the design acceptance criteria for expected outcomes. Keep diagnostic trace cleanup separate from documentation changes.
+Before a release, exercise fresh same-device and cross-device links, app restarts, invalid/expired proofs, registration cancellation, passkey and OTP sign-in, required/optional/disabled routing, password setup/sign-in, and capture cancellation on a device with the installed build's signing association. Follow the design acceptance criteria for expected outcomes. Keep diagnostic trace cleanup separate from documentation changes.
 
 
 ### Import a deployed environment

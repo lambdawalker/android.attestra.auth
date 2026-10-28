@@ -35,6 +35,7 @@ class EmailFlowControllerTest {
         assertEquals(0, api.localCalls)
         controller.openLink(VerificationLink(token, token))
         assertEquals(1, api.localCalls)
+        assertEquals(token, controller.verifiedRequestId)
         assertEquals(session, store.tokens)
         assertEquals(null, store.saved)
         assertTrue(controller.screen is EmailScreen.Verified)
@@ -50,6 +51,7 @@ class EmailFlowControllerTest {
         controller.confirmCode("12345")
         assertEquals(0, api.manualCalls)
         controller.confirmCode("000123")
+        assertEquals(token, controller.verifiedRequestId)
         assertEquals(1, api.manualCalls)
         assertTrue(controller.screen is EmailScreen.Verified)
     }
@@ -72,6 +74,7 @@ class EmailFlowControllerTest {
     @Test fun storedSessionResumesVerifiedStage() {
         val store = MemoryStorage().apply { tokens = session }
         val controller = EmailFlowController(FakeApi(), store)
+        assertEquals(null, controller.verifiedRequestId)
         assertTrue(controller.screen is EmailScreen.Verified)
     }
 

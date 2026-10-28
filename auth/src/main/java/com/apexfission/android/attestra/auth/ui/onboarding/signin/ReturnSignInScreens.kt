@@ -19,7 +19,7 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 
 @Composable
-fun ReturnSignInScreen(initialEmail: String, error: String?, onPasskey: (String) -> Unit, onEmail: (String) -> Unit, onBack: () -> Unit) {
+fun ReturnSignInScreen(initialEmail: String, error: String?, onPasskey: (String) -> Unit, onEmail: (String) -> Unit, onBack: () -> Unit, onPassword: ((String) -> Unit)? = null) {
     var email by rememberSaveable(initialEmail) { mutableStateOf(initialEmail) }
     val valid = Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
     OnboardingFrame(title = "Sign in to continue", icon = Icons.Default.Lock, step = "Account", onBack = onBack,
@@ -29,6 +29,7 @@ fun ReturnSignInScreen(initialEmail: String, error: String?, onPasskey: (String)
             BodyText("Enter your email, then choose how to sign in. You can use an email code if a passkey is unavailable on this device.")
             OutlinedTextField(email, { email = it }, label = { Text("Email address") }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), modifier = Modifier.fillMaxWidth())
+            if (onPassword != null) androidx.compose.material3.TextButton(onClick = { onPassword(email.trim()) }, enabled = valid) { Text("Sign in with password") }
             if (error != null) BodyText(error)
         }
     }

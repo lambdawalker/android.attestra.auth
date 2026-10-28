@@ -19,7 +19,15 @@ import kotlinx.serialization.json.JsonElement
 @Serializable private data class EmailAnswer(val email: String, val session: String, val code: String)
 @Serializable private data class PasskeyAnswer(val email: String, val session: String, val credential: JsonElement)
 @Serializable private data class RefreshRequest(@SerialName("refresh_token") val token: String)
-@Serializable data class AccountStatus(@SerialName("passkey_registered") val passkeyRegistered: Boolean)
+@Serializable data class AccountStatus(
+    @SerialName("passkey_registered") val passkeyRegistered: Boolean = false,
+    @SerialName("password_registered") val passwordRegistered: Boolean = false,
+    @SerialName("id_captured") val idCaptured: Boolean = false,
+    @SerialName("onboarding_complete") val onboardingComplete: Boolean = false,
+)
+@Serializable private data class PasswordAnswer(val email: String, val session: String, val password: String)
+@Serializable private data class PasswordRequest(val password: String)
+@Serializable data class PasswordRegistered(@SerialName("password_registered") val passwordRegistered: Boolean)
 class SignInError(val expired: Boolean = false) : Exception(if (expired) "sign_in_required" else "authentication_failed")
 
 class ReturnAuthApi(baseUrl: String, private val client: HttpClient) {
@@ -39,6 +47,15 @@ class ReturnAuthApi(baseUrl: String, private val client: HttpClient) {
     }
     suspend fun finishPasskey(email: String, session: String, credential: String): AuthSession = checked("passkey/complete") {
         contentType(ContentType.Application.Json); setBody(PasskeyAnswer(email, session, EmailHttpClient.json.parseToJsonElement(credential)))
+    }
+    suspend fun startPassword(email: String): SignInChallenge = checked("password/start") {
+        contentType(ContentType.Application.Json); setBody(EmailRequest(email))
+    }
+    suspend fun finishPassword(email: String, session: String, password: String): AuthSession = checked("password/complete") {
+        contentType(ContentType.Application.Json); setBody(PasswordAnswer(email, session, password))
+    }
+    suspend fun setPassword(access: String, password: String): PasswordRegistered = checked("password/set") {
+        header("Authorization", "Bearer $access"); contentType(ContentType.Application.Json); setBody(PasswordRequest(password))
     }
     suspend fun refresh(refresh: String): AuthSession = checked("refresh") {
         contentType(ContentType.Application.Json); setBody(RefreshRequest(refresh))
