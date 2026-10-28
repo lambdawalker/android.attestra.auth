@@ -59,7 +59,9 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
                     e is CaptureException && e.status == 401 -> "Sign in again to resume your capture."
                     e is CaptureException && e.status == 429 -> "Capture limit reached. Please try again tomorrow."
                     e is CaptureException && e.status == 422 -> "The image could not be accepted. Retake both sides."
+                    e is CaptureException && e.status == 409 && state.value.draft != null -> "The saved details changed. Refresh, then discard your edits to load the latest details before editing again."
                     e is CaptureException && e.status == 409 -> "Capture changed or an upload is incomplete. Refresh before continuing."
+                    state.value.draft != null -> "We could not save or load the card details. Your edits are still here. Refresh and try again."
                     else -> "We could not finish this step. Refresh to recover, or retry the upload."
                 },
             ))
@@ -207,5 +209,5 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         record(api.review(r.id, ReviewCapture(requireNotNull(ui.draftRevision), data)))
     }
     private fun discard() { pending?.second?.fill(0); pending = null }
-    fun close() { closed = true; discard(); mutable.value = CaptureUi() }
+    fun close() { closed = true; discard(); mutable.value = CaptureUi(signInRequired = mutable.value.signInRequired) }
 }

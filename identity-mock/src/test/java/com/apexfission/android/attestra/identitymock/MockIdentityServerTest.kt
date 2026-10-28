@@ -27,6 +27,11 @@ class MockCaptureServerTest {
             try {
                 val resumed = CaptureApi(MockCaptureServer.ORIGIN, resumedClient, uploads) { MockCaptureServer.TOKEN }
                 assertEquals("finalizing", resumed.current()?.state); assertEquals("ready", resumed.current()?.state)
+                val extracted = requireNotNull(resumed.current())
+                assertEquals("000123", extracted.extraction?.data?.documentNumber)
+                val reviewed = resumed.review(extracted.id, ReviewCapture(extracted.revision, CardData(fullName = "Private edited value")))
+                assertEquals("Private edited value", reviewed.reviewed?.data?.fullName)
+                assertFalse(requireNotNull(store.value).contains("Private edited value"))
                 assertFalse(requireNotNull(store.value).contains("signed"))
             } finally { resumedClient.close() }
         } finally { client.close(); uploads.close() }

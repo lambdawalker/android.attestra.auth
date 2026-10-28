@@ -42,7 +42,10 @@ class MockCaptureServer(private val store: MockStateStore) {
     var scenario: MockScenario
         get() = snapshot.scenario
         set(value) { snapshot = snapshot.copy(scenario = value); persist() }
-    private fun persist() { store.write(json.encodeToString(snapshot)) }
+    private fun persist() {
+        // The debug form may contain user-entered data: never put it in the mock state file.
+        store.write(json.encodeToString(snapshot.copy(record = snapshot.record?.copy(extraction = null, reviewed = null))))
+    }
     fun reset() { snapshot = Snapshot(scenario = scenario); persist() }
     fun client() = HttpClient(MockEngine { request ->
         val result = mutex.withLock { handle(request) }
@@ -55,7 +58,7 @@ class MockCaptureServer(private val store: MockStateStore) {
     private fun id() = UUID.randomUUID().toString().replace("-", "")
     private fun advance(): CaptureRecord? {
         var r = snapshot.record ?: return null
-        if (r.state == "ready" && r.extraction?.status == "pending") {
+        if (r.state == "ready" && (r.extraction == null || r.extraction?.status == "pending")) {
             r = r.copy(revision = r.revision + 1, extraction = CardExtraction("complete", CardData(fullName = "Sample Person", documentNumber = "000123")))
             snapshot = snapshot.copy(record = r); persist()
         }
