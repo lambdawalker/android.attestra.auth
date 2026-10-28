@@ -38,7 +38,7 @@ class AppConfigurationTest {
         } finally { client.close() }
     }
     @Test fun invalidOrOversizeDocumentRevokesCachedEnablement() = runBlocking {
-        for (bad in listOf("{}", doc.replace("\"schemaVersion\":1", "\"schemaVersion\":2"), doc.replace("driver_license", "sample_card"), doc.replace("\"US\"", "\"\""), doc.replace("\"qa\"", "\"dev\""), " ".repeat(65_537))) {
+        for (bad in listOf("{}", doc.replace("\"schemaVersion\":1", "\"schemaVersion\":2"), doc.replace("driver_license", "sample_card"), doc.replace("\"qa\"", "\"dev\""), " ".repeat(65_537))) {
             var body = doc
             val cache = Cache()
             val client = HttpClient(MockEngine { respond(body) })
@@ -48,6 +48,36 @@ class AppConfigurationTest {
                 body = bad
                 assertFalse(resolver.resolve(url, "qa").captureEnabled)
                 assertTrue(cache.values.isEmpty())
+            } finally { client.close() }
+        }
+    }
+    @Test fun genericCaptureAllowsEmptyJurisdictionAndLegacyPolicyIsExplicit() = runBlocking {
+        val client = HttpClient(MockEngine { respond(doc.replace("\"US\"", "\"\"")) })
+        try {
+            val policy = AppConfiguration(client, Cache()).resolve(url, "qa").document!!.effectiveOnboarding
+            assertEquals(Requirement.OPTIONAL, policy.idCapture)
+            assertEquals(Requirement.REQUIRED, policy.passkey)
+            assertEquals(Requirement.DISABLED, policy.password)
+        } finally { client.close() }
+    }
+    @Test fun malformedOnboardingCannotFallBackToLegacy() = runBlocking {
+        for (policy in listOf("null", "{}", "{\"idCapture\":\"sometimes\"}")) {
+            val client = HttpClient(MockEngine { respond(doc.dropLast(1) + ",\"onboarding\":" + policy + "}") })
+            try { assertEquals(RuntimeSource.UNAVAILABLE, AppConfiguration(client, Cache()).resolve(url, "qa").source) }
+            finally { client.close() }
+        }
+    }
+    @Test fun explicitPolicyValidatesAllFieldsAndCompatibilityFlag() = runBlocking {
+        val policy = """{"idCapture":"required","passkey":"optional","password":"required","passwordPlacement":"with_email","passwordPolicy":{"minLength":12,"maxLength":128,"lowercase":"allowed","uppercase":"required","numbers":"disallowed","symbols":"allowed"}}"""
+        val valid = doc.dropLast(1) + ",\"onboarding\":" + policy + "}"
+        val invalid = listOf(valid.replace("with_email", "hidden"), valid.replace("\"idCapture\":true", "\"idCapture\":false"),
+            valid.replace("\"minLength\":12,", ""), valid.replace("\"minLength\":12", "\"minLength\":7"),
+            valid.replace("\"uppercase\":\"required\"", "\"uppercase\":\"unknown\""))
+        for (body in listOf(valid) + invalid) {
+            val client = HttpClient(MockEngine { respond(body) })
+            try {
+                val snapshot = AppConfiguration(client, Cache()).resolve(url, "qa")
+                assertEquals(if (body == valid) RuntimeSource.LIVE else RuntimeSource.UNAVAILABLE, snapshot.source)
             } finally { client.close() }
         }
     }

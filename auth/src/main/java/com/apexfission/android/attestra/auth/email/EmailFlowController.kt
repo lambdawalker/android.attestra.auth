@@ -38,6 +38,9 @@ class EmailFlowController(
     )
         private set
 
+    var verifiedRequestId: String? = null
+        private set
+
     private val requestLock = Mutex()
     var lastEmailAtMillis: Long = storage.pending()?.createdAtMillis ?: 0L
         private set
@@ -166,6 +169,7 @@ class EmailFlowController(
             storage.pending()?.takeIf { it.requestId == requestId }?.let { storage.saveEmail(it.email) }
             Log.d("EmailDebugX", "Encrypted session saved request_id=$requestId")
             if (storage.pending()?.requestId == requestId) storage.clearPending()
+            verifiedRequestId = requestId
             screen = EmailScreen.Verified
             Log.d("EmailDebugX", "Email verified; session stored")
         } catch (error: Exception) {

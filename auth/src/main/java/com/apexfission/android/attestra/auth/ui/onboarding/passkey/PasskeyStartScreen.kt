@@ -11,12 +11,12 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.StatusRow
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
 @Composable
-fun PasskeyStartScreen(onBack: () -> Unit, onCreatePasskey: () -> Unit, onDoLater: () -> Unit) {
+fun PasskeyStartScreen(onBack: () -> Unit, onCreatePasskey: () -> Unit, onDoLater: () -> Unit, required: Boolean = false) {
     OnboardingFrame(
         title = "Protect your account with a passkey", icon = Icons.Default.Key,
         step = "3/5", onBack = onBack,
         primaryLabel = "Create passkey", onPrimary = onCreatePasskey,
-        secondaryLabel = "Do this later", onSecondary = onDoLater,
+        secondaryLabel = if (required) null else "Do this later", onSecondary = onDoLater,
     ) {
         OnboardingCard {
             BodyText("Start passkey setup and follow the instructions from your device or password manager.")
