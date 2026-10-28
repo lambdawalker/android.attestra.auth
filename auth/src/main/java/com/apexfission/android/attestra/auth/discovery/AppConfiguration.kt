@@ -7,6 +7,8 @@ import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.JsonNull
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.time.Instant
@@ -16,7 +18,10 @@ import java.time.Instant
 @Serializable data class RuntimeConfiguration(
     val schemaVersion: Int, val environment: String, val revision: Long,
     val updatedAt: String, val features: RuntimeFeatures, val capture: RuntimeCapturePolicy,
-)
+    val onboarding: OnboardingPolicy? = null,
+) {
+    val effectiveOnboarding: OnboardingPolicy get() = onboarding ?: OnboardingPolicy.legacy(features.idCapture)
+}
 @Serializable private data class CachedRuntime(val savedAt: Long, val body: String)
 enum class RuntimeSource { LIVE, CACHED, UNAVAILABLE }
 data class AppConfigurationSnapshot(val document: RuntimeConfiguration? = null, val source: RuntimeSource = RuntimeSource.UNAVAILABLE, val validUntilMillis: Long? = null) {
@@ -73,7 +78,14 @@ class AppConfiguration(
     }.getOrElse { invalid(key) }
     private fun parse(body: String, environment: String): RuntimeConfiguration {
         require(body.toByteArray(Charsets.UTF_8).size <= MAX_BYTES)
+        val objectValue = json.parseToJsonElement(body).jsonObject
+        require("onboarding" !in objectValue || objectValue["onboarding"] != JsonNull)
+        objectValue["onboarding"]?.jsonObject?.get("passwordPolicy")?.jsonObject?.let { rules ->
+            require(rules.keys.containsAll(listOf("minLength", "maxLength", "lowercase", "uppercase", "numbers", "symbols")))
+        }
         return json.decodeFromString<RuntimeConfiguration>(body).also {
+            it.effectiveOnboarding.validate()
+            if (it.onboarding != null) require(it.features.idCapture == (it.onboarding.idCapture != Requirement.DISABLED))
             require(it.schemaVersion == 1 && it.environment == environment && it.revision >= 0)
             require(it.updatedAt.isNotBlank() || it.revision == 0L)
             if (it.updatedAt.isNotBlank()) Instant.parse(it.updatedAt)
@@ -81,7 +93,7 @@ class AppConfiguration(
             for (text in listOf(it.capture.jurisdiction, it.capture.purpose)) {
                 require(text.toByteArray(Charsets.UTF_8).size <= 1024 && text.none(Char::isISOControl))
             }
-            if (it.features.idCapture) require(it.capture.documentType != "sample_card" && it.capture.jurisdiction.isNotBlank() && it.capture.purpose.isNotBlank())
+            if (it.features.idCapture) require(it.capture.documentType != "sample_card" && it.capture.purpose.isNotBlank())
         }
     }
     companion object { const val MAX_AGE_MILLIS = 15 * 60 * 1000L; const val MAX_BYTES = 65_536 }

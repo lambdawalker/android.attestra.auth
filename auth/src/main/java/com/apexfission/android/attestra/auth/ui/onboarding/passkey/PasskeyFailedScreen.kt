@@ -10,16 +10,16 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFram
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
 @Composable
-fun PasskeyFailedScreen(onBack: () -> Unit, onRetry: () -> Unit, onDoLater: () -> Unit, cancelled: Boolean) {
+fun PasskeyFailedScreen(onBack: () -> Unit, onRetry: () -> Unit, onDoLater: () -> Unit, cancelled: Boolean, required: Boolean = false) {
     OnboardingFrame(
         title = "Passkey setup incomplete", icon = Icons.Default.SyncProblem,
         step = "3/5", onBack = onBack,
         primaryLabel = "Try again", onPrimary = onRetry,
-        secondaryLabel = "Do this later", onSecondary = onDoLater,
+        secondaryLabel = if (required) null else "Do this later", onSecondary = onDoLater,
     ) {
         OnboardingCard {
             BodyText(if (cancelled) "Passkey setup wasn’t finished." else "We couldn’t add your passkey. Please try again.")
-            BodyText("You can add a passkey later. Your email remains confirmed.")
+            BodyText(if (required) "A passkey is required to finish setup. Your email remains confirmed." else "You can add a passkey later. Your email remains confirmed.")
         }
     }
 }

@@ -15,14 +15,15 @@ fun IdentityStartScreen(
     onBack: () -> Unit, onStartCapture: () -> Unit, onSkip: () -> Unit,
     passkeyAdded: Boolean,
     showAccountStatus: Boolean = true,
+    required: Boolean = false,
 ) {
     OnboardingFrame(
-        title = "Capture your ID", icon = Icons.Default.Badge, step = "Optional ID capture", onBack = onBack,
+        title = "Capture your ID", icon = Icons.Default.Badge, step = if (required) "Required ID capture" else "Optional ID capture", onBack = onBack,
         primaryLabel = "Continue to capture", onPrimary = onStartCapture,
-        secondaryLabel = "Skip for now · Go to dashboard", onSecondary = onSkip,
+        secondaryLabel = if (required) null else "Skip for now", onSecondary = onSkip,
     ) {
         OnboardingCard {
-            BodyText("You can save document photos now or return later. Capturing a document does not verify your identity.")
+            BodyText(if (required) "Save document photos to finish setup. Capturing a document does not verify your identity." else "You can save document photos now or return later. Capturing a document does not verify your identity.")
             if (showAccountStatus) {
             StatusRow("Email verified", "Your email was confirmed.")
             StatusRow(

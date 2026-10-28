@@ -1,5 +1,16 @@
 package com.apexfission.android.attestra.auth.email
 
+import androidx.activity.compose.BackHandler
+import com.apexfission.android.attestra.auth.discovery.*
+import com.apexfission.android.attestra.auth.passkey.AccountStatus
+import com.apexfission.android.attestra.auth.passkey.SignInError
+import com.apexfission.android.attestra.auth.ui.onboarding.password.PasswordField
+import com.apexfission.android.attestra.auth.ui.onboarding.password.PasswordScreen
+import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
+import com.apexfission.android.attestra.auth.ui.onboarding.common.BodyText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import kotlinx.coroutines.CancellationException
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -19,13 +30,13 @@ import com.apexfission.android.attestra.auth.passkey.PasskeyUnsupported
 import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyFailedScreen
 import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyUnsupportedScreen
 import com.apexfission.android.attestra.auth.ui.onboarding.id.IdentityStartScreen
-import com.apexfission.android.attestra.auth.ui.onboarding.welcome.WelcomeScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.apexfission.android.attestra.auth.ui.onboarding.common.LoadingTask
@@ -59,6 +70,8 @@ fun EmailOnboardingHost(
     link: VerificationLink?,
     onLinkConsumed: () -> Unit,
     onPasskeyDeferred: () -> Unit,
+    onboarding: OnboardingPolicy? = null,
+    onRetryConfiguration: () -> Unit = {},
     identityContent: @Composable (Boolean, () -> Unit) -> Unit = { _, exit ->
         com.apexfission.android.attestra.auth.identity.IdentityIntegrationUnavailable(exit)
     },
@@ -72,35 +85,100 @@ fun EmailOnboardingHost(
         EmailFlowController(EmailVerificationApi(apiBaseUrl, client), storage)
     }
     val scope = rememberCoroutineScope()
-    LaunchedEffect(controller, link) {
-        if (link != null) {
-            onLinkConsumed()
-            // Clearing the activity intent changes the effect key. Keep the request
-            // in the composable scope so that recomposition does not cancel it.
-            scope.launch { controller.openLink(link) }
-        }
-    }
     var clock by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val passkeyApi = remember(apiBaseUrl, client) { PasskeyRegistrationApi(apiBaseUrl, client) }
     val passkeyManager = remember(activityContext) { AndroidPasskeyManager(activityContext) }
     val returnApi = remember(apiBaseUrl, client) { ReturnAuthApi(apiBaseUrl, client) }
-    var passkeyScreen by remember { mutableStateOf(if (storage.idCheckDeferred()) "welcome" else "start") }
-    var passkeyAdded by remember { mutableStateOf(false) }
-    var returnMode by remember { mutableStateOf("") }
-    var returnEmail by remember { mutableStateOf(storage.email() ?: storage.pending()?.email ?: emailFromSession(storage.session()).orEmpty()) }
-    var returnError by remember { mutableStateOf<String?>(null) }
-    var signInChallenge by remember { mutableStateOf<SignInChallenge?>(null) }
-    var authenticated by remember { mutableStateOf(false) }
-    var restoring by remember { mutableStateOf(storage.session() != null) }
+    var passkeyScreen by remember(apiBaseUrl) { mutableStateOf("refresh") }
+    var status by remember(apiBaseUrl) { mutableStateOf<AccountStatus?>(null) }
+    var skipped by remember(apiBaseUrl) { mutableStateOf(emptySet<OnboardingStep>()) }
+    // Intentionally not rememberSaveable: never serialize credentials into saved state.
+    var password by remember(apiBaseUrl) { mutableStateOf("") }
+    var passwordEmail by remember(apiBaseUrl) { mutableStateOf<String?>(null) }
+    var passwordRequestId by remember(apiBaseUrl) { mutableStateOf<String?>(null) }
+    var passwordError by remember(apiBaseUrl) { mutableStateOf<String?>(null) }
+    var returnMode by remember(apiBaseUrl) { mutableStateOf("") }
+    var returnEmail by remember(apiBaseUrl) { mutableStateOf(storage.email() ?: storage.pending()?.email ?: emailFromSession(storage.session()).orEmpty()) }
+    var returnError by remember(apiBaseUrl) { mutableStateOf<String?>(null) }
+    var signInChallenge by remember(apiBaseUrl) { mutableStateOf<SignInChallenge?>(null) }
+    var authenticated by remember(apiBaseUrl) { mutableStateOf(false) }
+    var restoring by remember(apiBaseUrl) { mutableStateOf(storage.session() != null) }
+    val currentPolicy by rememberUpdatedState(onboarding)
+    fun clearPassword() { password = ""; passwordEmail = null; passwordRequestId = null }
+    val exit = { clearPassword(); onPasskeyDeferred() }
+    LaunchedEffect(controller, link) {
+        if (link != null) {
+            if (link.requestId != passwordRequestId) { clearPassword(); skipped = emptySet() }
+            status = null
+            authenticated = false
+            returnMode = ""
+            onLinkConsumed()
+            scope.launch { controller.openLink(link) }
+        }
+    }
+    BackHandler { exit() }
+    fun route() {
+        passkeyScreen = when (currentPolicy?.next(status ?: AccountStatus(), skipped)) {
+            OnboardingStep.PASSWORD -> "password"
+            OnboardingStep.PASSKEY -> "start"
+            OnboardingStep.ID_CAPTURE -> "identity"
+            OnboardingStep.COMPLETE -> "welcome"
+            else -> "refresh"
+        }
+    }
+    val refreshStatus: suspend () -> Unit = {
+        passkeyScreen = "refreshing"
+        try {
+            val session = requireNotNull(storage.session())
+            status = try { returnApi.status(session.accessToken) }
+            catch (expired: SignInError) {
+                if (!expired.expired || session.refreshToken.isBlank()) throw expired
+                val refreshed = returnApi.refresh(session.refreshToken).let {
+                    if (it.refreshToken.isBlank()) it.copy(refreshToken = session.refreshToken) else it
+                }
+                storage.saveSession(refreshed)
+                returnApi.status(refreshed.accessToken)
+            }
+            route()
+        } catch (cancelled: CancellationException) { throw cancelled }
+        catch (error: SignInError) {
+            if (error.expired) {
+                clearPassword()
+                status = null
+                storage.clearSession()
+                authenticated = false
+                returnError = "Sign in to continue setup."
+                returnMode = "choice"
+            }
+            passkeyScreen = "refresh"
+        }
+        catch (_: Exception) { passkeyScreen = "refresh" }
+    }
+    val skip: (OnboardingStep) -> Unit = { step ->
+        val requirement = when (step) {
+            OnboardingStep.PASSWORD -> onboarding?.password
+            OnboardingStep.PASSKEY -> onboarding?.passkey
+            OnboardingStep.ID_CAPTURE -> onboarding?.idCapture
+            else -> null
+        }
+        if (requirement == Requirement.OPTIONAL) {
+            skipped = skipped + step
+            if (step == OnboardingStep.PASSWORD) clearPassword()
+            scope.launch { refreshStatus() }
+        }
+    }
+    LaunchedEffect(onboarding) {
+        if (onboarding == null || onboarding.password == Requirement.DISABLED) clearPassword()
+        if (status != null) refreshStatus()
+    }
     val saveSignedIn: suspend (AuthSession) -> Unit = { result ->
+        clearPassword()
+        skipped = emptySet()
         storage.saveSession(result)
         storage.saveEmail(returnEmail)
-        val status = returnApi.status(result.accessToken)
         authenticated = true
         returnMode = ""
-        passkeyScreen = if (storage.idCheckDeferred()) "welcome" else if (status.passkeyRegistered) "identity" else "start"
-        passkeyAdded = status.passkeyRegistered
-        Log.d("EmailDebugX", "Sign-in completed passkey_registered=${status.passkeyRegistered}")
+        refreshStatus()
     }
     LaunchedEffect(controller.screen) {
         if (controller.screen == EmailScreen.Verified && !authenticated) {
@@ -111,14 +189,32 @@ fun EmailOnboardingHost(
                     val fresh = if (stored.refreshToken.isNotBlank()) returnApi.refresh(stored.refreshToken)
                         .let { if (it.refreshToken.isBlank()) it.copy(refreshToken = stored.refreshToken) else it } else stored
                     storage.saveSession(fresh)
-                    val status = returnApi.status(fresh.accessToken)
-                    passkeyAdded = status.passkeyRegistered
-                    passkeyScreen = if (storage.idCheckDeferred()) "welcome" else if (status.passkeyRegistered) "identity" else "start"
                     authenticated = true
-                    Log.d("EmailDebugX", "Session restored passkey_registered=${status.passkeyRegistered}")
+                    refreshStatus()
+                    val policy = currentPolicy
+                    val matches = pendingPasswordMatches(passwordEmail, passwordRequestId,
+                        emailFromSession(fresh), controller.verifiedRequestId)
+                    if (!matches || status?.passwordRegistered == true || policy?.passwordPlacement != PasswordPlacement.WITH_EMAIL) clearPassword()
+                    if (matches && password.isNotEmpty() && policy?.passwordPlacement == PasswordPlacement.WITH_EMAIL &&
+                        policy.password != Requirement.DISABLED && status != null && status?.passwordRegistered == false &&
+                        policy.passwordPolicy.problems(password).isEmpty()) {
+                        val entered = password
+                        clearPassword()
+                        passkeyScreen = "saving"
+                        try {
+                            check(returnApi.setPassword(requireNotNull(storage.session()).accessToken, entered).passwordRegistered)
+                            refreshStatus()
+                        } catch (cancelled: CancellationException) { throw cancelled }
+                        catch (_: Exception) {
+                            passwordError = "Could not save your password. Enter it again to retry."
+                            passkeyScreen = "password"
+                        }
+                    }
                 }
-            } catch (error: Exception) {
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (error: Exception) {
                 Log.e("EmailDebugX", "Could not restore session", error)
+                clearPassword()
                 storage.clearSession()
                 returnMode = "choice"
                 returnError = "Sign in to continue."
@@ -126,6 +222,7 @@ fun EmailOnboardingHost(
         }
     }
     val startSignIn: (String, Boolean) -> Unit = { address, usePasskey ->
+        clearPassword()
         returnEmail = address
         returnError = null
         returnMode = "loading"
@@ -137,7 +234,8 @@ fun EmailOnboardingHost(
                     val credential = passkeyManager.signIn(challenge.options)
                     saveSignedIn(returnApi.finishPasskey(address, challenge.session, credential))
                 } else returnMode = "code"
-            } catch (error: Exception) {
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (error: Exception) {
                 Log.e("EmailDebugX", "Sign-in start failed passkey=$usePasskey", error)
                 returnError = if (usePasskey) "Passkey sign-in did not finish. Try again or use email." else "Could not send a sign-in code. Try again."
                 returnMode = "choice"
@@ -150,6 +248,7 @@ fun EmailOnboardingHost(
             returnMode = "loading"
             scope.launch {
                 try { saveSignedIn(returnApi.finishEmail(returnEmail, challenge.session, code)) }
+                catch (cancelled: CancellationException) { throw cancelled }
                 catch (error: Exception) {
                     Log.e("EmailDebugX", "Email sign-in failed", error)
                     returnError = "That code did not work. Try again or request a new one."
@@ -159,7 +258,7 @@ fun EmailOnboardingHost(
         }
     }
     val createPasskey: () -> Unit = {
-        if (passkeyScreen != "opening" && passkeyScreen != "saving") {
+        if (currentPolicy != null && currentPolicy?.passkey != Requirement.DISABLED && passkeyScreen != "opening" && passkeyScreen != "saving") {
             scope.launch {
                 val token = storage.session()?.accessToken
                 if (token.isNullOrBlank()) {
@@ -172,9 +271,9 @@ fun EmailOnboardingHost(
                         val credential = passkeyManager.create(options)
                         passkeyScreen = "saving"
                         passkeyApi.complete(token, credential)
-                        passkeyAdded = true
-                        passkeyScreen = "identity"
-                    } catch (error: PasskeyCancelled) {
+                        refreshStatus()
+                                    } catch (cancelled: CancellationException) { throw cancelled }
+                    catch (error: PasskeyCancelled) {
                         passkeyScreen = "cancelled"
                     } catch (error: PasskeyUnsupported) {
                         passkeyScreen = "unsupported"
@@ -197,19 +296,70 @@ fun EmailOnboardingHost(
     }
     val canResend = clock >= controller.lastEmailAtMillis + 60_000
     val resend = { scope.launch { controller.resend() }; Unit }
-    val changeEmail = { controller.changeEmail() }
+    val changeEmail = { clearPassword(); skipped = emptySet(); passwordError = null; controller.changeEmail() }
+    val passwordSignIn: () -> Unit = {
+        val entered = password
+        clearPassword()
+        returnMode = "loading"
+        scope.launch {
+            try {
+                val challenge = returnApi.startPassword(returnEmail)
+                saveSignedIn(returnApi.finishPassword(returnEmail, challenge.session, entered))
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) { returnError = "Password sign-in did not finish. Try again or use an email code."; returnMode = "password" }
+        }
+    }
+    val savePassword: () -> Unit = {
+        if (onboarding != null && onboarding.password != Requirement.DISABLED && onboarding.passwordPolicy.problems(password).isEmpty()) {
+            val entered = password
+            clearPassword()
+            passwordError = null
+            passkeyScreen = "saving"
+            scope.launch {
+                try {
+                    check(returnApi.setPassword(requireNotNull(storage.session()).accessToken, entered).passwordRegistered)
+                    refreshStatus()
+                } catch (cancelled: CancellationException) { throw cancelled }
+                catch (_: Exception) { passwordError = "Could not save your password. Check the requirements and try again."; passkeyScreen = "password" }
+            }
+        }
+    }
     if (returnMode == "choice") {
-        ReturnSignInScreen(returnEmail, returnError, { startSignIn(it, true) }, { startSignIn(it, false) }, { returnMode = "" })
+        ReturnSignInScreen(returnEmail, returnError, { startSignIn(it, true) }, { startSignIn(it, false) }, { clearPassword(); returnMode = "" },
+            onPassword = { returnEmail = it; clearPassword(); returnError = null; returnMode = "password" })
+    } else if (returnMode == "password") {
+        PasswordScreen(password, { password = it }, passwordSignIn, { clearPassword(); returnMode = "choice" }, returnError, signIn = true)
     } else if (returnMode == "code") {
         ReturnEmailCodeScreen(returnEmail, returnError, finishEmail, { returnMode = "choice" })
     } else if (returnMode == "loading" || (screen == EmailScreen.Verified && restoring)) {
         OnboardingLoadingScreen(LoadingTask.SIGN_IN, onBack = {})
+    } else if (onboarding == null) {
+        OnboardingFrame("App settings unavailable", Icons.Default.Lock, "Setup", exit,
+            primaryLabel = "Retry settings", onPrimary = onRetryConfiguration,
+            secondaryLabel = "Sign in to an existing account", onSecondary = { clearPassword(); returnMode = "choice" }) {
+            BodyText("Connect to load current setup requirements before continuing.")
+        }
     } else when (screen) {
-        is EmailScreen.Start -> EmailStartScreen(changeEmail, { scope.launch { controller.start(it) } }, screen.error, onExistingAccount = { returnMode = "choice" })
+        is EmailScreen.Start -> EmailStartScreen(exit, { address ->
+            passwordEmail = address
+            skipped = if (onboarding.passwordPlacement == PasswordPlacement.WITH_EMAIL && onboarding.password == Requirement.OPTIONAL && password.isEmpty()) setOf(OnboardingStep.PASSWORD) else emptySet()
+            scope.launch {
+                controller.start(address)
+                passwordRequestId = (controller.screen as? EmailScreen.Wait)?.requestId
+                if (passwordRequestId == null) clearPassword()
+            }
+        }, screen.error,
+            onExistingAccount = { clearPassword(); returnMode = "choice" },
+            onEmailChanged = { clearPassword() },
+            passwordValid = onboarding.passwordPlacement != PasswordPlacement.WITH_EMAIL ||
+                (password.isEmpty() && onboarding.password == Requirement.OPTIONAL) || onboarding.passwordPolicy.problems(password).isEmpty(),
+            passwordContent = if (onboarding.passwordPlacement == PasswordPlacement.WITH_EMAIL) {
+                { PasswordField(password, { password = it }, onboarding.passwordPolicy, onboarding.password == Requirement.OPTIONAL) }
+            } else null)
         is EmailScreen.Wait -> EmailWaitScreen(
             screen.email, changeEmail, resend, changeEmail,
             canResend = canResend, resendHelp = screen.help ?: if (canResend) null else "You can request another email in a minute.",
-            onSignIn = { returnEmail = screen.email; returnMode = "choice" },
+            onSignIn = { clearPassword(); returnEmail = screen.email; returnMode = "choice" },
         )
         is EmailScreen.Code -> EmailCodeScreen(
             screen.email, changeEmail, { scope.launch { controller.confirmCode(it) } }, resend,
@@ -224,37 +374,37 @@ fun EmailOnboardingHost(
         )
         EmailScreen.Recovery -> EmailSessionRecoveryScreen(changeEmail, { returnMode = "choice" })
         EmailScreen.Verified -> when (passkeyScreen) {
-            "opening" -> OnboardingLoadingScreen(LoadingTask.OPEN_PASSKEY_MANAGER, onBack = {})
-            "saving" -> OnboardingLoadingScreen(LoadingTask.SAVE_PASSKEY, onBack = {})
-            "failed" -> PasskeyFailedScreen({ passkeyScreen = "start" }, createPasskey, { passkeyScreen = "identity" }, false)
-            "cancelled" -> PasskeyFailedScreen({ passkeyScreen = "start" }, createPasskey, { passkeyScreen = "identity" }, true)
-            "unsupported" -> PasskeyUnsupportedScreen({ passkeyScreen = "start" }, { passkeyScreen = "identity" }, createPasskey)
-            "recovery" -> EmailSessionRecoveryScreen({ passkeyScreen = "start" }, { returnMode = "choice" })
-            "identity" -> IdentityStartScreen(
-                onBack = { passkeyScreen = "start" },
-                onStartCapture = { passkeyScreen = "identity_flow" },
-                onSkip = {
-                    storage.setIdCheckDeferred(true)
-                    passkeyScreen = "welcome"
-                    Log.d("EmailDebugX", "ID check deferred; showing welcome landing")
-                },
-                passkeyAdded = passkeyAdded,
-            )
-            "identity_flow" -> identityContent(passkeyAdded) {
+            "refreshing", "opening", "saving" -> OnboardingLoadingScreen(LoadingTask.SIGN_IN, onBack = {})
+            "password" -> PasswordScreen(password, { password = it }, savePassword, exit, passwordError,
+                onboarding.passwordPolicy, onboarding.password == Requirement.OPTIONAL, { skip(OnboardingStep.PASSWORD) })
+            "failed", "cancelled" -> PasskeyFailedScreen(exit, createPasskey, { skip(OnboardingStep.PASSKEY) },
+                passkeyScreen == "cancelled", required = onboarding.passkey == Requirement.REQUIRED)
+            "unsupported" -> PasskeyUnsupportedScreen(exit, { skip(OnboardingStep.PASSKEY) }, createPasskey,
+                required = onboarding.passkey == Requirement.REQUIRED)
+            "recovery" -> EmailSessionRecoveryScreen(exit, { clearPassword(); returnMode = "choice" })
+            "identity" -> IdentityStartScreen(exit, { passkeyScreen = "identity_flow" }, { skip(OnboardingStep.ID_CAPTURE) },
+                passkeyAdded = status?.passkeyRegistered == true, required = onboarding.idCapture == Requirement.REQUIRED)
+            "identity_flow" -> identityContent(status?.passkeyRegistered == true) {
+                // Both successful capture and cancellation only trigger a server read.
                 if (storage.session() == null) {
+                    clearPassword()
+                    status = null
                     authenticated = false
                     returnMode = "choice"
                     returnError = "Sign in to resume your capture."
-                } else {
-                    storage.setIdCheckDeferred(true)
-                    passkeyScreen = "welcome"
-                }
+                } else scope.launch { refreshStatus() }
             }
-            "welcome" -> WelcomeScreen(passkeyAdded = passkeyAdded, onCheckId = {
-                storage.setIdCheckDeferred(false)
-                passkeyScreen = "identity"
-            })
-            else -> PasskeyStartScreen(onPasskeyDeferred, createPasskey, { passkeyScreen = "identity" })
+            "welcome" -> OnboardingFrame("Welcome to Attestra", Icons.Default.Lock, "Your account", exit,
+                primaryLabel = "Refresh account status", onPrimary = { scope.launch { refreshStatus() } }) {
+                BodyText("Your account setup is complete.")
+                if (status?.idCaptured == true) BodyText("Document captured. This does not assert identity verification.")
+            }
+            "start" -> PasskeyStartScreen(exit, createPasskey, { skip(OnboardingStep.PASSKEY) }, required = onboarding.passkey == Requirement.REQUIRED)
+            else -> OnboardingFrame("Check account setup", Icons.Default.Lock, "Account", exit,
+                primaryLabel = "Retry account status", onPrimary = { scope.launch { refreshStatus() } },
+                secondaryLabel = "Reload settings", onSecondary = onRetryConfiguration) {
+                BodyText("We could not confirm that setup is complete. Retry to get the latest server status.")
+            }
         }
         is EmailScreen.Loading -> OnboardingLoadingScreen(
             when (screen.task) {

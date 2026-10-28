@@ -101,10 +101,12 @@ class MainActivity : ComponentActivity() {
                             CompositionLocalProvider(LocalBackendConfiguration provides config) {
                             EmailOnboardingHost(
                                 apiBaseUrl = config.apiUrl,
+                                onboarding = config.onboardingPolicy(),
+                                onRetryConfiguration = environment::refreshRuntimeConfiguration,
                                 link = incomingLink,
                                 onLinkConsumed = ::clearIncomingLink,
                                 identityContent = { passkeyAdded, exit -> AccountIdentityFlow(passkeyAdded, exit) },
-                                onPasskeyDeferred = { notice("Your email is verified. You can add a passkey later.") },
+                                onPasskeyDeferred = { destination = EntryScreen.Home; clearIncomingLink() },
                             )
                             }
                         }

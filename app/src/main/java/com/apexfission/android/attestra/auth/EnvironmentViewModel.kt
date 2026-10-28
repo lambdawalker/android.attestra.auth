@@ -81,7 +81,7 @@ internal class EnvironmentViewModel(application: Application) : AndroidViewModel
     }
     fun refreshRuntimeConfiguration() {
         val current = configuration ?: return
-        if (!current.canStartCapture()) configuration = current.copy(captureEnabled = false)
+        if (current.onboardingPolicy() == null) configuration = current.copy(captureEnabled = false, onboarding = null)
         if (refreshing) return
         refreshing = true
         viewModelScope.launch {
@@ -98,24 +98,24 @@ internal class EnvironmentViewModel(application: Application) : AndroidViewModel
                     } finally { client.close() }
                 }
                 configuration = current.copy(captureEnabled = snapshot.captureEnabled,
-                    runtimeValidUntilMillis = snapshot.validUntilMillis)
+                    runtimeValidUntilMillis = snapshot.validUntilMillis, onboarding = snapshot.document?.effectiveOnboarding)
                 message = when (snapshot.source) {
                     RuntimeSource.LIVE -> null
                     RuntimeSource.CACHED -> "Using recent saved app settings."
-                    RuntimeSource.UNAVAILABLE -> "App settings are unavailable. New ID capture is disabled."
+                    RuntimeSource.UNAVAILABLE -> "App settings are unavailable. Setup is paused until settings can be loaded."
                 }
                 expiry?.cancel()
                 snapshot.validUntilMillis?.let { deadline ->
                     expiry = viewModelScope.launch {
                         delay((deadline - System.currentTimeMillis()).coerceAtLeast(0))
-                        configuration = configuration?.copy(captureEnabled = false)
-                        message = "App settings expired. Reopen the app to refresh before starting ID capture."
+                        configuration = configuration?.copy(captureEnabled = false, onboarding = null)
+                        message = "App settings expired. Retry settings before continuing setup."
                     }
                 }
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) {
-                configuration = current.copy(captureEnabled = false, runtimeValidUntilMillis = null)
-                message = "App settings are unavailable. New ID capture is disabled."
+                configuration = current.copy(captureEnabled = false, runtimeValidUntilMillis = null, onboarding = null)
+                message = "App settings are unavailable. Setup is paused until settings can be loaded."
             } finally { refreshing = false }
         }
     }
