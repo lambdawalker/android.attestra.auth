@@ -30,8 +30,8 @@ import kotlinx.coroutines.launch
     }
     DisposableEffect(controller) { onDispose { controller.close() } }
     // Bounded foreground polling; Refresh remains available after this window.
-    LaunchedEffect(ui.record?.id, ui.record?.state) {
-        if (ui.record?.state == "finalizing") repeat(12) { delay(5000); controller.restore() }
+    LaunchedEffect(ui.record?.id, ui.record?.state, ui.record?.extraction?.status) {
+        if (ui.record?.state == "finalizing" || (ui.record?.state == "ready" && ui.record?.extraction?.status == "pending")) repeat(36) { delay(5000); controller.restore() }
     }
     BackHandler { controller.close(); onExit() }
     val side = ui.camera
@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
     }
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Capture your ID", style = MaterialTheme.typography.headlineMedium)
-        Text("Capture both sides, check the photos, and upload them securely. This step saves your document; it does not verify your identity.")
+        Text("Capture both sides, check the photos, and upload them securely. We read the card details so you can review them. This does not verify your identity.")
         if (ui.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
         ui.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         val record = ui.record
@@ -67,13 +67,21 @@ import kotlinx.coroutines.launch
                 Button(enabled = !ui.busy && ui.uploaded.containsAll(listOf("front", "back")), onClick = { scope.launch { controller.finalizeCapture() } }) { Text("Finish capture") }
             }
             "finalizing" -> Text("Checking the uploaded files. You can leave and return while this finishes.")
-            "ready" -> { Text("Document captured", style = MaterialTheme.typography.headlineSmall); Text("Both sides are saved. Reading document details will be a separate step.") }
+            "ready" -> {
+                when (record.extraction?.status) {
+                    "pending" -> { Text("Reading your card details", style = MaterialTheme.typography.headlineSmall); CircularProgressIndicator(); Text("You can leave and return while this finishes.") }
+                    "failed" -> { Text("We could not read the card details. Your photos are saved."); Button(enabled = !ui.busy, onClick = { scope.launch { controller.retry() } }) { Text("Retry reading card") } }
+                    "complete" -> CardReviewForm(ui, controller::editCard, controller::resetReview) { scope.launch { controller.saveReview() } }
+                    null -> Text("Both sides are saved. This older capture has no extracted details. Start a new capture after cancelling it to read the card.")
+                    else -> Text("Update the app to view this extraction status.")
+                }
+            }
             "failed" -> { Text("File checks are temporarily unavailable."); Button(enabled = !ui.busy, onClick = { scope.launch { controller.retry() } }) { Text("Retry file checks") } }
             "requires_recapture", "expired", "cancelled" -> { Text("Please capture your document again."); Button(enabled = !ui.busy && allowNewCapture && ui.policy?.enabled == true, onClick = { scope.launch { controller.start() } }) { Text("Start again") } }
             else -> Text("This capture state needs a newer app. Your document has not been marked captured here.")
         }
         if (!ui.signInRequired) TextButton(enabled = !ui.busy, onClick = { scope.launch { controller.restore() } }) { Text("Refresh status") }
-        if (record != null && record.state !in setOf("expired", "cancelled")) TextButton(enabled = !ui.busy, onClick = { scope.launch { controller.cancel() } }) { Text("Cancel capture and delete photos") }
+        if (record != null && record.state !in setOf("expired", "cancelled")) TextButton(enabled = !ui.busy, onClick = { scope.launch { controller.cancel() } }) { Text("Cancel and delete card data") }
         TextButton(onClick = { controller.close(); onExit() }) { Text(if (ui.signInRequired) "Return to sign in" else "Continue later") }
     }
 }

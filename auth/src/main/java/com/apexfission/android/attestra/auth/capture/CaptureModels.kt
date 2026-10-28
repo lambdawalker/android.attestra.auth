@@ -14,6 +14,27 @@ import kotlinx.serialization.Serializable
     val jurisdiction: String = "sample",
     @SerialName("retention_days") val retentionDays: Int = 7,
 )
+@Serializable data class CardData(
+    @SerialName("full_name") val fullName: String = "",
+    @SerialName("given_names") val givenNames: String = "",
+    val surnames: String = "",
+    @SerialName("birth_date") val birthDate: String = "",
+    @SerialName("document_number") val documentNumber: String = "",
+    @SerialName("personal_number") val personalNumber: String = "",
+    val address: String = "",
+    @SerialName("issue_date") val issueDate: String = "",
+    @SerialName("expiry_date") val expiryDate: String = "",
+    @SerialName("issuing_country") val issuingCountry: String = "",
+) {
+    fun isValid(): Boolean = listOf(fullName, givenNames, surnames, birthDate, documentNumber,
+        personalNumber, address, issueDate, expiryDate, issuingCountry).all {
+        it.toByteArray(Charsets.UTF_8).size <= 512 && '\u0000' !in it && '\r' !in it
+    }
+    fun isEmpty(): Boolean = this == CardData()
+}
+@Serializable data class CardExtraction(val status: String, val data: CardData = CardData(), val error: String = "")
+@Serializable data class ReviewedCard(val data: CardData, @SerialName("saved_at") val savedAt: Long)
+@Serializable data class ReviewCapture(@SerialName("expected_revision") val revision: Long, val data: CardData)
 @Serializable data class CaptureRecord(
     @SerialName("capture_id") val id: String,
     @SerialName("evidence_version") val evidenceVersion: Long,
@@ -25,6 +46,8 @@ import kotlinx.serialization.Serializable
     @SerialName("selected_uploads") val selected: Map<String, String> = emptyMap(),
     val error: String = "",
     val policy: CapturePolicy? = null,
+    val extraction: CardExtraction? = null,
+    val reviewed: ReviewedCard? = null,
 )
 @Serializable data class CreateCapture(@SerialName("operation_key") val key: String, @SerialName("document_type") val documentType: String,
     @SerialName("expected_policy_version") val expectedPolicyVersion: String = "")
@@ -70,6 +93,7 @@ interface CaptureGateway {
     suspend fun put(instructions: UploadInstructions, jpeg: ByteArray)
     suspend fun finalize(id: String, request: FinalizeCapture): CaptureRecord
     suspend fun retry(id: String, key: String): CaptureRecord
+    suspend fun review(id: String, request: ReviewCapture): CaptureRecord
     suspend fun cancel(id: String): CaptureRecord
 }
 class CaptureException(val status: Int, val code: String = "request_failed") : Exception("Capture request failed ($status)")

@@ -31,6 +31,9 @@ data class CaptureUi(
     val uploaded: Set<String> = emptySet(),
     val message: String? = null,
     val signInRequired: Boolean = false,
+    val draft: CardData? = null,
+    val draftRevision: Long? = null,
+    val reviewDirty: Boolean = false,
 )
 /** A stable checkpoint precedes each create/finalize/retry request. GET reconciles uncertain responses. */
 class CaptureController(private val api: CaptureGateway, private val store: CaptureCheckpointStore, private val mayCreate: () -> Boolean = { true }) {
@@ -56,7 +59,9 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
                     e is CaptureException && e.status == 401 -> "Sign in again to resume your capture."
                     e is CaptureException && e.status == 429 -> "Capture limit reached. Please try again tomorrow."
                     e is CaptureException && e.status == 422 -> "The image could not be accepted. Retake both sides."
+                    e is CaptureException && e.status == 409 && state.value.draft != null -> "The saved details changed. Refresh, then discard your edits to load the latest details before editing again."
                     e is CaptureException && e.status == 409 -> "Capture changed or an upload is incomplete. Refresh before continuing."
+                    state.value.draft != null -> "We could not save or load the card details. Your edits are still here. Refresh and try again."
                     else -> "We could not finish this step. Refresh to recover, or retry the upload."
                 },
             ))
@@ -68,7 +73,16 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         if (state.value.record?.id != r.id) discard()
         save(checkpoint.copy(id = r.id, create = null))
         acknowledged = if (state.value.record?.id == r.id) acknowledged.filter { (slot, id) -> r.selected[slot] == id } else emptyMap()
-        show(state.value.copy(record = r, policy = r.policy ?: state.value.policy, uploaded = acknowledged.keys))
+        val old = state.value
+        val canReview = r.state == "ready" && r.extraction?.status == "complete"
+        val savedDraft = old.draft != null && r.reviewed?.data == old.draft
+        val keepDraft = canReview && old.record?.id == r.id && old.reviewDirty && !savedDraft
+        show(old.copy(
+            record = r, policy = r.policy ?: old.policy, uploaded = acknowledged.keys,
+            draft = if (!canReview) null else if (keepDraft) old.draft else r.reviewed?.data ?: r.extraction?.data,
+            draftRevision = if (!canReview) null else if (keepDraft) old.draftRevision else r.revision,
+            reviewDirty = keepDraft,
+        ))
         if (r.state != "uploading") discard()
     }
     suspend fun restore() = operation {
@@ -86,10 +100,10 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
             if (checkpoint.id != r.id) save(CaptureCheckpoint(id = r.id))
             record(r)
             checkpoint.finalize?.let { if (r.state == "uploading") record(api.finalize(r.id, it)) }
-            checkpoint.retry?.let { if (r.state == "failed") record(api.retry(r.id, it)); save(checkpoint.copy(retry = null)) }
+            checkpoint.retry?.let { if (r.state == "failed" || r.extraction?.status == "failed") record(api.retry(r.id, it)); save(checkpoint.copy(retry = null)) }
         } else if (checkpoint.create == null) {
             discard(); acknowledged = emptyMap(); store.clear(); checkpoint = CaptureCheckpoint()
-            show(state.value.copy(record = null, uploaded = emptySet()))
+            show(state.value.copy(record = null, uploaded = emptySet(), draft = null, draftRevision = null, reviewDirty = false))
         }
     }
     private suspend fun createOrReview(request: CreateCapture): CaptureRecord? = try {
@@ -161,7 +175,7 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
     }
     suspend fun retry() = operation {
         val r = api.get(requireNotNull(checkpoint.id)); record(r)
-        if (r.state != "failed") return@operation
+        if (r.state != "failed" && !(r.state == "ready" && r.extraction?.status == "failed")) return@operation
         val operationKey = checkpoint.retry ?: key()
         save(checkpoint.copy(retry = operationKey))
         record(api.retry(r.id, operationKey))
@@ -170,8 +184,30 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
     suspend fun cancel() = operation {
         val id = checkpoint.id ?: return@operation
         record(api.cancel(id)); discard(); acknowledged = emptyMap(); store.clear(); checkpoint = CaptureCheckpoint()
-        show(state.value.copy(record = null, uploaded = emptySet()))
+        show(state.value.copy(record = null, uploaded = emptySet(), draft = null, draftRevision = null, reviewDirty = false))
+    }
+    fun editCard(data: CardData) {
+        val ui = state.value
+        if (closed || ui.busy || ui.draft == null) return
+        show(ui.copy(draft = data, reviewDirty = true, message = null))
+    }
+    fun resetReview() {
+        val ui = state.value
+        val r = ui.record ?: return
+        if (closed || ui.busy || r.state != "ready" || r.extraction?.status != "complete") return
+        show(ui.copy(draft = r.reviewed?.data ?: r.extraction.data, draftRevision = r.revision, reviewDirty = false, message = null))
+    }
+    suspend fun saveReview() = operation {
+        val ui = state.value
+        val r = requireNotNull(ui.record)
+        val data = requireNotNull(ui.draft)
+        if (!data.isValid() || data.isEmpty()) {
+            show(ui.copy(message = "Enter the visible card details. Each field must be at most 512 bytes."))
+            return@operation
+        }
+        require(r.state == "ready" && r.extraction?.status == "complete")
+        record(api.review(r.id, ReviewCapture(requireNotNull(ui.draftRevision), data)))
     }
     private fun discard() { pending?.second?.fill(0); pending = null }
-    fun close() { closed = true; discard() }
+    fun close() { closed = true; discard(); mutable.value = CaptureUi(signInRequired = mutable.value.signInRequired) }
 }

@@ -58,6 +58,7 @@ class CaptureApi(baseUrl: String, private val client: HttpClient, private val up
     }
     override suspend fun finalize(id: String, request: FinalizeCapture): CaptureRecord = client.post("${path(id)}/finalize") { authorize(); contentType(ContentType.Application.Json); setBody(request) }.checked().body()
     override suspend fun retry(id: String, key: String): CaptureRecord = client.post("${path(id)}/retry-finalization") { authorize(); contentType(ContentType.Application.Json); setBody(OperationKey(key)) }.checked().body()
+    override suspend fun review(id: String, request: ReviewCapture): CaptureRecord = client.post("${path(id)}/review") { authorize(); contentType(ContentType.Application.Json); setBody(request) }.checked().body()
     override suspend fun cancel(id: String): CaptureRecord = client.post("${path(id)}/cancel") { authorize(); contentType(ContentType.Application.Json); setBody("{}") }.checked().body()
     companion object { const val MAX_JPEG_BYTES = 4 * 1024 * 1024 }
 }
