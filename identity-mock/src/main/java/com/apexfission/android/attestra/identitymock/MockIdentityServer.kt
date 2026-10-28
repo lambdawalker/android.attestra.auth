@@ -93,7 +93,7 @@ class MockCaptureServer(private val store: MockStateStore) {
         if (path == "captures" && request.method == HttpMethod.Post) {
             val create = body<CreateCapture>(request)
             snapshot.record?.let { if (snapshot.create == create) return response(it); if (it.state in setOf("uploading", "finalizing")) return error(409, "revision_conflict") }
-            val r = CaptureRecord(id(), (snapshot.record?.evidenceVersion ?: 0) + 1, 1, "capture-v1", create.documentType, "uploading", System.currentTimeMillis() / 1000 + 86400)
+            val r = CaptureRecord(id(), (snapshot.record?.evidenceVersion ?: 0) + 1, 1, "capture-v1", create.documentType, "uploading", System.currentTimeMillis() / 1000 + 86400, disclosureLanguage = create.disclosureLanguage)
             snapshot = Snapshot(record = r, create = create, scenario = scenario); persist(); return response(r)
         }
         val parts = path.split('/')
