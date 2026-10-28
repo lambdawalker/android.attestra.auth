@@ -93,7 +93,7 @@ class MockCaptureServer(private val store: MockStateStore) {
         if (path == "captures" && request.method == HttpMethod.Post) {
             val create = body<CreateCapture>(request)
             snapshot.record?.let { if (snapshot.create == create) return response(it); if (it.state in setOf("uploading", "finalizing")) return error(409, "revision_conflict") }
-            val r = CaptureRecord(id(), (snapshot.record?.evidenceVersion ?: 0) + 1, 1, "capture-v1", create.documentType, "uploading", System.currentTimeMillis() / 1000 + 86400)
+            val r = CaptureRecord(id(), (snapshot.record?.evidenceVersion ?: 0) + 1, 1, "capture-v1", create.documentType, "uploading", System.currentTimeMillis() / 1000 + 86400, disclosureLanguage = create.disclosureLanguage)
             snapshot = Snapshot(record = r, create = create, scenario = scenario); persist(); return response(r)
         }
         val parts = path.split('/')
@@ -129,9 +129,9 @@ class MockCaptureServer(private val store: MockStateStore) {
                 val input = body<ReviewCapture>(request)
                 if (r.state != "ready" || r.extraction?.status != "complete") return error(409, "revision_conflict")
                 if (!input.data.isValid() || input.data.isEmpty()) return error(400, "invalid_request")
-                if (r.reviewed?.data == input.data) return response(r)
+                if (r.reviewed?.data == input.data && r.reviewed?.originCountry == input.originCountry) return response(r)
                 if (r.revision != input.revision) return error(409, "revision_conflict")
-                snapshot = snapshot.copy(record = r.copy(revision = r.revision + 1, reviewed = ReviewedCard(input.data, System.currentTimeMillis() / 1000)))
+                snapshot = snapshot.copy(record = r.copy(revision = r.revision + 1, reviewed = ReviewedCard(input.data, System.currentTimeMillis() / 1000, input.originCountry)))
                 persist(); return response(requireNotNull(snapshot.record))
             }
             "cancel" -> { snapshot = snapshot.copy(record = r.copy(state = "cancelled", revision = r.revision + 1, extraction = null, reviewed = null), uploads = emptyMap()); persist(); return response(requireNotNull(snapshot.record)) }

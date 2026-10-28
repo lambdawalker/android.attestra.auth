@@ -3,6 +3,10 @@ package com.apexfission.android.attestra.auth.capture
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Serializable data class DisclosureMessages(val en: String = "", val es: String = "", val fr: String = "") {
+    fun language(requested: String): String = when { requested.startsWith("es") && es.isNotBlank() -> "es"; requested.startsWith("fr") && fr.isNotBlank() -> "fr"; else -> "en" }
+    fun text(requested: String): String = when (language(requested)) { "es" -> es; "fr" -> fr; else -> en }
+}
 @Serializable data class CapturePolicy(
     val enabled: Boolean,
     @SerialName("policy_version") val version: String,
@@ -10,8 +14,9 @@ import kotlinx.serialization.Serializable
     @SerialName("required_slots") val slots: List<String>,
     @SerialName("content_type") val contentType: String,
     @SerialName("max_bytes") val maxBytes: Long,
-    val purpose: String = "Save document photos for onboarding",
-    val jurisdiction: String = "sample",
+    val purpose: String = "Scan your ID to provide your identity details. You’ll review and confirm the information afterward.",
+    val purposes: DisclosureMessages = DisclosureMessages(),
+    val jurisdiction: String = "",
     @SerialName("retention_days") val retentionDays: Int = 7,
 )
 @Serializable data class CardData(
@@ -33,8 +38,8 @@ import kotlinx.serialization.Serializable
     fun isEmpty(): Boolean = this == CardData()
 }
 @Serializable data class CardExtraction(val status: String, val data: CardData = CardData(), val error: String = "")
-@Serializable data class ReviewedCard(val data: CardData, @SerialName("saved_at") val savedAt: Long)
-@Serializable data class ReviewCapture(@SerialName("expected_revision") val revision: Long, val data: CardData)
+@Serializable data class ReviewedCard(val data: CardData, @SerialName("saved_at") val savedAt: Long, @SerialName("origin_country") val originCountry: String = "")
+@Serializable data class ReviewCapture(@SerialName("expected_revision") val revision: Long, val data: CardData, @SerialName("origin_country") val originCountry: String = "")
 @Serializable data class CaptureRecord(
     @SerialName("capture_id") val id: String,
     @SerialName("evidence_version") val evidenceVersion: Long,
@@ -48,9 +53,11 @@ import kotlinx.serialization.Serializable
     val policy: CapturePolicy? = null,
     val extraction: CardExtraction? = null,
     val reviewed: ReviewedCard? = null,
+    @SerialName("disclosure_language") val disclosureLanguage: String = "",
 )
 @Serializable data class CreateCapture(@SerialName("operation_key") val key: String, @SerialName("document_type") val documentType: String,
-    @SerialName("expected_policy_version") val expectedPolicyVersion: String = "")
+    @SerialName("expected_policy_version") val expectedPolicyVersion: String = "",
+    @SerialName("disclosure_language") val disclosureLanguage: String = "en")
 @Serializable data class RegisterUpload(
     @SerialName("operation_key") val key: String,
     @SerialName("expected_revision") val revision: Long,

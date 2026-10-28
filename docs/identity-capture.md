@@ -6,7 +6,7 @@ Implements the capture and card-review contract in [go.attestra.aws.auth/docs/id
 
 ## Live flow
 
-Configure `-PattestraApiBaseUrl=https://YOUR_API_HOST` and the existing sign-in/link settings. Both debug and release authenticated onboarding use the real capture API. Capture can remain disabled server-side until policy and deployment checks are complete. A policy supplies the document type, purpose, jurisdiction, limits and retention. The initial UI handles only a front/back JPEG card policy.
+Configure `-PattestraApiBaseUrl=https://YOUR_API_HOST` and the existing sign-in/link settings. Both debug and release authenticated onboarding use the real capture API. Capture can remain disabled server-side until policy and deployment checks are complete. The policy uses `id_card` and supplies generic English/Spanish/French disclosure text, limits and retention. No jurisdiction is requested before scanning. The initial UI handles only a front/back JPEG card policy.
 
 The flow obtains an account-bound capture, acquires and previews each side, registers checksum/size, PUTs directly to private S3, and requests asynchronous finalization. A dedicated S3 client has no auth or logging plugin and follows no redirects. The app never receives AWS credentials or document read URLs. API authorization always uses the current account's access token. Unverified JWT claims are used only for local cache partitioning, never server authorization.
 
@@ -31,3 +31,9 @@ When `extraction.status=complete`, the form shows name, given names, surnames, b
 Refresh preserves unsaved edits. Revision conflicts require reviewing the latest server values; “Discard edits and use latest details” explicitly resets the draft. Lost save responses reconcile through status. Draft fields are memory-only (not `rememberSaveable`, preferences or encrypted checkpoints); leaving or recreating the screen discards unsaved changes. The protected window remains active for the form. Cancellation and disposal clear data from controller state. Extraction failure offers retry using the already-uploaded images. Legacy ready captures without extraction display a compatible message.
 
 Deploy the backend extraction/review routes before shipping this client. The debug mock returns clearly synthetic card fields and supports the review endpoint. Cloud model accuracy and real-device form/camera behavior need a live smoke test; JVM checks do not establish these.
+
+## Disclosure and origin
+
+The app selects the disclosure using the device language, with English fallback. It submits and retains the chosen language alongside the policy snapshot, so resuming a capture does not silently replace the accepted text. Legacy snapshots retain their original purpose.
+
+After scanning, the review form requires a Country of origin selection: Canada, United States, Mexico, Guatemala or Belize. This user-selected value is independent of the document’s OCR issuing country and is saved as `origin_country`. It is not inferred from device locale. Both values remain editable before saving.

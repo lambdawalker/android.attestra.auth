@@ -7,6 +7,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.apexfission.android.attestra.auth.identity.DocumentSide
 import kotlinx.coroutines.delay
@@ -20,11 +21,12 @@ import kotlinx.coroutines.launch
     camera: @Composable (DocumentSide, (ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit,
 ) {
     val ui by controller.state.collectAsState()
+    val language = LocalConfiguration.current.locales[0].language
     val scope = rememberCoroutineScope()
     LaunchedEffect(controller) {
         controller.restore()
         if (startCaptureOnEntry && allowNewCapture) {
-            if (controller.state.value.record == null) controller.start()
+            if (controller.state.value.record == null) controller.start(language)
             if (controller.state.value.record?.state == "uploading") controller.camera(DocumentSide.FRONT)
         }
     }
@@ -47,14 +49,16 @@ import kotlinx.coroutines.launch
         val record = ui.record
         if (record == null || record.state in setOf("requires_recapture", "expired", "cancelled")) {
             ui.policy?.let { policy ->
-                Text("Document: ${policy.documentType} (${policy.jurisdiction}). JPEG images, up to ${policy.maxBytes / (1024 * 1024)} MiB per side.")
-                Text("${policy.purpose}. Uploaded photos are retained for up to ${policy.retentionDays} days after capture completes. You can cancel to request deletion.")
+                Text("ID card · JPEG images, up to ${policy.maxBytes / (1024 * 1024)} MiB per side.")
+                val disclosureLanguage = ui.record?.disclosureLanguage?.takeIf { it.isNotBlank() } ?: language
+                Text(policy.purposes.text(disclosureLanguage).ifBlank { policy.purpose })
+                Text("Uploaded photos are retained for up to ${policy.retentionDays} days after capture completes. You can cancel to request deletion.")
             }
         }
         when (record?.state) {
             null -> {
                 if (allowNewCapture && ui.policy?.enabled == true) {
-                    Button(enabled = !ui.busy, onClick = { scope.launch { controller.start() } }) { Text("Start capture") }
+                    Button(enabled = !ui.busy, onClick = { scope.launch { controller.start(language) } }) { Text("Start capture") }
                 } else Text("Document capture is not enabled for this service yet.")
             }
             "uploading" -> {
@@ -71,13 +75,13 @@ import kotlinx.coroutines.launch
                 when (record.extraction?.status) {
                     "pending" -> { Text("Reading your card details", style = MaterialTheme.typography.headlineSmall); CircularProgressIndicator(); Text("You can leave and return while this finishes.") }
                     "failed" -> { Text("We could not read the card details. Your photos are saved."); Button(enabled = !ui.busy, onClick = { scope.launch { controller.retry() } }) { Text("Retry reading card") } }
-                    "complete" -> CardReviewForm(ui, controller::editCard, controller::resetReview) { scope.launch { controller.saveReview() } }
+                    "complete" -> CardReviewForm(ui, controller::editCard, controller::resetReview, controller::editOrigin) { scope.launch { controller.saveReview() } }
                     null -> Text("Both sides are saved. This older capture has no extracted details. Start a new capture after cancelling it to read the card.")
                     else -> Text("Update the app to view this extraction status.")
                 }
             }
             "failed" -> { Text("File checks are temporarily unavailable."); Button(enabled = !ui.busy, onClick = { scope.launch { controller.retry() } }) { Text("Retry file checks") } }
-            "requires_recapture", "expired", "cancelled" -> { Text("Please capture your document again."); Button(enabled = !ui.busy && allowNewCapture && ui.policy?.enabled == true, onClick = { scope.launch { controller.start() } }) { Text("Start again") } }
+            "requires_recapture", "expired", "cancelled" -> { Text("Please capture your document again."); Button(enabled = !ui.busy && allowNewCapture && ui.policy?.enabled == true, onClick = { scope.launch { controller.start(language) } }) { Text("Start again") } }
             else -> Text("This capture state needs a newer app. Your document has not been marked captured here.")
         }
         if (!ui.signInRequired) TextButton(enabled = !ui.busy, onClick = { scope.launch { controller.restore() } }) { Text("Refresh status") }
