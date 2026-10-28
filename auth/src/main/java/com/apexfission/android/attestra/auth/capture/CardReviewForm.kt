@@ -2,13 +2,15 @@ package com.apexfission.android.attestra.auth.capture
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Modifier
 
 @Composable internal fun CardReviewForm(
     ui: CaptureUi,
     onEdit: (CardData) -> Unit,
     onReset: () -> Unit,
+    onOrigin: (String) -> Unit,
     onSave: () -> Unit,
 ) {
     val data = ui.draft ?: return
@@ -25,8 +27,18 @@ import androidx.compose.ui.Modifier
     CardField("Issue date", data.issueDate, ui.busy) { onEdit(data.copy(issueDate = it)) }
     CardField("Expiry date", data.expiryDate, ui.busy) { onEdit(data.copy(expiryDate = it)) }
     CardField("Issuing country", data.issuingCountry, ui.busy) { onEdit(data.copy(issuingCountry = it)) }
+    var countriesOpen by remember { mutableStateOf(false) }
+    val countries = mapOf("CA" to "Canada", "US" to "United States", "MX" to "Mexico", "GT" to "Guatemala", "BZ" to "Belize")
+    Text("Country of origin", style = MaterialTheme.typography.titleMedium)
+    Text("Select your country of origin. It may differ from the country that issued your ID.")
+    Box {
+        OutlinedButton(onClick = { countriesOpen = true }, enabled = !ui.busy) { Text(countries[ui.originCountry] ?: "Select country") }
+        DropdownMenu(expanded = countriesOpen, onDismissRequest = { countriesOpen = false }) {
+            countries.forEach { (code, name) -> DropdownMenuItem(text = { Text(name) }, onClick = { onOrigin(code); countriesOpen = false }) }
+        }
+    }
     if (!data.isValid()) Text("A field is too long. Shorten it before saving.", color = MaterialTheme.colorScheme.error)
-    Button(onClick = onSave, enabled = !ui.busy && data.isValid() && !data.isEmpty() && (ui.reviewDirty || ui.record?.reviewed == null)) { Text("Save reviewed details") }
+    Button(onClick = onSave, enabled = !ui.busy && data.isValid() && !data.isEmpty() && ui.originCountry in countries.keys && (ui.reviewDirty || ui.record?.reviewed == null)) { Text("Save reviewed details") }
     if (ui.reviewDirty) {
         Text("Unsaved edits are kept only while this screen is open.")
         TextButton(onClick = onReset, enabled = !ui.busy) { Text("Discard edits and use latest details") }

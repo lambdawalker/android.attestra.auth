@@ -54,7 +54,7 @@ class CaptureControllerTest {
         override suspend fun review(id: String, request: ReviewCapture): CaptureRecord {
             val r = requireNotNull(record)
             if (request.revision != r.revision && r.reviewed?.data != request.data) throw CaptureException(409)
-            record = r.copy(revision = r.revision + 1, reviewed = ReviewedCard(request.data, 123))
+            record = r.copy(revision = r.revision + 1, reviewed = ReviewedCard(request.data, 123, request.originCountry))
             if (failReview) { failReview = false; throw CaptureException(503) }
             return requireNotNull(record)
         }
@@ -154,7 +154,7 @@ class CaptureControllerTest {
         c.restore(); assertEquals(extracted, c.state.value.draft)
         c.editCard(extracted.copy(fullName = "Corrected Person"))
         c.restore(); assertEquals("Corrected Person", c.state.value.draft?.fullName)
-        api.failReview = true; c.saveReview()
+        c.editOrigin("MX"); api.failReview = true; c.saveReview()
         assertNotNull(c.state.value.message)
         c.restore(); assertEquals("Corrected Person", c.state.value.record?.reviewed?.data?.fullName)
         assertEquals("Sample Person", c.state.value.record?.extraction?.data?.fullName)
