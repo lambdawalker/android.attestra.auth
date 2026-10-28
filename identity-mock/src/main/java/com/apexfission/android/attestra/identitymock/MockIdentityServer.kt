@@ -55,6 +55,10 @@ class MockCaptureServer(private val store: MockStateStore) {
     private fun id() = UUID.randomUUID().toString().replace("-", "")
     private fun advance(): CaptureRecord? {
         var r = snapshot.record ?: return null
+        if (r.state == "ready" && r.extraction?.status == "pending") {
+            r = r.copy(revision = r.revision + 1, extraction = CardExtraction("complete", CardData(fullName = "Sample Person", documentNumber = "000123")))
+            snapshot = snapshot.copy(record = r); persist()
+        }
         if (r.state == "finalizing") {
             val polls = snapshot.polls + 1
             if (polls >= 2 && scenario != MockScenario.PENDING) r = r.copy(revision = r.revision + 1, state = when {
@@ -62,6 +66,7 @@ class MockCaptureServer(private val store: MockStateStore) {
                 scenario == MockScenario.FAILED && !snapshot.failureSent -> "failed"
                 else -> "ready"
             })
+            if (r.state == "ready") r = r.copy(extraction = CardExtraction("pending"))
             snapshot = snapshot.copy(record = r, polls = polls); persist()
         }
         return r
@@ -117,7 +122,16 @@ class MockCaptureServer(private val store: MockStateStore) {
                 return response(next, 202)
             }
             "retry-finalization" -> { if (r.state != "failed") return response(r); snapshot = snapshot.copy(record = r.copy(state = "finalizing", revision = r.revision + 1), polls = 0, failureSent = true); persist(); return response(requireNotNull(snapshot.record), 202) }
-            "cancel" -> { snapshot = snapshot.copy(record = r.copy(state = "cancelled", revision = r.revision + 1), uploads = emptyMap()); persist(); return response(requireNotNull(snapshot.record)) }
+            "review" -> {
+                val input = body<ReviewCapture>(request)
+                if (r.state != "ready" || r.extraction?.status != "complete") return error(409, "revision_conflict")
+                if (!input.data.isValid() || input.data.isEmpty()) return error(400, "invalid_request")
+                if (r.reviewed?.data == input.data) return response(r)
+                if (r.revision != input.revision) return error(409, "revision_conflict")
+                snapshot = snapshot.copy(record = r.copy(revision = r.revision + 1, reviewed = ReviewedCard(input.data, System.currentTimeMillis() / 1000)))
+                persist(); return response(requireNotNull(snapshot.record))
+            }
+            "cancel" -> { snapshot = snapshot.copy(record = r.copy(state = "cancelled", revision = r.revision + 1, extraction = null, reviewed = null), uploads = emptyMap()); persist(); return response(requireNotNull(snapshot.record)) }
         }
         return error(404, "not_found")
     }
