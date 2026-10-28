@@ -111,7 +111,7 @@ fun OnboardingFrame(
                                 enabled = secondaryEnabled,
                                 modifier = Modifier.fillMaxWidth().height(48.dp),
                                 shape = RoundedCornerShape(8.dp),
-                            ) { Text(secondaryLabel, color = MaterialTheme.colorScheme.onSurface) }
+                            ) { Text(secondaryLabel) }
                         }
                     }
                 }

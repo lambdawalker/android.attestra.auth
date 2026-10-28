@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +30,7 @@ fun ReturnSignInScreen(initialEmail: String, error: String?, onPasskey: (String)
             BodyText("Enter your email, then choose how to sign in. You can use an email code if a passkey is unavailable on this device.")
             OutlinedTextField(email, { email = it }, label = { Text("Email address") }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), modifier = Modifier.fillMaxWidth())
-            if (error != null) BodyText(error)
+            if (error != null) Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -43,7 +44,7 @@ fun ReturnEmailCodeScreen(email: String, error: String?, onVerify: (String) -> U
             BodyText("Enter the six-digit sign-in code sent to $email. This is separate from your signup confirmation code.")
             OutlinedTextField(code, { code = it.filter(Char::isDigit).take(6) }, label = { Text("Six-digit code") }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), modifier = Modifier.fillMaxWidth())
-            if (error != null) BodyText(error)
+            if (error != null) Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

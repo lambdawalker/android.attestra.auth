@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MarkEmailRead
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +45,7 @@ fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit, error: St
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
-            if (error != null) Text(error, color = androidx.compose.material3.MaterialTheme.colorScheme.error)
+            if (error != null) Text(error, color = MaterialTheme.colorScheme.error)
         }
     }
 }

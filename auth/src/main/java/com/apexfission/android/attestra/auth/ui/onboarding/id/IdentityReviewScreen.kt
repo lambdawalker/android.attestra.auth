@@ -3,6 +3,7 @@ package com.apexfission.android.attestra.auth.ui.onboarding.id
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +60,7 @@ fun IdentityReviewScreen(
     ) {
         OnboardingCard {
             BodyText("Review the details read from your document. Correct mistakes before submitting them for an identity check.")
-            if (error != null) BodyText(error)
+            if (error != null) Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
             if (initialDetails != extractedDetails) BodyText("Your edits will be submitted as corrections. The original extraction is preserved separately.")
             Text("Personal information", fontWeight = FontWeight.SemiBold)
             DetailField("Full legal name", fullName) { fullName = it; notifyChanged() }
