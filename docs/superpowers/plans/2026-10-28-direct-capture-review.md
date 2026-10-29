@@ -8,3 +8,5 @@ Approved design: Continue opens the camera for new captures. Confirming both pho
 4. Add controller, screen-routing and mock HTTP regression coverage, run available tests and CI, document rollout (backend first), review both branches and open PRs.
 
 Constraints: photo confirmation/retakes remain; server policy changes still require explicit acknowledgement; file-validation failures still require recovery, not manual identity submission. No deployments. Existing protected memory and upload ownership apply.
+
+Review resolution: display the server disclosure on the existing Continue screen and pass that accepted snapshot through the app to capture creation. This preserves policy acknowledgement without another normal-path screen. Regression tests reject changed or missing consent even after status restore. Backend race suite and vet pass locally; Android execution requires CI because Gradle distribution access is blocked locally.

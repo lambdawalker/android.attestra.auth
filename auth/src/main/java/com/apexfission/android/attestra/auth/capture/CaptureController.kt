@@ -119,9 +119,9 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         show(state.value.copy(policy = policy, message = "The capture policy changed. Review the updated details, then select Start capture again."))
         null
     }
-    suspend fun start(language: String = "en") = operation {
+    suspend fun start(language: String = "en", reviewedPolicy: CapturePolicy? = state.value.policy) = operation {
         if (!mayCreate()) { show(state.value.copy(message = "New ID capture is disabled until app settings are refreshed.")); return@operation }
-        val reviewed = state.value.policy
+        val reviewed = reviewedPolicy
         val policy = api.policy()
         show(state.value.copy(policy = policy))
         require(policy.enabled && policy.slots == listOf("front", "back") && policy.contentType == "image/jpeg")
@@ -144,11 +144,11 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         createOrReview(request)?.let { record(it); show(state.value.copy(uploaded = emptySet())) }
     }
     /** Continue is the only admission action; existing evidence resumes without reopening the camera. */
-    suspend fun continueToCapture(language: String = "en", allowNewCapture: Boolean = true) {
+    suspend fun continueToCapture(language: String = "en", allowNewCapture: Boolean = true, reviewedPolicy: CapturePolicy? = state.value.policy) {
         if (closed || state.value.busy) return
         if (state.value.record?.state !in setOf("uploading", "finalizing", "ready", "failed")) {
             if (!allowNewCapture) return
-            start(language)
+            start(language, reviewedPolicy)
         }
         if (closed || state.value.message != null || state.value.record?.state != "uploading") return
         if (state.value.record?.selected?.keys?.containsAll(listOf("front", "back")) == true) {

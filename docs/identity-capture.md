@@ -40,6 +40,8 @@ After scanning, the review form requires a Country of origin selection: Canada, 
 
 ## Direct capture and review
 
+The existing Continue screen fetches and displays the current localized capture purpose and retention, and carries the accepted policy snapshot into capture. A change before creation requires accepting the refreshed disclosure; a newly fetched policy is never treated as already accepted.
+
 Continue to capture restores existing state and opens the two-sided camera immediately for a new capture (after camera permission if needed). Photo confirmation automatically uploads both images and requests finalization. There is no additional Start capture or Finish capture action on the normal path. The server still validates both uploaded objects before accepting finalization; selected upload IDs alone do not prove successful uploads.
 
 Returning to finalizing or extraction-pending captures shows the reading screen. A complete extraction opens the populated form; failed extraction opens a blank form for manual entry. Already saved reviews are retained. The account completion screen includes Review ID details so capture completion does not hide an unfinished form.

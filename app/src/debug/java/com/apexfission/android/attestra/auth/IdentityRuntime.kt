@@ -15,7 +15,7 @@ import com.apexfission.android.attestra.identitymock.*
 import java.io.File
 
 internal const val HAS_IDENTITY_DEMO = true
-@Composable internal fun AccountIdentityFlow(passkeyAdded: Boolean, onExit: () -> Unit) = LiveCaptureFlow(onExit)
+@Composable internal fun AccountIdentityFlow(passkeyAdded: Boolean, acceptedPolicy: com.apexfission.android.attestra.auth.capture.CapturePolicy?, onExit: () -> Unit) = LiveCaptureFlow(onExit, acceptedPolicy)
 @Composable internal fun IdentityDemo(onExit: () -> Unit) = MockCaptureFlow(onExit, true)
 @Composable internal fun DirectIdentityCapture(onExit: () -> Unit) = MockCaptureFlow(onExit, false)
 @Composable private fun MockCaptureFlow(onExit: () -> Unit, showTestOptions: Boolean) {

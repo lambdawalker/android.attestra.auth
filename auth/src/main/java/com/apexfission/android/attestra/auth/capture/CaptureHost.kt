@@ -24,6 +24,8 @@ import kotlinx.coroutines.launch
     controller: CaptureController,
     onExit: () -> Unit,
     startCaptureOnEntry: Boolean = false,
+    acceptedPolicy: CapturePolicy? = null,
+    requireReviewedPolicy: Boolean = false,
     allowNewCapture: Boolean = true,
     camera: @Composable ((ByteArray, ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit,
 ) {
@@ -43,7 +45,8 @@ import kotlinx.coroutines.launch
         try {
             controller.restore()
             if (startCaptureOnEntry && controller.state.value.message == null) {
-                controller.continueToCapture(language, allowNewCapture)
+                controller.continueToCapture(language, allowNewCapture,
+                    reviewedPolicy = if (requireReviewedPolicy) acceptedPolicy else controller.state.value.policy)
             }
         } finally { initializing = false }
     }

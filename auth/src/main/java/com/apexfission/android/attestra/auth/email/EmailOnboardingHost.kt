@@ -1,6 +1,8 @@
 package com.apexfission.android.attestra.auth.email
 
 import androidx.activity.compose.BackHandler
+import com.apexfission.android.attestra.auth.capture.CaptureApi
+import com.apexfission.android.attestra.auth.capture.CapturePolicy
 import com.apexfission.android.attestra.auth.discovery.*
 import com.apexfission.android.attestra.auth.passkey.AccountStatus
 import com.apexfission.android.attestra.auth.passkey.SignInError
@@ -72,7 +74,7 @@ fun EmailOnboardingHost(
     onPasskeyDeferred: () -> Unit,
     onboarding: OnboardingPolicy? = null,
     onRetryConfiguration: () -> Unit = {},
-    identityContent: @Composable (Boolean, () -> Unit) -> Unit = { _, exit ->
+    identityContent: @Composable (Boolean, CapturePolicy?, () -> Unit) -> Unit = { _, _, exit ->
         com.apexfission.android.attestra.auth.identity.IdentityIntegrationUnavailable(exit)
     },
 ) {
@@ -90,6 +92,26 @@ fun EmailOnboardingHost(
     val passkeyManager = remember(activityContext) { AndroidPasskeyManager(activityContext) }
     val returnApi = remember(apiBaseUrl, client) { ReturnAuthApi(apiBaseUrl, client) }
     var passkeyScreen by remember(apiBaseUrl) { mutableStateOf("refresh") }
+    var capturePolicy by remember(apiBaseUrl) { mutableStateOf<CapturePolicy?>(null) }
+    var acceptedCapturePolicy by remember(apiBaseUrl) { mutableStateOf<CapturePolicy?>(null) }
+    var capturePolicyLoading by remember(apiBaseUrl) { mutableStateOf(false) }
+    var capturePolicyError by remember(apiBaseUrl) { mutableStateOf<String?>(null) }
+    var capturePolicyRefresh by remember(apiBaseUrl) { mutableLongStateOf(0L) }
+    LaunchedEffect(passkeyScreen, apiBaseUrl, capturePolicyRefresh) {
+        if (passkeyScreen != "identity") return@LaunchedEffect
+        capturePolicy = null
+        acceptedCapturePolicy = null
+        capturePolicyLoading = true
+        capturePolicyError = null
+        try {
+            // Only policy GET uses this instance; image uploads use LiveCaptureFlow's dedicated transport.
+            capturePolicy = CaptureApi(apiBaseUrl, client, client) { storage.session()?.accessToken.orEmpty() }.policy()
+        } catch (cancel: CancellationException) {
+            throw cancel
+        } catch (_: Exception) {
+            capturePolicyError = "We could not load the capture information. Try again or return to sign in."
+        } finally { capturePolicyLoading = false }
+    }
     var status by remember(apiBaseUrl) { mutableStateOf<AccountStatus?>(null) }
     var skipped by remember(apiBaseUrl) { mutableStateOf(emptySet<OnboardingStep>()) }
     // Intentionally not rememberSaveable: never serialize credentials into saved state.
@@ -382,9 +404,13 @@ fun EmailOnboardingHost(
             "unsupported" -> PasskeyUnsupportedScreen(exit, { skip(OnboardingStep.PASSKEY) }, createPasskey,
                 required = onboarding.passkey == Requirement.REQUIRED)
             "recovery" -> EmailSessionRecoveryScreen(exit, { clearPassword(); returnMode = "choice" })
-            "identity" -> IdentityStartScreen(exit, { passkeyScreen = "identity_flow" }, { skip(OnboardingStep.ID_CAPTURE) },
-                passkeyAdded = status?.passkeyRegistered == true, required = onboarding.idCapture == Requirement.REQUIRED)
-            "identity_flow" -> identityContent(status?.passkeyRegistered == true) {
+            "identity" -> IdentityStartScreen(exit, {
+                capturePolicy?.let { acceptedCapturePolicy = it; passkeyScreen = "identity_flow" }
+            }, { skip(OnboardingStep.ID_CAPTURE) },
+                passkeyAdded = status?.passkeyRegistered == true, required = onboarding.idCapture == Requirement.REQUIRED,
+                capturePolicy = capturePolicy, policyLoading = capturePolicyLoading, policyError = capturePolicyError,
+                requireDisclosure = true, onRetryPolicy = { capturePolicyRefresh++ })
+            "identity_flow" -> identityContent(status?.passkeyRegistered == true, acceptedCapturePolicy) {
                 // Both successful capture and cancellation only trigger a server read.
                 if (storage.session() == null) {
                     clearPassword()
@@ -396,7 +422,7 @@ fun EmailOnboardingHost(
             }
             "welcome" -> OnboardingFrame("Welcome to Attestra", Icons.Default.Lock, "Your account", exit,
                 primaryLabel = if (status?.idCaptured == true) "Review ID details" else "Refresh account status",
-                onPrimary = { if (status?.idCaptured == true) passkeyScreen = "identity_flow" else scope.launch { refreshStatus() } }) {
+                onPrimary = { if (status?.idCaptured == true) { acceptedCapturePolicy = null; passkeyScreen = "identity_flow" } else scope.launch { refreshStatus() } }) {
                 BodyText("Your account setup is complete.")
                 if (status?.idCaptured == true) BodyText("Document captured. This does not assert identity verification.")
             }

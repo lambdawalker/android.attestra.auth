@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
                                 onRetryConfiguration = environment::refreshRuntimeConfiguration,
                                 link = incomingLink,
                                 onLinkConsumed = ::clearIncomingLink,
-                                identityContent = { passkeyAdded, exit -> AccountIdentityFlow(passkeyAdded, exit) },
+                                identityContent = { passkeyAdded, policy, exit -> AccountIdentityFlow(passkeyAdded, policy, exit) },
                                 onPasskeyDeferred = { destination = EntryScreen.Home; clearIncomingLink() },
                             )
                             }

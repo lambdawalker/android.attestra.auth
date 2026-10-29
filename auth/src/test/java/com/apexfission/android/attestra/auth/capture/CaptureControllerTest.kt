@@ -263,4 +263,25 @@ class CaptureControllerTest {
         assertNull(resumed.state.value.camera); assertEquals(1, api.creates)
     }
 
+    @Test fun policyAcceptedOnContinueScreenMustMatchEvenAfterRestore() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        val accepted = api.policyValue
+        api.policyValue = api.policyValue.copy(version = "new-policy", purpose = "New disclosure")
+        c.restore(); c.continueToCapture(reviewedPolicy = accepted)
+        assertEquals(0, api.creates); assertNull(c.state.value.camera)
+        assertNotNull(c.state.value.message)
+        // After explicitly accepting the refreshed disclosure, the camera may open.
+        c.continueToCapture(reviewedPolicy = c.state.value.policy)
+        assertEquals(1, api.creates); assertEquals(DocumentSide.FRONT, c.state.value.camera)
+    }
+    @Test fun noAcceptedPolicyCannotAutomaticallyCreateButCanResumeReview() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.continueToCapture(reviewedPolicy = null)
+        assertEquals(0, api.creates)
+        c.start()
+        api.record = api.record?.copy(state = "ready", extraction = CardExtraction("failed"))
+        c.restore(); c.continueToCapture(reviewedPolicy = null)
+        assertEquals(CardData(), c.state.value.draft); assertNull(c.state.value.camera)
+    }
+
 }
