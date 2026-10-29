@@ -21,6 +21,9 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Screen where the user initiates onboarding by entering their email address.
+ */
 @Composable
 fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit, error: String? = null, onExistingAccount: (() -> Unit)? = null,
     passwordContent: (@Composable () -> Unit)? = null, passwordValid: Boolean = true,

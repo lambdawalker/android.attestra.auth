@@ -12,7 +12,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.apexfission.android.attestra.auth.discovery.PasswordPolicy
 import com.apexfission.android.attestra.auth.ui.onboarding.common.*
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.MaterialTheme
+import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Component providing an outlined text field configured for password input with policy validation feedback.
+ */
 @Composable
 fun PasswordField(value: String, onChange: (String) -> Unit, policy: PasswordPolicy? = null, optional: Boolean = false) {
     OutlinedTextField(value = value, onValueChange = onChange,
@@ -29,6 +35,9 @@ fun PasswordField(value: String, onChange: (String) -> Unit, policy: PasswordPol
     }
 }
 
+/**
+ * Screen used for both entering an existing password or setting a new one during onboarding.
+ */
 @Composable
 fun PasswordScreen(value: String, onChange: (String) -> Unit, onSubmit: () -> Unit,
     onBack: () -> Unit, error: String?, policy: PasswordPolicy? = null,
@@ -42,5 +51,19 @@ fun PasswordScreen(value: String, onChange: (String) -> Unit, onSubmit: () -> Un
             PasswordField(value, onChange, policy)
             if (error != null) BodyText(error)
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PasswordScreenPreview() {
+    AttestraAuthTheme {
+        PasswordScreen(
+            value = "",
+            onChange = {},
+            onSubmit = {},
+            onBack = {},
+            error = null
+        )
     }
 }

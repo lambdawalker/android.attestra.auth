@@ -24,6 +24,15 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true // JVM tests have no Android Log implementation.
+        screenshotTests.create("screenshotTest") {
+            engineVersion = "0.0.1-alpha16"
+            targetVariants.add("debug")
+
+            dependencies {
+                implementation(libs.androidx.compose.ui.tooling)
+                implementation("com.android.tools.screenshot:screenshot-validation-api:0.0.1-alpha16")
+            }
+        }
     }
 }
 

@@ -25,7 +25,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 
+/**
+ * Screen that acts as the main entry point for testing and launching the onboarding flows.
+ */
 @Composable
 internal fun OnboardingEntryScreen(
     hasBackend: Boolean,
@@ -86,6 +90,25 @@ internal fun OnboardingEntryScreen(
     )
 }
 
+@Preview
+@Composable
+private fun OnboardingEntryScreenPreview() {
+    MaterialTheme {
+        OnboardingEntryScreen(
+            hasBackend = true,
+            resetting = false,
+            resetMessage = null,
+            onDeleteLocalUser = {},
+            onStart = {},
+            onCatalog = {},
+            onIdentityDemo = {}
+        )
+    }
+}
+
+/**
+ * Screen that displays the status of the environment configuration.
+ */
 @Composable
 internal fun EnvironmentStatusScreen(loading: Boolean, message: String?, onRetry: () -> Unit, onBack: () -> Unit) {
     Surface(
@@ -102,5 +125,18 @@ internal fun EnvironmentStatusScreen(loading: Boolean, message: String?, onRetry
             if (!loading) Button(onClick = onRetry) { Text("Retry") }
             OutlinedButton(onClick = onBack) { Text("Back to test menu") }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun EnvironmentStatusScreenPreview() {
+    MaterialTheme {
+        EnvironmentStatusScreen(
+            loading = false,
+            message = "Configuration loaded",
+            onRetry = {},
+            onBack = {}
+        )
     }
 }

@@ -53,6 +53,8 @@ import com.apexfission.android.attestra.auth.ui.onboarding.passkey.PasskeyStartS
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.MaterialTheme
 
 private fun emailFromSession(session: AuthSession?): String? = runCatching {
     val payload = session!!.idToken.split('.')[1]
@@ -66,6 +68,10 @@ fun parseVerificationLink(uri: Uri?, expectedHost: String): VerificationLink? {
     return VerificationLink(uri.getQueryParameter("request_id").orEmpty(), uri.getQueryParameter("b").orEmpty())
 }
 
+/**
+ * Screen that hosts the complete email onboarding and sign-in flow.
+ * Orchestrates password, passkey, and ID capture steps based on the provided onboarding policy.
+ */
 @Composable
 fun EmailOnboardingHost(
     apiBaseUrl: String,
@@ -440,5 +446,13 @@ fun EmailOnboardingHost(
                 LoadingStep.RESEND_EMAIL -> LoadingTask.RESEND_EMAIL
             }, onBack = {},
         )
+    }
+}
+
+@Preview
+@Composable
+private fun EmailOnboardingHostPreview() {
+    MaterialTheme {
+        // Complex state makes this hard to fully mock in a simple preview without a mock environment
     }
 }

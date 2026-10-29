@@ -62,6 +62,9 @@ private val LightColorScheme = lightColorScheme(
     outlineVariant = AttestraLightMistBorder,
 )
 
+/**
+ * Component that applies the Attestra Auth Material 3 theme to its content.
+ */
 @Composable
 fun AttestraAuthTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

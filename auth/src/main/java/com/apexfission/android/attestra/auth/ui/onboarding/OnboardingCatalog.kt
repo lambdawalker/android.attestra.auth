@@ -86,7 +86,10 @@ private val catalogItems = listOf(
     CatalogItem("identity_unsuccessful", "Identity verification - unsuccessful result (pending design)"),
 ) + LoadingTask.entries.map { CatalogItem("loading_${it.name}", "Processing - ${it.title}") }
 
-/** A screen gallery until the onboarding backend, link router and platform integrations exist. */
+/** 
+ * Screen that displays a gallery of all onboarding screens for testing and UI review.
+ * A screen gallery until the onboarding backend, link router and platform integrations exist. 
+ */
 @Composable
 fun OnboardingCatalog(actions: OnboardingBusinessActions) {
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
