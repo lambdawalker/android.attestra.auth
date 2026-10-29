@@ -10,9 +10,12 @@ class CaptureDestinationTest {
 
     @Test fun freshEntryAndBackendPendingShowLoading() {
         assertEquals(CaptureDestination.LOADING, captureDestination(CaptureUi(), initializing = true))
-        for (r in listOf(record("finalizing"), record(), record(extraction = CardExtraction("pending")))) {
+        for (r in listOf(record("finalizing"), record(extraction = CardExtraction("pending")))) {
             assertEquals(CaptureDestination.LOADING, captureDestination(CaptureUi(record = r)))
         }
+    }
+    @Test fun missingExtractionOffersRecoveryInsteadOfEndlessLoading() {
+        assertEquals(CaptureDestination.RECOVERY, captureDestination(CaptureUi(record = record())))
     }
     @Test fun cameraDoesNotShowCaptureManagement() {
         assertEquals(CaptureDestination.CAMERA, captureDestination(CaptureUi(camera = DocumentSide.FRONT)))
@@ -30,4 +33,18 @@ class CaptureDestinationTest {
         assertEquals(CaptureDestination.RECOVERY, captureDestination(CaptureUi(record = record(), message = "Offline")))
         assertEquals(CaptureDestination.RECOVERY, captureDestination(CaptureUi(record = record("failed"))))
     }
+    @Test fun onlyAcknowledgedMatchingReviewFinishes() {
+        val data = CardData(fullName = "Saved Person")
+        val r = record(extraction = CardExtraction("failed")).copy(reviewed = ReviewedCard(data, 123, "MX"))
+        val ui = CaptureUi(record = r, draft = data, originCountry = "MX")
+        assertEquals(CaptureDestination.FINISH, captureDestination(ui))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui, reviewSavedDetails = true))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(busy = true)))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(message = "Save failed")))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(reviewDirty = true)))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(draft = data.copy(fullName = "Unsaved"))))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(originCountry = "US")))
+        assertEquals(CaptureDestination.RECOVERY, captureDestination(ui.copy(signInRequired = true)))
+    }
+
 }

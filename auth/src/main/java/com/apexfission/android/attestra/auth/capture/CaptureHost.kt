@@ -16,8 +16,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.apexfission.android.attestra.auth.ui.onboarding.common.LoadingTask
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingLoadingScreen
 import com.apexfission.android.attestra.auth.identity.DocumentSide
+import com.apexfission.android.attestra.auth.ui.onboarding.id.CardDetailsSavedScreen
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable fun CaptureHost(
@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
     val ui by controller.state.collectAsState()
     val language = LocalConfiguration.current.locales[0].language
     val scope = rememberCoroutineScope()
+    var reviewSavedDetails by remember(controller) { mutableStateOf(false) }
     var initializing by remember(controller) { mutableStateOf(true) }
     var refreshGeneration by remember(controller) { mutableIntStateOf(0) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -51,15 +52,9 @@ import kotlinx.coroutines.launch
         } finally { initializing = false }
     }
     DisposableEffect(controller) { onDispose { controller.close() } }
-    // Foreground-only, bounded-rate polling keeps long extraction jobs moving without another tap.
-    LaunchedEffect(controller, ui.record?.id, ui.record?.state, ui.record?.extraction?.status, foreground, refreshGeneration) {
-        if (foreground && ui.record.isProcessingCard()) {
-            var attempts = 0
-            while (controller.state.value.record.isProcessingCard() && !controller.state.value.signInRequired) {
-                delay(if (attempts++ < 36) 5000L else 15000L)
-                controller.restore()
-            }
-        }
+    // Keep a single deadline across finalizing -> extraction pending transitions.
+    LaunchedEffect(controller, ui.record?.id, ui.record.isProcessingCard(), foreground, refreshGeneration) {
+        if (foreground && ui.record.isProcessingCard()) controller.awaitProcessing()
     }
     BackHandler { controller.close(); onExit() }
 
@@ -67,6 +62,8 @@ import kotlinx.coroutines.launch
         ui = ui,
         onExit = onExit,
         initializing = initializing,
+        reviewSavedDetails = reviewSavedDetails,
+        onReviewSavedDetails = { reviewSavedDetails = true },
         allowNewCapture = allowNewCapture,
         onStart = { lang -> scope.launch { controller.continueToCapture(lang, allowNewCapture) } },
         onCamera = controller::camera,
@@ -79,8 +76,11 @@ import kotlinx.coroutines.launch
         onEditCard = controller::editCard,
         onResetReview = controller::resetReview,
         onEditOrigin = controller::editOrigin,
-        onSaveReview = { scope.launch { controller.saveReview() } },
-        onRestore = { refreshGeneration++; scope.launch { controller.restore() } },
+        onSaveReview = { scope.launch {
+            controller.saveReview()
+            if (controller.state.value.hasSavedReview()) reviewSavedDetails = false
+        } },
+        onRestore = { scope.launch { controller.restore(); refreshGeneration++ } },
         onCancel = { scope.launch { controller.cancel() } },
         onClose = controller::close,
         camera = camera,
@@ -92,6 +92,8 @@ internal fun CaptureHostContent(
     ui: CaptureUi,
     onExit: () -> Unit,
     initializing: Boolean = false,
+    reviewSavedDetails: Boolean = false,
+    onReviewSavedDetails: () -> Unit = {},
     allowNewCapture: Boolean = true,
     onStart: (String) -> Unit = {},
     onCamera: (DocumentSide) -> Unit = {},
@@ -111,7 +113,11 @@ internal fun CaptureHostContent(
     camera: @Composable ((ByteArray, ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit = { _, _, _ -> },
 ) {
     val language = LocalConfiguration.current.locales[0].language
-    val destination = captureDestination(ui, initializing)
+    val destination = captureDestination(ui, initializing, reviewSavedDetails)
+    if (destination == CaptureDestination.FINISH) {
+        CardDetailsSavedScreen(onDone = { onClose(); onExit() }, onReview = onReviewSavedDetails)
+        return
+    }
     if (destination == CaptureDestination.CAMERA) {
         camera(onCaptured, onCameraFailed, onCameraCancelled)
         return
@@ -192,7 +198,7 @@ internal fun CaptureHostContent(
                     when (record.extraction?.status) {
                         "pending" -> { Text("Reading your card details", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground); CircularProgressIndicator(); Text("You can leave and return while this finishes.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                         "failed", "complete" -> Text("Refresh to load your review form.")
-                        null -> Text("Waiting for your card details. Check again or return later.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        null -> Text("The service has not provided a reading result. Refresh status or return later.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         else -> Text("Update the app to view this extraction status.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }

@@ -174,9 +174,13 @@ class CaptureControllerTest {
         c.restore(); assertEquals("Corrected Person", c.state.value.draft?.fullName)
         c.editOrigin("MX"); api.failReview = true; c.saveReview()
         assertNotNull(c.state.value.message)
+        assertEquals(CaptureDestination.REVIEW, captureDestination(c.state.value))
         c.restore(); assertEquals("Corrected Person", c.state.value.record?.reviewed?.data?.fullName)
         assertEquals("Sample Person", c.state.value.record?.extraction?.data?.fullName)
         assertFalse(c.state.value.reviewDirty)
+        assertEquals("FINISH", captureDestination(c.state.value).name)
+        val resumed = CaptureController(api, store); resumed.restore()
+        assertEquals("FINISH", captureDestination(resumed.state.value).name)
         assertFalse(store.value.toString().contains("Corrected Person"))
     }
     @Test fun cancellationAndCloseClearCardDataFromState() = runBlocking {
@@ -225,6 +229,7 @@ class CaptureControllerTest {
         c.editCard(CardData(fullName = "Manual Person")); c.editOrigin("MX")
         c.restore(); assertEquals("Manual Person", c.state.value.draft?.fullName)
         c.saveReview(); assertNull(c.state.value.message)
+        assertEquals("FINISH", captureDestination(c.state.value).name)
         assertEquals("Manual Person", c.state.value.record?.reviewed?.data?.fullName)
         assertEquals("failed", c.state.value.record?.extraction?.status)
         c.editCard(CardData(fullName = "Unsaved")); c.resetReview()
@@ -284,4 +289,28 @@ class CaptureControllerTest {
         assertEquals(CardData(), c.state.value.draft); assertNull(c.state.value.camera)
     }
 
+    @Test fun pollingDeadlineOffersRecoveryWithoutPretendingExtractionFailed() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start()
+        api.record = api.record!!.copy(state = "ready", extraction = CardExtraction("pending"))
+        c.restore()
+        c.awaitProcessing(timeoutMillis = 1)
+        assertNotNull(c.state.value.message)
+        assertFalse(c.state.value.busy)
+        assertEquals("pending", c.state.value.record?.extraction?.status)
+        assertEquals(CaptureDestination.RECOVERY, captureDestination(c.state.value))
+    }
+    @Test fun pollingUsesKnownCaptureEvenIfConfigurationAndAccountStatusAreUnavailable() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start()
+        api.record = api.record!!.copy(state = "ready", extraction = CardExtraction("pending"))
+        c.restore()
+        api.policyFailure = true
+        api.onCurrent = { error("Polling must use the known capture") }
+        api.record = api.record!!.copy(extraction = CardExtraction("failed"))
+        c.awaitProcessing(timeoutMillis = 10000)
+        assertNull(c.state.value.message)
+        assertEquals(CardData(), c.state.value.draft)
+        assertEquals(CaptureDestination.REVIEW, captureDestination(c.state.value))
+    }
 }
