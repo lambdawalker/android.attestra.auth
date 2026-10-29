@@ -289,4 +289,28 @@ class CaptureControllerTest {
         assertEquals(CardData(), c.state.value.draft); assertNull(c.state.value.camera)
     }
 
+    @Test fun pollingDeadlineOffersRecoveryWithoutPretendingExtractionFailed() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start()
+        api.record = api.record!!.copy(state = "ready", extraction = CardExtraction("pending"))
+        c.restore()
+        c.awaitProcessing(timeoutMillis = 1)
+        assertNotNull(c.state.value.message)
+        assertFalse(c.state.value.busy)
+        assertEquals("pending", c.state.value.record?.extraction?.status)
+        assertEquals(CaptureDestination.RECOVERY, captureDestination(c.state.value))
+    }
+    @Test fun pollingUsesKnownCaptureEvenIfConfigurationAndAccountStatusAreUnavailable() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start()
+        api.record = api.record!!.copy(state = "ready", extraction = CardExtraction("pending"))
+        c.restore()
+        api.policyFailure = true
+        api.onCurrent = { error("Polling must use the known capture") }
+        api.record = api.record!!.copy(extraction = CardExtraction("failed"))
+        c.awaitProcessing(timeoutMillis = 10000)
+        assertNull(c.state.value.message)
+        assertEquals(CardData(), c.state.value.draft)
+        assertEquals(CaptureDestination.REVIEW, captureDestination(c.state.value))
+    }
 }

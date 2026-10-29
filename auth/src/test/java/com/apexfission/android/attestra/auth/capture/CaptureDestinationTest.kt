@@ -10,9 +10,12 @@ class CaptureDestinationTest {
 
     @Test fun freshEntryAndBackendPendingShowLoading() {
         assertEquals(CaptureDestination.LOADING, captureDestination(CaptureUi(), initializing = true))
-        for (r in listOf(record("finalizing"), record(), record(extraction = CardExtraction("pending")))) {
+        for (r in listOf(record("finalizing"), record(extraction = CardExtraction("pending")))) {
             assertEquals(CaptureDestination.LOADING, captureDestination(CaptureUi(record = r)))
         }
+    }
+    @Test fun missingExtractionOffersRecoveryInsteadOfEndlessLoading() {
+        assertEquals(CaptureDestination.RECOVERY, captureDestination(CaptureUi(record = record())))
     }
     @Test fun cameraDoesNotShowCaptureManagement() {
         assertEquals(CaptureDestination.CAMERA, captureDestination(CaptureUi(camera = DocumentSide.FRONT)))

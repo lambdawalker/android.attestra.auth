@@ -15,7 +15,7 @@ internal fun captureDestination(ui: CaptureUi, initializing: Boolean = false, re
 }
 
 internal fun CaptureRecord?.isProcessingCard(): Boolean =
-    this?.state == "finalizing" || (this?.state == "ready" && extraction?.status in setOf(null, "pending"))
+    this?.state == "finalizing" || (this?.state == "ready" && extraction?.status == "pending")
 
 /** Finish only when the server has acknowledged the exact visible values. */
 internal fun CaptureUi.hasSavedReview(): Boolean =
