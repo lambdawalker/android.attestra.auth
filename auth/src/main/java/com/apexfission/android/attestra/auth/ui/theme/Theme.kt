@@ -14,8 +14,11 @@ private val DarkColorScheme = darkColorScheme(
     primary = AttestraPrimary,
     onPrimary = AttestraOnPrimary,
     primaryContainer = AttestraPrimaryContainer,
+    onPrimaryContainer = AttestraOnPrimaryContainer,
     secondary = AttestraSecondary,
     onSecondary = AttestraOnSecondary,
+    secondaryContainer = AttestraSecondaryContainer,
+    onSecondaryContainer = AttestraOnSecondaryContainer,
     background = AttestraBackground,
     surface = AttestraSurface,
     onSurface = AttestraOnSurface,
@@ -23,19 +26,46 @@ private val DarkColorScheme = darkColorScheme(
     error = AttestraError,
     errorContainer = AttestraErrorContainer,
     onError = AttestraOnError,
-    onErrorContainer = AttestraOnErrorContainer
+    onErrorContainer = AttestraOnErrorContainer,
+    surfaceContainerLowest = AttestraSurfaceContainerLowest,
+    surfaceContainerLow = AttestraSurfaceContainerLow,
+    surfaceContainer = AttestraSurfaceContainer,
+    surfaceContainerHigh = AttestraSurfaceContainerHigh,
+    surfaceContainerHighest = AttestraSurfaceContainerHighest,
+    outline = AttestraOutline,
+    outlineVariant = AttestraOutlineVariant,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = AttestraLightHarborTeal,
+    onPrimary = AttestraLightOnHarborTeal,
+    primaryContainer = AttestraLightTealContainer,
+    onPrimaryContainer = AttestraLightOnTealContainer,
+    secondary = AttestraLightHarborTeal,
+    onSecondary = AttestraLightOnHarborTeal,
+    secondaryContainer = AttestraLightTealContainer,
+    onSecondaryContainer = AttestraLightOnTealContainer,
+    background = AttestraLightPaperCanvas,
+    surface = AttestraLightClearSurface,
+    onSurface = AttestraLightCharcoalInk,
+    onSurfaceVariant = AttestraLightSlateCopy,
+    error = AttestraLightErrorInk,
+    errorContainer = AttestraLightErrorContainer,
+    onError = AttestraLightOnError,
+    onErrorContainer = AttestraLightOnErrorContainer,
+    surfaceContainerLowest = AttestraLightSurfaceContainerLowest,
+    surfaceContainerLow = AttestraLightSurfaceContainerLow,
+    surfaceContainer = AttestraLightSurfaceContainer,
+    surfaceContainerHigh = AttestraLightSurfaceContainerHigh,
+    surfaceContainerHighest = AttestraLightSurfaceContainerHighest,
+    outline = AttestraLightMistBorder,
+    outlineVariant = AttestraLightMistBorder,
 )
 
 @Composable
 fun AttestraAuthTheme(
-    darkTheme: Boolean = true, // Default to dark theme as specified in mockup class="dark"
-    dynamicColor: Boolean = false, // Use custom Attestra dark palette by default for mockup accuracy
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

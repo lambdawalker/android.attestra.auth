@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
     onSave: () -> Unit,
 ) {
     val data = ui.draft ?: return
-    Text("Review your card details", style = MaterialTheme.typography.headlineSmall)
-    Text("Check each value against your card and correct any mistakes. Leave missing or unreadable information blank. Keep dates as printed.")
-    if (ui.record?.reviewed != null && !ui.reviewDirty) Text("Your reviewed details are saved.", style = MaterialTheme.typography.titleMedium)
+    Text("Review your card details", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
+    Text("Check each value against your card and correct any mistakes. Leave missing or unreadable information blank. Keep dates as printed.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+    if (ui.record?.reviewed != null && !ui.reviewDirty) Text("Your reviewed details are saved.", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
     CardField("Full name", data.fullName, ui.busy) { onEdit(data.copy(fullName = it)) }
     CardField("Given names", data.givenNames, ui.busy) { onEdit(data.copy(givenNames = it)) }
     CardField("Surnames", data.surnames, ui.busy) { onEdit(data.copy(surnames = it)) }
@@ -29,8 +29,8 @@ import androidx.compose.ui.Modifier
     CardField("Issuing country", data.issuingCountry, ui.busy) { onEdit(data.copy(issuingCountry = it)) }
     var countriesOpen by remember { mutableStateOf(false) }
     val countries = mapOf("CA" to "Canada", "US" to "United States", "MX" to "Mexico", "GT" to "Guatemala", "BZ" to "Belize")
-    Text("Country of origin", style = MaterialTheme.typography.titleMedium)
-    Text("Select your country of origin. It may differ from the country that issued your ID.")
+    Text("Country of origin", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+    Text("Select your country of origin. It may differ from the country that issued your ID.", color = MaterialTheme.colorScheme.onSurfaceVariant)
     Box {
         OutlinedButton(onClick = { countriesOpen = true }, enabled = !ui.busy) { Text(countries[ui.originCountry] ?: "Select country") }
         DropdownMenu(expanded = countriesOpen, onDismissRequest = { countriesOpen = false }) {
@@ -40,7 +40,7 @@ import androidx.compose.ui.Modifier
     if (!data.isValid()) Text("A field is too long. Shorten it before saving.", color = MaterialTheme.colorScheme.error)
     Button(onClick = onSave, enabled = !ui.busy && data.isValid() && !data.isEmpty() && ui.originCountry in countries.keys && (ui.reviewDirty || ui.record?.reviewed == null)) { Text("Save reviewed details") }
     if (ui.reviewDirty) {
-        Text("Unsaved edits are kept only while this screen is open.")
+        Text("Unsaved edits are kept only while this screen is open.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         TextButton(onClick = onReset, enabled = !ui.busy) { Text("Discard edits and use latest details") }
     }
 }
