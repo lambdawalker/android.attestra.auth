@@ -4,6 +4,9 @@ on:
   push:
     branches: [main, previews]
   workflow_dispatch:
+concurrency:
+  group: screenshots-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:

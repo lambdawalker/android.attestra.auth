@@ -60,13 +60,15 @@ import androidx.compose.ui.Modifier
 @Preview
 @Composable
 private fun CardReviewFormPreview() {
-    MaterialTheme {
+    com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme {
+        androidx.compose.foundation.layout.Column {
         CardReviewForm(
-            ui = CaptureUi(),
+            ui = CaptureUi(draft = CardData(fullName = "Sample Person"), originCountry = "MX"),
             onEdit = {},
             onReset = {},
             onOrigin = {},
             onSave = {}
         )
+        }
     }
 }

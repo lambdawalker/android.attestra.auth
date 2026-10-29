@@ -17,8 +17,6 @@ import com.apexfission.android.attestra.auth.email.SecureAuthStorage
 import com.apexfission.android.attestra.auth.identity.capture.IdentityCamera
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.material3.MaterialTheme
 
 /**
  * Screen component that applies FLAG_SECURE to the window to prevent screenshots during capture.
@@ -70,13 +68,4 @@ import androidx.compose.material3.MaterialTheme
         if (controller.state.value.signInRequired) storage.clearSession()
         onExit()
     }, startCaptureOnEntry = true, acceptedPolicy = acceptedPolicy, requireReviewedPolicy = true, allowNewCapture = config.canStartCapture()) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
-}
-
-@Preview
-@Composable
-private fun LiveCaptureFlowPreview() {
-    MaterialTheme {
-        // Preview is not fully possible because LocalBackendConfiguration requires a provider,
-        // and it depends on a real network backend or storage. A placeholder mock could be used here.
-    }
 }

@@ -13,7 +13,6 @@ import com.apexfission.android.attestra.auth.email.SecureAuthStorage
 import com.apexfission.android.attestra.auth.identity.capture.IdentityCamera
 import com.apexfission.android.attestra.identitymock.*
 import java.io.File
-import androidx.compose.ui.tooling.preview.Preview
 
 internal const val HAS_IDENTITY_DEMO = true
 
@@ -74,13 +73,5 @@ internal const val HAS_IDENTITY_DEMO = true
                 TextButton(onClick = onExit) { Text("Return") }
             } else CaptureHost(controller, onExit, startCaptureOnEntry = !showTestOptions) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun IdentityDemoPreview() {
-    MaterialTheme {
-        IdentityDemo(onExit = {})
     }
 }

@@ -19,8 +19,6 @@ import com.apexfission.android.permission.ui.PermissionOverviewMode
 import com.apexfission.android.carddetector.ui.capture.CardCaptureConfig
 import com.apexfission.android.carddetector.ui.capture.TwoSidedCardCapture
 import java.io.ByteArrayOutputStream
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.material3.MaterialTheme
 
 /** 
  * Screen that manages camera permissions and the ID document capture workflow.
@@ -78,16 +76,4 @@ private fun encodeJpeg(bitmap: Bitmap): ByteArray {
             out.toByteArray().also { require(it.size <= CaptureApi.MAX_JPEG_BYTES) }
         }
     } finally { if (scaled !== bitmap) scaled.recycle() }
-}
-
-@Preview
-@Composable
-private fun IdentityCameraPreview() {
-    MaterialTheme {
-        IdentityCamera(
-            onCaptured = { _, _ -> },
-            onError = {},
-            onCancel = {}
-        )
-    }
 }
