@@ -30,4 +30,17 @@ class CaptureDestinationTest {
         assertEquals(CaptureDestination.RECOVERY, captureDestination(CaptureUi(record = record(), message = "Offline")))
         assertEquals(CaptureDestination.RECOVERY, captureDestination(CaptureUi(record = record("failed"))))
     }
+    @Test fun onlyAcknowledgedMatchingReviewFinishes() {
+        val data = CardData(fullName = "Saved Person")
+        val r = record(extraction = CardExtraction("failed")).copy(reviewed = ReviewedCard(data, 123, "MX"))
+        val ui = CaptureUi(record = r, draft = data, originCountry = "MX")
+        assertEquals("FINISH", captureDestination(ui).name)
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(busy = true)))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(message = "Save failed")))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(reviewDirty = true)))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(draft = data.copy(fullName = "Unsaved"))))
+        assertEquals(CaptureDestination.REVIEW, captureDestination(ui.copy(originCountry = "US")))
+        assertEquals(CaptureDestination.RECOVERY, captureDestination(ui.copy(signInRequired = true)))
+    }
+
 }
