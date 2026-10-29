@@ -60,6 +60,24 @@ class CaptureControllerTest {
         }
         override suspend fun cancel(id: String) = requireNotNull(record).copy(state = "cancelled").also { record = it }
     }
+    @Test fun pairedCaptureRetriesBothSidesAndWipesImages() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start(); c.camera(DocumentSide.FRONT)
+        val front = byteArrayOf(1, 2, 3, 4); val back = byteArrayOf(5, 6, 7, 8)
+        api.failPut = true
+        c.capturedBoth(front, back)
+        assertFalse(back.all { it == 0.toByte() })
+        c.upload()
+        assertEquals(setOf("front", "back"), c.state.value.uploaded)
+        assertTrue(front.all { it == 0.toByte() }); assertTrue(back.all { it == 0.toByte() })
+    }
+    @Test fun closeWipesBothPendingSides() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start(); c.camera(DocumentSide.FRONT); api.failPut = true
+        val front = byteArrayOf(1, 2, 3, 4); val back = byteArrayOf(5, 6, 7, 8)
+        c.capturedBoth(front, back); c.close()
+        assertTrue(front.all { it == 0.toByte() }); assertTrue(back.all { it == 0.toByte() })
+    }
     @Test fun createResponseLossRecoversWithoutDuplicate() = runBlocking {
         val store = Store(); val api = Gateway(store); api.failCreate = true
         CaptureController(api, store).apply { restore(); start() }

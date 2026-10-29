@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
     onExit: () -> Unit,
     startCaptureOnEntry: Boolean = false,
     allowNewCapture: Boolean = true,
-    camera: @Composable (DocumentSide, (ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit,
+    camera: @Composable ((ByteArray, ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit,
 ) {
     val ui by controller.state.collectAsState()
     val language = LocalConfiguration.current.locales[0].language
@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
         allowNewCapture = allowNewCapture,
         onStart = { lang -> scope.launch { controller.start(lang) } },
         onCamera = controller::camera,
-        onCaptured = { side, bytes -> scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { controller.captured(side, bytes) } },
+        onCaptured = { front, back -> scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { controller.capturedBoth(front, back) } },
         onCameraFailed = controller::cameraFailed,
         onCameraCancelled = controller::cameraCancelled,
         onUpload = { scope.launch { controller.upload() } },
@@ -69,7 +69,7 @@ internal fun CaptureHostContent(
     allowNewCapture: Boolean = true,
     onStart: (String) -> Unit = {},
     onCamera: (DocumentSide) -> Unit = {},
-    onCaptured: (DocumentSide, ByteArray) -> Unit = { _, _ -> },
+    onCaptured: (ByteArray, ByteArray) -> Unit = { _, _ -> },
     onCameraFailed: () -> Unit = {},
     onCameraCancelled: () -> Unit = {},
     onUpload: () -> Unit = {},
@@ -82,12 +82,12 @@ internal fun CaptureHostContent(
     onRestore: () -> Unit = {},
     onCancel: () -> Unit = {},
     onClose: () -> Unit = {},
-    camera: @Composable (DocumentSide, (ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit = { _, _, _, _ -> },
+    camera: @Composable ((ByteArray, ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit = { _, _, _ -> },
 ) {
     val language = LocalConfiguration.current.locales[0].language
     val side = ui.camera
     if (side != null) {
-        camera(side, { bytes -> onCaptured(side, bytes) }, onCameraFailed, onCameraCancelled)
+        camera(onCaptured, onCameraFailed, onCameraCancelled)
         return
     }
     Surface(
@@ -127,9 +127,8 @@ internal fun CaptureHostContent(
                 }
                 "uploading" -> {
                     Text("Photos stay in memory until uploaded. After leaving this screen, unfinished photos may need to be retaken.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    DocumentSide.entries.forEach { side ->
-                        val uploaded = side.name.lowercase() in ui.uploaded
-                        OutlinedButton(enabled = !ui.busy, onClick = { onCamera(side) }) { Text("${if (uploaded) "Retake" else "Capture"} ${side.name.lowercase()}") }
+                    OutlinedButton(enabled = !ui.busy, onClick = { onCamera(DocumentSide.FRONT) }) {
+                        Text(if (ui.uploaded.isEmpty()) "Capture both sides" else "Retake both sides")
                     }
                     if (ui.message != null) OutlinedButton(enabled = !ui.busy, onClick = onUpload) { Text("Retry upload") }
                     Button(enabled = !ui.busy && ui.uploaded.containsAll(listOf("front", "back")), onClick = onFinalizeCapture) { Text("Finish capture") }

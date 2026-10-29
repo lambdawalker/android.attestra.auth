@@ -44,6 +44,7 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
     private var checkpoint = store.load() ?: CaptureCheckpoint()
     private var closed = false
     private var pending: Pair<RegisterUpload, ByteArray>? = null
+    private var pendingBack: ByteArray? = null
     private var acknowledged: Map<String, String> = emptyMap()
     private fun key() = UUID.randomUUID().toString()
     private fun show(value: CaptureUi) { if (!closed) mutable.value = value }
@@ -156,16 +157,38 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         pending = RegisterUpload(key(), r.revision, side.name.lowercase(), checksum(bytes), bytes.size.toLong()) to bytes
         upload()
     }
-    suspend fun upload() = operation {
-        val (request, bytes) = pending ?: return@operation
-        val r = requireNotNull(state.value.record)
-        val instructions = api.register(r.id, request)
-        require(instructions.capture.id == r.id)
-        record(instructions.capture)
-        api.put(instructions, bytes)
-        acknowledged = acknowledged + (request.slot to instructions.uploadId)
-        show(state.value.copy(uploaded = acknowledged.keys))
+    /** Takes ownership of both reviewed JPEGs, retaining unfinished uploads for Retry upload. */
+    suspend fun capturedBoth(front: ByteArray, back: ByteArray) {
+        val ui = state.value
+        if (closed || ui.busy || ui.camera == null || ui.record?.state != "uploading" ||
+            front.size !in 4..CaptureApi.MAX_JPEG_BYTES || back.size !in 4..CaptureApi.MAX_JPEG_BYTES) {
+            front.fill(0); back.fill(0); cameraFailed(); return
+        }
         discard()
+        pendingBack = back
+        val r = requireNotNull(ui.record)
+        pending = RegisterUpload(key(), r.revision, "front", checksum(front), front.size.toLong()) to front
+        upload()
+    }
+    suspend fun upload() = operation {
+        while (pending != null) {
+            val (request, bytes) = requireNotNull(pending)
+            val r = requireNotNull(state.value.record)
+            val instructions = api.register(r.id, request)
+            require(instructions.capture.id == r.id)
+            record(instructions.capture)
+            api.put(instructions, bytes)
+            acknowledged = acknowledged + (request.slot to instructions.uploadId)
+            show(state.value.copy(uploaded = acknowledged.keys))
+            bytes.fill(0)
+            pending = null
+            val back = pendingBack
+            pendingBack = null
+            if (back != null) {
+                val current = requireNotNull(state.value.record)
+                pending = RegisterUpload(key(), current.revision, "back", checksum(back), back.size.toLong()) to back
+            }
+        }
     }
     suspend fun finalizeCapture() = operation {
         val r = api.get(requireNotNull(checkpoint.id)); record(r)
@@ -215,6 +238,6 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         require(r.state == "ready" && r.extraction?.status == "complete")
         record(api.review(r.id, ReviewCapture(requireNotNull(ui.draftRevision), data, ui.originCountry)))
     }
-    private fun discard() { pending?.second?.fill(0); pending = null }
+    private fun discard() { pending?.second?.fill(0); pending = null; pendingBack?.fill(0); pendingBack = null }
     fun close() { closed = true; discard(); mutable.value = CaptureUi(signInRequired = mutable.value.signInRequired) }
 }
