@@ -188,4 +188,79 @@ class CaptureControllerTest {
         c.close(); assertNull(c.state.value.record)
     }
 
+    @Test fun continueOpensCameraWithoutExtraStart() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.continueToCapture()
+        assertEquals(1, api.creates)
+        assertEquals(DocumentSide.FRONT, c.state.value.camera)
+    }
+    @Test fun completedCaptureGoesStraightToReviewOnReentry() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start()
+        api.record = api.record?.copy(state = "ready", extraction = CardExtraction("complete", CardData(fullName = "Sample")))
+        val resumed = CaptureController(api, store); resumed.restore(); resumed.continueToCapture()
+        assertNull(resumed.state.value.camera); assertEquals("Sample", resumed.state.value.draft?.fullName)
+        assertEquals(1, api.creates)
+    }
+    @Test fun confirmedPairAutomaticallyFinalizes() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.continueToCapture()
+        c.capturedBoth(byteArrayOf(1, 2, 3, 4), byteArrayOf(5, 6, 7, 8))
+        assertEquals("finalizing", c.state.value.record?.state)
+        assertNotNull(store.value?.finalize)
+    }
+    @Test fun retryPairUploadsAndFinalizesWithoutAnotherButton() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.continueToCapture(); api.failPut = true
+        c.capturedBoth(byteArrayOf(1, 2, 3, 4), byteArrayOf(5, 6, 7, 8))
+        assertEquals("uploading", c.state.value.record?.state)
+        c.uploadAndContinue()
+        assertEquals("finalizing", c.state.value.record?.state)
+    }
+    @Test fun failedExtractionStartsEmptyAndManualEditsCanBeSaved() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start()
+        api.record = api.record?.copy(state = "ready", extraction = CardExtraction("failed", CardData(fullName = "Untrusted partial result")))
+        c.restore(); assertEquals(CardData(), c.state.value.draft)
+        c.editCard(CardData(fullName = "Manual Person")); c.editOrigin("MX")
+        c.restore(); assertEquals("Manual Person", c.state.value.draft?.fullName)
+        c.saveReview(); assertNull(c.state.value.message)
+        assertEquals("Manual Person", c.state.value.record?.reviewed?.data?.fullName)
+        assertEquals("failed", c.state.value.record?.extraction?.status)
+        c.editCard(CardData(fullName = "Unsaved")); c.resetReview()
+        assertEquals("Manual Person", c.state.value.draft?.fullName)
+    }
+    @Test fun pendingOrMissingExtractionDoesNotOfferManualDraft() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start()
+        for (extraction in listOf(null, CardExtraction("pending"))) {
+            api.record = api.record?.copy(state = "ready", extraction = extraction)
+            c.restore(); assertNull(c.state.value.draft)
+        }
+    }
+    @Test fun policyRaceStopsAutomaticCameraEntry() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); api.onCreate = { api.policyValue = api.policyValue.copy(version = "new") }
+        c.continueToCapture()
+        assertNull(c.state.value.camera); assertNotNull(c.state.value.message)
+    }
+
+    @Test fun selectedPairResumesThroughServerValidationWithoutCamera() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.start()
+        for (side in DocumentSide.entries) { c.camera(side); c.captured(side, byteArrayOf(1, 2, 3, 4)) }
+        val resumed = CaptureController(api, store); resumed.restore(); resumed.continueToCapture()
+        assertEquals("finalizing", resumed.state.value.record?.state)
+        assertNull(resumed.state.value.camera)
+    }
+    @Test fun lostAutomaticFinalizeResponseResumesWithoutRecapture() = runBlocking {
+        val store = Store(); val api = Gateway(store); val c = CaptureController(api, store)
+        c.restore(); c.continueToCapture(); api.failFinalize = true
+        c.capturedBoth(byteArrayOf(1, 2, 3, 4), byteArrayOf(5, 6, 7, 8))
+        assertNotNull(c.state.value.message)
+        val resumed = CaptureController(api, store); resumed.restore(); resumed.continueToCapture()
+        assertEquals("finalizing", resumed.state.value.record?.state)
+        assertNull(resumed.state.value.camera); assertEquals(1, api.creates)
+    }
+
 }

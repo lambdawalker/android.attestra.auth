@@ -395,7 +395,8 @@ fun EmailOnboardingHost(
                 } else scope.launch { refreshStatus() }
             }
             "welcome" -> OnboardingFrame("Welcome to Attestra", Icons.Default.Lock, "Your account", exit,
-                primaryLabel = "Refresh account status", onPrimary = { scope.launch { refreshStatus() } }) {
+                primaryLabel = if (status?.idCaptured == true) "Review ID details" else "Refresh account status",
+                onPrimary = { if (status?.idCaptured == true) passkeyScreen = "identity_flow" else scope.launch { refreshStatus() } }) {
                 BodyText("Your account setup is complete.")
                 if (status?.idCaptured == true) BodyText("Document captured. This does not assert identity verification.")
             }

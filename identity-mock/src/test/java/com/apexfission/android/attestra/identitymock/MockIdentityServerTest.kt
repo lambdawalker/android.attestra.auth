@@ -36,4 +36,27 @@ class MockCaptureServerTest {
             } finally { resumedClient.close() }
         } finally { client.close(); uploads.close() }
     }
+    @Test fun failedExtractionCanBeReviewedThroughHttpWithoutRecapture() = runBlocking {
+        val store = Memory(); val server = MockCaptureServer(store)
+        server.scenario = MockScenario.EXTRACTION_FAILED
+        val client = server.client(); val uploads = server.client()
+        try {
+            val api = CaptureApi(MockCaptureServer.ORIGIN, client, uploads) { MockCaptureServer.TOKEN }
+            var r = api.create(CreateCapture("manual-create-operation", "sample_card"))
+            val jpeg = byteArrayOf(1, 2, 3, 4)
+            val hash = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA-256").digest(jpeg))
+            for (side in listOf("front", "back")) {
+                val instruction = api.register(r.id, RegisterUpload("manual-upload-$side", r.revision, side, hash, jpeg.size.toLong()))
+                api.put(instruction, jpeg); r = instruction.capture
+            }
+            api.finalize(r.id, FinalizeCapture("manual-finalize-operation", r.revision, r.selected))
+            repeat(3) { r = requireNotNull(api.current()) }
+            assertEquals("failed", r.extraction?.status)
+            val saved = api.review(r.id, ReviewCapture(r.revision, CardData(fullName = "Manually entered"), "MX"))
+            assertEquals("Manually entered", saved.reviewed?.data?.fullName)
+            assertEquals("failed", saved.extraction?.status)
+            assertFalse(requireNotNull(store.value).contains("Manually entered"))
+        } finally { client.close(); uploads.close() }
+    }
+
 }

@@ -60,5 +60,5 @@ import kotlinx.serialization.json.jsonPrimitive
     CaptureHost(controller, {
         if (controller.state.value.signInRequired) storage.clearSession()
         onExit()
-    }, allowNewCapture = config.canStartCapture()) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
+    }, startCaptureOnEntry = true, allowNewCapture = config.canStartCapture()) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
 }

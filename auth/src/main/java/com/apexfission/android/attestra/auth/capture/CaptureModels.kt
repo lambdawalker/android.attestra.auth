@@ -104,3 +104,10 @@ interface CaptureGateway {
     suspend fun cancel(id: String): CaptureRecord
 }
 class CaptureException(val status: Int, val code: String = "request_failed") : Exception("Capture request failed ($status)")
+
+internal fun CaptureRecord.canReviewCard(): Boolean =
+    state == "ready" && extraction?.status in setOf("complete", "failed")
+
+/** Failed extraction must never seed a manual form with a partial provider result. */
+internal fun CaptureRecord.reviewData(): CardData = reviewed?.data
+    ?: if (extraction?.status == "complete") extraction.data else CardData()
