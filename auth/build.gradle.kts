@@ -70,13 +70,14 @@ val cardModelAssets by configurations.creating {
     isTransitive = false
 }
 dependencies { cardModelAssets(libs.apexfission.card.model) }
-val prepareCardModelAssets by tasks.registering(Sync::class) {
-    from({ zipTree(cardModelAssets.singleFile) }) {
-        include("assets/**")
-        eachFile { path = path.removePrefix("assets/") }
-        includeEmptyDirs = false
+androidComponents.onVariants { variant ->
+    val prepareAssets = tasks.register<PrepareCardModelAssets>(
+        "prepare${variant.name.replaceFirstChar { it.uppercaseChar() }}CardModelAssets"
+    ) {
+        modelArchive.set(layout.file(cardModelAssets.elements.map { it.single().asFile }))
     }
-    into(layout.buildDirectory.dir("generated/cardModelAssets"))
+    variant.sources.assets?.addGeneratedSourceDirectory(
+        prepareAssets, PrepareCardModelAssets::outputDirectory
+    )
 }
-android.sourceSets.getByName("main").assets.srcDir(prepareCardModelAssets)
 android.androidResources.noCompress += "tflite"
