@@ -2,6 +2,8 @@ package com.apexfission.android.attestra.auth.capture
 
 import com.apexfission.android.attestra.auth.identity.DocumentSide
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
@@ -38,6 +40,8 @@ data class CaptureUi(
 )
 /** A stable checkpoint precedes each create/finalize/retry request. GET reconciles uncertain responses. */
 class CaptureController(private val api: CaptureGateway, private val store: CaptureCheckpointStore, private val mayCreate: () -> Boolean = { true }) {
+    /** Receives metadata only: no image bytes, tokens, URLs or card fields. */
+    var diagnostic: (String) -> Unit = {}
     private val mutable = MutableStateFlow(CaptureUi())
     val state = mutable.asStateFlow()
     private val mutex = Mutex()
@@ -47,7 +51,15 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
     private var pendingBack: ByteArray? = null
     private var acknowledged: Map<String, String> = emptyMap()
     private fun key() = UUID.randomUUID().toString()
-    private fun show(value: CaptureUi) { if (!closed) mutable.value = value }
+    private fun show(value: CaptureUi) {
+        if (!closed) {
+            val old = mutable.value
+            if (old.record != value.record || old.message != value.message) {
+                diagnostic("capture status id=${value.record?.id} state=${value.record?.state} extraction=${value.record?.extraction?.status} revision=${value.record?.revision} recovery=${value.message != null}")
+            }
+            mutable.value = value
+        }
+    }
     private fun save(value: CaptureCheckpoint) { check(!closed); store.save(value); checkpoint = value }
     private suspend fun operation(block: suspend () -> Unit) {
         if (closed || !mutex.tryLock()) return
@@ -55,6 +67,7 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         try { block() }
         catch (cancel: CancellationException) { throw cancel }
         catch (e: Exception) {
+            diagnostic("capture request failed status=${(e as? CaptureException)?.status} type=${e.javaClass.simpleName}")
             if (!closed) show(state.value.copy(
                 signInRequired = e is CaptureException && e.status == 401,
                 message = when {
@@ -107,6 +120,21 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         } else if (checkpoint.create == null) {
             discard(); acknowledged = emptyMap(); store.clear(); checkpoint = CaptureCheckpoint()
             show(state.value.copy(record = null, uploaded = emptySet(), draft = null, draftRevision = null, reviewDirty = false, originCountry = ""))
+        }
+    }
+    /** Poll the known capture directly; configuration outages cannot block status updates. */
+    internal suspend fun awaitProcessing(timeoutMillis: Long = 600_000L) {
+        val completed = withTimeoutOrNull(timeoutMillis) {
+            var attempts = 0
+            while (!closed && state.value.record.isProcessingCard() && !state.value.signInRequired && state.value.message == null) {
+                delay(if (attempts++ < 36) 5000L else 15000L)
+                operation { record(api.get(requireNotNull(checkpoint.id))) }
+            }
+            true
+        }
+        if (completed == null && !closed && state.value.record.isProcessingCard()) {
+            diagnostic("capture polling deadline exceeded")
+            show(state.value.copy(message = "Reading your document is taking longer than expected. Refresh status to check again, or continue later."))
         }
     }
     private suspend fun createOrReview(request: CreateCapture): CaptureRecord? = try {

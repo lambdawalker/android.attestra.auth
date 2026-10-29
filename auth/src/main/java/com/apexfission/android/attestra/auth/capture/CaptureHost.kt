@@ -18,7 +18,6 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingLoad
 import com.apexfission.android.attestra.auth.identity.DocumentSide
 import com.apexfission.android.attestra.auth.ui.onboarding.id.CardDetailsSavedScreen
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable fun CaptureHost(
@@ -53,15 +52,9 @@ import kotlinx.coroutines.launch
         } finally { initializing = false }
     }
     DisposableEffect(controller) { onDispose { controller.close() } }
-    // Foreground-only, bounded-rate polling keeps long extraction jobs moving without another tap.
-    LaunchedEffect(controller, ui.record?.id, ui.record?.state, ui.record?.extraction?.status, foreground, refreshGeneration) {
-        if (foreground && ui.record.isProcessingCard()) {
-            var attempts = 0
-            while (controller.state.value.record.isProcessingCard() && !controller.state.value.signInRequired) {
-                delay(if (attempts++ < 36) 5000L else 15000L)
-                controller.restore()
-            }
-        }
+    // Keep a single deadline across finalizing -> extraction pending transitions.
+    LaunchedEffect(controller, ui.record?.id, ui.record.isProcessingCard(), foreground, refreshGeneration) {
+        if (foreground && ui.record.isProcessingCard()) controller.awaitProcessing()
     }
     BackHandler { controller.close(); onExit() }
 
@@ -87,7 +80,7 @@ import kotlinx.coroutines.launch
             controller.saveReview()
             if (controller.state.value.hasSavedReview()) reviewSavedDetails = false
         } },
-        onRestore = { refreshGeneration++; scope.launch { controller.restore() } },
+        onRestore = { scope.launch { controller.restore(); refreshGeneration++ } },
         onCancel = { scope.launch { controller.cancel() } },
         onClose = controller::close,
         camera = camera,
@@ -205,7 +198,7 @@ internal fun CaptureHostContent(
                     when (record.extraction?.status) {
                         "pending" -> { Text("Reading your card details", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground); CircularProgressIndicator(); Text("You can leave and return while this finishes.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                         "failed", "complete" -> Text("Refresh to load your review form.")
-                        null -> Text("Waiting for your card details. Check again or return later.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        null -> Text("The service has not provided a reading result. Refresh status or return later.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         else -> Text("Update the app to view this extraction status.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
