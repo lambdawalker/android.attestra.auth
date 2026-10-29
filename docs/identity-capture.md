@@ -59,3 +59,15 @@ Network failures, invalid input and revision conflicts stay on the form with the
 Capture readiness and `onboarding_complete` are separate backend facts and are not proof that the review form has been saved. The client uses `reviewed` for this finish screen. No new completion endpoint or identity approval is introduced.
 
 Smoke test both successful extraction and failed-extraction manual entry: save, confirm Details saved, reopen/correct, save again, leave/re-enter, then repeat with an offline save and stale revision. Real camera/device and deployed API checks remain required.
+
+
+## Screen examples
+
+These screenshots are rendered from synthetic offline fixtures, not real accounts
+or identity documents. The flow moves from email setup through document processing
+to a server-confirmed save. See [screenshot generation](screenshots.md) for the full
+light/dark gallery and refresh commands.
+
+| Email setup | Document processing | Confirmed save |
+| --- | --- | --- |
+| <img src="assets/screenshots/email-start-light.png" alt="Email setup in light theme" width="220"> | <img src="assets/screenshots/read-document-dark.png" alt="Document reading in dark theme" width="220"> | <img src="assets/screenshots/details-saved-light.png" alt="Server-confirmed saved details in light theme" width="220"> |
