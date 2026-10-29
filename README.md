@@ -171,3 +171,19 @@ See [Android signing](docs/android-signing.md) to generate/export a developer ce
 Use the [QA & Testing guide](docs/qa-testing.md) for end-to-end onboarding tests, personal signing identities, signedDebug selection, environment-specific App Links and device troubleshooting. Signing approval is required for verified email App Links as well as passkeys. Each developer can keep their own key; dev/QA publish multiple approved public fingerprints.
 
 See [runtime app settings](docs/runtime-configuration.md) for dashboard publishing, refresh and offline behavior.
+
+### Two-sided document camera
+
+The live and debug camera use Card Detector 0.1.4 `TwoSidedCardCapture`:
+front, turn-over prompt, back, then review with independent retakes. Auto capture
+starts enabled and can be toggled beside the shutter; manual capture remains available.
+Side labels guide the user and do not classify or verify a document.
+
+Both reviewed JPEGs are uploaded in order. Retry upload retains unfinished photos
+in memory; leaving the flow clears them. Finish capture remains an explicit action.
+Activity recreation restarts any unsubmitted camera session.
+
+The detector and model share a JitPack artifact ID. `cardModelAssets` resolves
+`tfmodel~v0.1.2` separately and copies only assets into the auth library; the
+runtime depends exclusively on `carddetector~v0.1.4`, avoiding the old core 0.1.0.
+The local Sentinel catalog matches that model release.

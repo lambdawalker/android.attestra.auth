@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
     onExit: () -> Unit,
     startCaptureOnEntry: Boolean = false,
     allowNewCapture: Boolean = true,
-    camera: @Composable (DocumentSide, (ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit,
+    camera: @Composable ((ByteArray, ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit,
 ) {
     val ui by controller.state.collectAsState()
     val language = LocalConfiguration.current.locales[0].language
@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
     BackHandler { controller.close(); onExit() }
     val side = ui.camera
     if (side != null) {
-        camera(side, { bytes -> scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { controller.captured(side, bytes) } }, controller::cameraFailed, controller::cameraCancelled)
+        camera({ front, back -> scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { controller.capturedBoth(front, back) } }, controller::cameraFailed, controller::cameraCancelled)
         return
     }
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -63,9 +63,8 @@ import kotlinx.coroutines.launch
             }
             "uploading" -> {
                 Text("Photos stay in memory until uploaded. After leaving this screen, unfinished photos may need to be retaken.")
-                DocumentSide.entries.forEach { side ->
-                    val uploaded = side.name.lowercase() in ui.uploaded
-                    OutlinedButton(enabled = !ui.busy, onClick = { controller.camera(side) }) { Text("${if (uploaded) "Retake" else "Capture"} ${side.name.lowercase()}") }
+                OutlinedButton(enabled = !ui.busy, onClick = { controller.camera(DocumentSide.FRONT) }) {
+                    Text(if (ui.uploaded.isEmpty()) "Capture both sides" else "Retake both sides")
                 }
                 if (ui.message != null) OutlinedButton(enabled = !ui.busy, onClick = { scope.launch { controller.upload() } }) { Text("Retry upload") }
                 Button(enabled = !ui.busy && ui.uploaded.containsAll(listOf("front", "back")), onClick = { scope.launch { controller.finalizeCapture() } }) { Text("Finish capture") }

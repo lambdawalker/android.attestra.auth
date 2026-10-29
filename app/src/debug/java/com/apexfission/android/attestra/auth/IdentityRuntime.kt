@@ -55,7 +55,7 @@ internal const val HAS_IDENTITY_DEMO = true
                 }
                 Button(onClick = { server.scenario = selected; started = true }) { Text("Start sample capture") }
                 TextButton(onClick = onExit) { Text("Return") }
-            } else CaptureHost(controller, onExit, startCaptureOnEntry = !showTestOptions) { side, captured, error, cancel -> IdentityCamera(side, captured, error, cancel) }
+            } else CaptureHost(controller, onExit, startCaptureOnEntry = !showTestOptions) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
         }
     }
 }
