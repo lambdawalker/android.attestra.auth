@@ -20,7 +20,7 @@ import java.util.UUID
 
 interface MockStateStore { fun read(): String?; fun write(value: String) }
 enum class MockScenario(val label: String) {
-    READY("Capture ready"), PENDING("File checks remain pending"), INVALID_IMAGE("Recapture required"),
+    READY("Capture ready"), EXTRACTION_FAILED("Reading fails — enter details manually"), EXTRACTION_PENDING("Reading remains pending"), PENDING("File checks remain pending"), INVALID_IMAGE("Recapture required"),
     UPLOAD_FAILURE("Upload fails once"), RESPONSE_LOST("Finalize response lost"), FAILED("File checks fail once"),
 }
 @Serializable private data class SavedUpload(val request: RegisterUpload, val id: String, val uploaded: Boolean = false)
@@ -59,7 +59,11 @@ class MockCaptureServer(private val store: MockStateStore) {
     private fun advance(): CaptureRecord? {
         var r = snapshot.record ?: return null
         if (r.state == "ready" && (r.extraction == null || r.extraction?.status == "pending")) {
-            r = r.copy(revision = r.revision + 1, extraction = CardExtraction("complete", CardData(fullName = "Sample Person", documentNumber = "000123")))
+            if (scenario != MockScenario.EXTRACTION_PENDING) {
+                val extraction = if (scenario == MockScenario.EXTRACTION_FAILED) CardExtraction("failed", error = "extraction_unavailable")
+                    else CardExtraction("complete", CardData(fullName = "Sample Person", documentNumber = "000123"))
+                r = r.copy(revision = r.revision + 1, extraction = extraction)
+            }
             snapshot = snapshot.copy(record = r); persist()
         }
         if (r.state == "finalizing") {
@@ -127,7 +131,7 @@ class MockCaptureServer(private val store: MockStateStore) {
             "retry-finalization" -> { if (r.state != "failed") return response(r); snapshot = snapshot.copy(record = r.copy(state = "finalizing", revision = r.revision + 1), polls = 0, failureSent = true); persist(); return response(requireNotNull(snapshot.record), 202) }
             "review" -> {
                 val input = body<ReviewCapture>(request)
-                if (r.state != "ready" || r.extraction?.status != "complete") return error(409, "revision_conflict")
+                if (r.state != "ready" || r.extraction?.status !in setOf("complete", "failed")) return error(409, "revision_conflict")
                 if (!input.data.isValid() || input.data.isEmpty()) return error(400, "invalid_request")
                 if (r.reviewed?.data == input.data && r.reviewed?.originCountry == input.originCountry) return response(r)
                 if (r.revision != input.revision) return error(409, "revision_conflict")

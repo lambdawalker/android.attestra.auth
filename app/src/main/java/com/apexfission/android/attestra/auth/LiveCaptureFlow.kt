@@ -26,7 +26,7 @@ import kotlinx.serialization.json.jsonPrimitive
         onDispose { if (!wasSecure) window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
     }
 }
-@Composable internal fun LiveCaptureFlow(onExit: () -> Unit) {
+@Composable internal fun LiveCaptureFlow(onExit: () -> Unit, acceptedPolicy: CapturePolicy? = null) {
     val config = LocalBackendConfiguration.current
     val currentConfiguration = rememberUpdatedState(config)
     CapturePrivacy()
@@ -60,5 +60,5 @@ import kotlinx.serialization.json.jsonPrimitive
     CaptureHost(controller, {
         if (controller.state.value.signInRequired) storage.clearSession()
         onExit()
-    }, allowNewCapture = config.canStartCapture()) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
+    }, startCaptureOnEntry = true, acceptedPolicy = acceptedPolicy, requireReviewedPolicy = true, allowNewCapture = config.canStartCapture()) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
 }

@@ -13,6 +13,8 @@ enum class LoadingTask(val title: String, val description: String, val step: Str
     SIGN_IN("Signing you in", "We are checking your account and preparing your session.", "Account"),
     OPEN_PASSKEY_MANAGER("Opening your passkey manager", "Follow your device or password manager to create a passkey.", "3/5"),
     SAVE_PASSKEY("Saving your passkey", "We are adding the passkey to your account.", "3/5"),
+    PREPARE_CAPTURE("Preparing your camera", "We are checking your saved capture.", "ID capture"),
+    UPLOAD_DOCUMENT("Saving your photos", "We are uploading both sides of your card.", "ID capture"),
     READ_DOCUMENT("Reading your document", "We are extracting details for you to review.", "ID check"),
     SUBMIT_ID("Submitting your ID details", "We are sending your reviewed details for an identity check.", "ID check"),
     CHECK_IDENTITY("Checking your identity", "Your details have been submitted. We will show the result when available.", "ID check"),

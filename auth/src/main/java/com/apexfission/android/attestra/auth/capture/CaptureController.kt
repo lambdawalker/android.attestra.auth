@@ -76,12 +76,12 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         save(checkpoint.copy(id = r.id, create = null))
         acknowledged = if (state.value.record?.id == r.id) acknowledged.filter { (slot, id) -> r.selected[slot] == id } else emptyMap()
         val old = state.value
-        val canReview = r.state == "ready" && r.extraction?.status == "complete"
+        val canReview = r.canReviewCard()
         val savedDraft = old.draft != null && r.reviewed?.data == old.draft && r.reviewed?.originCountry == old.originCountry
         val keepDraft = canReview && old.record?.id == r.id && old.reviewDirty && !savedDraft
         show(old.copy(
             record = r, policy = r.policy ?: old.policy, uploaded = acknowledged.keys,
-            draft = if (!canReview) null else if (keepDraft) old.draft else r.reviewed?.data ?: r.extraction?.data,
+            draft = if (!canReview) null else if (keepDraft) old.draft else r.reviewData(),
             draftRevision = if (!canReview) null else if (keepDraft) old.draftRevision else r.revision,
             reviewDirty = keepDraft,
             originCountry = if (keepDraft) old.originCountry else if (canReview) r.reviewed?.originCountry.orEmpty() else "",
@@ -119,9 +119,9 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         show(state.value.copy(policy = policy, message = "The capture policy changed. Review the updated details, then select Start capture again."))
         null
     }
-    suspend fun start(language: String = "en") = operation {
+    suspend fun start(language: String = "en", reviewedPolicy: CapturePolicy? = state.value.policy) = operation {
         if (!mayCreate()) { show(state.value.copy(message = "New ID capture is disabled until app settings are refreshed.")); return@operation }
-        val reviewed = state.value.policy
+        val reviewed = reviewedPolicy
         val policy = api.policy()
         show(state.value.copy(policy = policy))
         require(policy.enabled && policy.slots == listOf("front", "back") && policy.contentType == "image/jpeg")
@@ -142,6 +142,25 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         }
         save(CaptureCheckpoint(create = request))
         createOrReview(request)?.let { record(it); show(state.value.copy(uploaded = emptySet())) }
+    }
+    /** Continue is the only admission action; existing evidence resumes without reopening the camera. */
+    suspend fun continueToCapture(language: String = "en", allowNewCapture: Boolean = true, reviewedPolicy: CapturePolicy? = state.value.policy) {
+        if (closed || state.value.busy) return
+        if (state.value.record?.state !in setOf("uploading", "finalizing", "ready", "failed")) {
+            if (!allowNewCapture) return
+            start(language, reviewedPolicy)
+        }
+        if (closed || state.value.message != null || state.value.record?.state != "uploading") return
+        if (state.value.record?.selected?.keys?.containsAll(listOf("front", "back")) == true) {
+            // Selection alone is not proof of upload: finalize HEAD-checks both objects on the server.
+            finalizeCapture(resumeSelectedUploads = true)
+        } else camera(DocumentSide.FRONT)
+    }
+    suspend fun uploadAndContinue() {
+        upload()
+        if (!closed && state.value.message == null && state.value.uploaded.containsAll(listOf("front", "back"))) {
+            finalizeCapture()
+        }
     }
     fun camera(side: DocumentSide) {
         if (closed || state.value.busy || state.value.record?.state != "uploading") return
@@ -168,7 +187,7 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
         pendingBack = back
         val r = requireNotNull(ui.record)
         pending = RegisterUpload(key(), r.revision, "front", checksum(front), front.size.toLong()) to front
-        upload()
+        uploadAndContinue()
     }
     suspend fun upload() = operation {
         while (pending != null) {
@@ -190,10 +209,11 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
             }
         }
     }
-    suspend fun finalizeCapture() = operation {
+    suspend fun finalizeCapture(resumeSelectedUploads: Boolean = false) = operation {
         val r = api.get(requireNotNull(checkpoint.id)); record(r)
         if (r.state != "uploading") return@operation
-        require(state.value.uploaded.containsAll(listOf("front", "back")) || checkpoint.finalize != null)
+        require(state.value.uploaded.containsAll(listOf("front", "back")) || checkpoint.finalize != null ||
+            (resumeSelectedUploads && r.selected.keys.containsAll(listOf("front", "back"))))
         val request = checkpoint.finalize ?: FinalizeCapture(key(), r.revision, r.selected.toMap())
         save(checkpoint.copy(finalize = request))
         record(api.finalize(r.id, request))
@@ -219,8 +239,8 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
     fun resetReview() {
         val ui = state.value
         val r = ui.record ?: return
-        if (closed || ui.busy || r.state != "ready" || r.extraction?.status != "complete") return
-        show(ui.copy(draft = r.reviewed?.data ?: r.extraction.data, draftRevision = r.revision, reviewDirty = false, originCountry = r.reviewed?.originCountry.orEmpty(), message = null))
+        if (closed || ui.busy || !r.canReviewCard()) return
+        show(ui.copy(draft = r.reviewData(), draftRevision = r.revision, reviewDirty = false, originCountry = r.reviewed?.originCountry.orEmpty(), message = null))
     }
     fun editOrigin(country: String) {
         val ui = state.value
@@ -235,7 +255,7 @@ class CaptureController(private val api: CaptureGateway, private val store: Capt
             show(ui.copy(message = "Enter the visible card details and select your country of origin. Each field must be at most 512 bytes."))
             return@operation
         }
-        require(r.state == "ready" && r.extraction?.status == "complete")
+        require(r.canReviewCard())
         record(api.review(r.id, ReviewCapture(requireNotNull(ui.draftRevision), data, ui.originCountry)))
     }
     private fun discard() { pending?.second?.fill(0); pending = null; pendingBack?.fill(0); pendingBack = null }
