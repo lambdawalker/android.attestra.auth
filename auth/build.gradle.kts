@@ -1,5 +1,6 @@
 plugins {
     id("com.android.library")
+    alias(libs.plugins.screenshot)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -22,17 +23,10 @@ android {
     buildFeatures {
         compose = true
     }
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
     testOptions {
         unitTests.isReturnDefaultValues = true // JVM tests have no Android Log implementation.
-        screenshotTests.create("screenshotTest") {
-            engineVersion = "0.0.1-alpha16"
-            targetVariants.add("debug")
 
-            dependencies {
-                implementation(libs.androidx.compose.ui.tooling)
-                implementation("com.android.tools.screenshot:screenshot-validation-api:0.0.1-alpha16")
-            }
-        }
     }
 }
 
@@ -63,6 +57,8 @@ dependencies {
 
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
+    screenshotTestImplementation(libs.screenshot.validation.api)
     testImplementation(libs.junit)
     testImplementation(libs.ktor.client.mock)
     androidTestImplementation(platform(libs.androidx.compose.bom))

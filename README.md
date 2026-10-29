@@ -187,3 +187,10 @@ The detector and model share a JitPack artifact ID. `cardModelAssets` resolves
 `tfmodel~v0.1.2` separately and copies only assets into the auth library; the
 runtime depends exclusively on `carddetector~v0.1.4`, avoiding the old core 0.1.0.
 The local Sentinel catalog matches that model release.
+
+### Documentation screenshots
+
+Render offline screen images with the **Render documentation screenshots** workflow.
+Its artifact includes a browsable light/dark gallery and PNGs for documentation.
+See [screenshot rendering and export](docs/screenshots.md) for commands, coverage,
+and the distinction between rendering checks and approved visual baselines.

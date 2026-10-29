@@ -46,15 +46,15 @@ class PermissionBundleScreenshotTest {
     )
 
     @PreviewTest
-    @Preview(name = "Autoplay reading progress", widthDp = 393, heightDp = 852, showBackground = true)
+    @Preview(name = "Camera page", widthDp = 393, heightDp = 852, showBackground = true)
     @Composable
     fun autoplayReadingProgress() {
-        MaterialTheme {PermissionBundleScreen
+        MaterialTheme {
             PermissionBundleScreen(
                 permissions = permissions,
                 statuses = listOf(PermissionStatus.NotRequested, PermissionStatus.NotRequested),
                 onBack = {}, onNotNow = {}, onRequest = {}, onOpenSettings = {},
-                autoAdvance = true,
+                autoAdvance = false,
                 overview = defaultOverview,
                 initialPage = 1, // overview segment complete, camera segment in progress
             )
