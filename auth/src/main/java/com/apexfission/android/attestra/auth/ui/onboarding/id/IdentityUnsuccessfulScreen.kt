@@ -9,6 +9,9 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Screen that shows the result of an unsuccessful identity check and offers retry options.
+ */
 @Composable
 fun IdentityUnsuccessfulScreen(
     onBack: () -> Unit, onDashboard: () -> Unit, onRetry: () -> Unit,

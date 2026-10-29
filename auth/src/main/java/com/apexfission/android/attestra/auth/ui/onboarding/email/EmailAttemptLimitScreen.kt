@@ -12,6 +12,9 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Screen that shows an error when the user has exceeded the number of allowed code attempts.
+ */
 @Composable
 fun EmailAttemptLimitScreen(
     email: String, onBack: () -> Unit, onRequestEmail: () -> Unit, onChangeEmail: () -> Unit,

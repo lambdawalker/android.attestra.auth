@@ -45,7 +45,12 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Component providing the standard layout frame and navigation bar for onboarding screens.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingFrame(
@@ -148,6 +153,9 @@ fun OnboardingFrame(
     }
 }
 
+/**
+ * Component providing a standard styled card for onboarding content.
+ */
 @Composable
 fun OnboardingCard(content: @Composable () -> Unit) {
     Card(
@@ -161,11 +169,17 @@ fun OnboardingCard(content: @Composable () -> Unit) {
     }
 }
 
+/**
+ * Component providing a standard styled text for body paragraphs in onboarding screens.
+ */
 @Composable
 fun BodyText(text: String) {
     Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
+/**
+ * Component providing a row to display the status of a specific item or requirement.
+ */
 @Composable
 fun StatusRow(label: String, detail: String, complete: Boolean = true) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -183,6 +197,9 @@ fun StatusRow(label: String, detail: String, complete: Boolean = true) {
     }
 }
 
+/**
+ * Component providing a styled circular progress indicator and description text.
+ */
 @Composable
 fun WaitingIndicator(description: String) {
     Column(
@@ -192,5 +209,26 @@ fun WaitingIndicator(description: String) {
     ) {
         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         BodyText(description)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun OnboardingFramePreview() {
+    AttestraAuthTheme {
+        OnboardingFrame(
+            title = "Test Frame",
+            icon = Icons.Default.Shield,
+            step = "1/1",
+            onBack = {},
+            primaryLabel = "Continue",
+            secondaryLabel = "Cancel"
+        ) {
+            OnboardingCard {
+                BodyText("This is body text inside an onboarding card.")
+                StatusRow("Feature", "Detail text", complete = true)
+                WaitingIndicator("Please wait...")
+            }
+        }
     }
 }

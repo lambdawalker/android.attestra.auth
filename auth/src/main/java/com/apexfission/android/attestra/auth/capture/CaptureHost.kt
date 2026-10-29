@@ -20,6 +20,9 @@ import com.apexfission.android.attestra.auth.ui.onboarding.id.CardDetailsSavedSc
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 import kotlinx.coroutines.launch
 
+/**
+ * Screen that orchestrates the ID capture process, guiding the user through capturing, uploading, and reviewing.
+ */
 @Composable fun CaptureHost(
     controller: CaptureController,
     onExit: () -> Unit,
@@ -87,6 +90,9 @@ import kotlinx.coroutines.launch
     )
 }
 
+/**
+ * Component of the CaptureHost screen that displays the capture states and provides navigation.
+ */
 @Composable
 internal fun CaptureHostContent(
     ui: CaptureUi,

@@ -9,6 +9,9 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Screen that handles the case where email verification succeeded but session creation failed.
+ */
 @Composable
 fun EmailSessionRecoveryScreen(onBack: () -> Unit, onSignIn: () -> Unit) {
     OnboardingFrame(

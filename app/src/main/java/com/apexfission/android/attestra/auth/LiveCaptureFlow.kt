@@ -18,6 +18,9 @@ import com.apexfission.android.attestra.auth.identity.capture.IdentityCamera
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+/**
+ * Screen component that applies FLAG_SECURE to the window to prevent screenshots during capture.
+ */
 @Composable internal fun CapturePrivacy() {
     val window = (LocalContext.current as? ComponentActivity)?.window
     DisposableEffect(window) {
@@ -26,6 +29,10 @@ import kotlinx.serialization.json.jsonPrimitive
         onDispose { if (!wasSecure) window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
     }
 }
+
+/**
+ * Screen that orchestrates the live identity capture workflow by communicating with the real backend.
+ */
 @Composable internal fun LiveCaptureFlow(onExit: () -> Unit, acceptedPolicy: CapturePolicy? = null) {
     val config = LocalBackendConfiguration.current
     val currentConfiguration = rememberUpdatedState(config)

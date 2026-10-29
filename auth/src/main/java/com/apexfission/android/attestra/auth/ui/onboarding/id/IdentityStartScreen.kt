@@ -15,6 +15,9 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFram
 import com.apexfission.android.attestra.auth.ui.onboarding.common.StatusRow
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Screen that introduces the identity capture process and displays the privacy policy before starting.
+ */
 @Composable
 fun IdentityStartScreen(
     onBack: () -> Unit, onStartCapture: () -> Unit, onSkip: () -> Unit,

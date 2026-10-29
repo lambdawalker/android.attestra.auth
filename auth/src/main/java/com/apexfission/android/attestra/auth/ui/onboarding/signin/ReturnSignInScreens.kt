@@ -15,10 +15,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import com.apexfission.android.attestra.auth.ui.onboarding.common.BodyText
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
+import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Screen used to prompt for an email address to resume an existing session or sign in.
+ */
 @Composable
 fun ReturnSignInScreen(initialEmail: String, error: String?, onPasskey: (String) -> Unit, onEmail: (String) -> Unit, onBack: () -> Unit, onPassword: ((String) -> Unit)? = null) {
     var email by rememberSaveable(initialEmail) { mutableStateOf(initialEmail) }
@@ -36,6 +41,9 @@ fun ReturnSignInScreen(initialEmail: String, error: String?, onPasskey: (String)
     }
 }
 
+/**
+ * Screen used to input the six-digit sign-in code sent to the user's email.
+ */
 @Composable
 fun ReturnEmailCodeScreen(email: String, error: String?, onVerify: (String) -> Unit, onBack: () -> Unit) {
     var code by rememberSaveable(email) { mutableStateOf("") }
@@ -47,5 +55,33 @@ fun ReturnEmailCodeScreen(email: String, error: String?, onVerify: (String) -> U
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), modifier = Modifier.fillMaxWidth())
             if (error != null) Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
         }
+    }
+}
+
+@Preview
+@Composable
+private fun ReturnSignInScreenPreview() {
+    AttestraAuthTheme {
+        ReturnSignInScreen(
+            initialEmail = "",
+            error = null,
+            onPasskey = {},
+            onEmail = {},
+            onBack = {},
+            onPassword = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ReturnEmailCodeScreenPreview() {
+    AttestraAuthTheme {
+        ReturnEmailCodeScreen(
+            email = "user@example.com",
+            error = null,
+            onVerify = {},
+            onBack = {}
+        )
     }
 }

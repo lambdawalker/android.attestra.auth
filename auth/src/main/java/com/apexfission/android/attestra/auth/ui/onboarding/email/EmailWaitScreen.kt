@@ -11,6 +11,9 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Screen that instructs the user to check their email for a verification link.
+ */
 @Composable
 fun EmailWaitScreen(
     email: String, onBack: () -> Unit, onResend: () -> Unit, onChangeEmail: () -> Unit,

@@ -20,6 +20,9 @@ enum class LoadingTask(val title: String, val description: String, val step: Str
     CHECK_IDENTITY("Checking your identity", "Your details have been submitted. We will show the result when available.", "ID check"),
 }
 
+/**
+ * Screen that displays a loading state for long-running onboarding tasks.
+ */
 @Composable
 fun OnboardingLoadingScreen(task: LoadingTask, onBack: () -> Unit, onLeave: (() -> Unit)? = null) {
     OnboardingFrame(

@@ -15,9 +15,25 @@ import com.apexfission.android.attestra.identitymock.*
 import java.io.File
 
 internal const val HAS_IDENTITY_DEMO = true
+
+/**
+ * Screen that handles the main identity capture flow for an account.
+ */
 @Composable internal fun AccountIdentityFlow(passkeyAdded: Boolean, acceptedPolicy: com.apexfission.android.attestra.auth.capture.CapturePolicy?, onExit: () -> Unit) = LiveCaptureFlow(onExit, acceptedPolicy)
+
+/**
+ * Screen that provides a mock UI for testing identity capture without a backend.
+ */
 @Composable internal fun IdentityDemo(onExit: () -> Unit) = MockCaptureFlow(onExit, true)
+
+/**
+ * Screen that provides a mock UI for capturing an identity directly.
+ */
 @Composable internal fun DirectIdentityCapture(onExit: () -> Unit) = MockCaptureFlow(onExit, false)
+
+/**
+ * Screen component that hosts the mocked capture workflow.
+ */
 @Composable private fun MockCaptureFlow(onExit: () -> Unit, showTestOptions: Boolean) {
     CapturePrivacy()
     val context = LocalContext.current

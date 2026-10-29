@@ -10,7 +10,10 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFram
 import com.apexfission.android.attestra.auth.ui.onboarding.common.StatusRow
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
-/** Landing screen for a signed-in user who deferred the optional ID check. */
+/**
+ * Screen displayed at the end of the initial onboarding to welcome the user.
+ * Landing screen for a signed-in user who deferred the optional ID check.
+ */
 @Composable
 fun WelcomeScreen(passkeyAdded: Boolean, onCheckId: () -> Unit) {
     OnboardingFrame(

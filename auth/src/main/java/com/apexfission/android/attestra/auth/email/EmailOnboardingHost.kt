@@ -66,6 +66,10 @@ fun parseVerificationLink(uri: Uri?, expectedHost: String): VerificationLink? {
     return VerificationLink(uri.getQueryParameter("request_id").orEmpty(), uri.getQueryParameter("b").orEmpty())
 }
 
+/**
+ * Screen that hosts the complete email onboarding and sign-in flow.
+ * Orchestrates password, passkey, and ID capture steps based on the provided onboarding policy.
+ */
 @Composable
 fun EmailOnboardingHost(
     apiBaseUrl: String,

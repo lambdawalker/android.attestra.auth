@@ -4,8 +4,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Modifier
 
+/**
+ * Component of the identity review screen containing the editable form fields for card details.
+ */
 @Composable internal fun CardReviewForm(
     ui: CaptureUi,
     onEdit: (CardData) -> Unit,
@@ -45,7 +49,26 @@ import androidx.compose.ui.Modifier
     }
 }
 
+/**
+ * Component of the review form representing a single input field.
+ */
 @Composable private fun CardField(label: String, value: String, busy: Boolean, multiline: Boolean = false, change: (String) -> Unit) {
     OutlinedTextField(value = value, onValueChange = change, label = { Text(label) }, enabled = !busy,
         modifier = Modifier.fillMaxWidth(), singleLine = !multiline, maxLines = if (multiline) 4 else 1)
+}
+
+@Preview
+@Composable
+private fun CardReviewFormPreview() {
+    com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme {
+        androidx.compose.foundation.layout.Column {
+        CardReviewForm(
+            ui = CaptureUi(draft = CardData(fullName = "Sample Person"), originCountry = "MX"),
+            onEdit = {},
+            onReset = {},
+            onOrigin = {},
+            onSave = {}
+        )
+        }
+    }
 }

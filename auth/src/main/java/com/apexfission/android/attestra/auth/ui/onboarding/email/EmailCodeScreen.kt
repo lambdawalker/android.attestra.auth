@@ -38,6 +38,9 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFrame
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Screen that prompts the user to enter the six-digit code sent to their email.
+ */
 @Composable
 fun EmailCodeScreen(
     email: String,

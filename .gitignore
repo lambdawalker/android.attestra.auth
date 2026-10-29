@@ -20,3 +20,7 @@ build
 *.p12
 *.pfx
 __pycache__/
+
+# Reproducible documentation renders are published as CI artifacts.
+/docs/generated/screenshots/
+/auth/src/screenshotTestDebug/reference/

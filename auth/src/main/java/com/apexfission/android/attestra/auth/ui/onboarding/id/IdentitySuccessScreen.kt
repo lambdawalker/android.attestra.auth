@@ -10,6 +10,9 @@ import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingFram
 import com.apexfission.android.attestra.auth.ui.onboarding.common.StatusRow
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 
+/**
+ * Screen that confirms the identity check was successful and the onboarding process is complete.
+ */
 @Composable
 fun IdentitySuccessScreen(onBack: () -> Unit, onDashboard: () -> Unit, passkeyAdded: Boolean) {
     OnboardingFrame(

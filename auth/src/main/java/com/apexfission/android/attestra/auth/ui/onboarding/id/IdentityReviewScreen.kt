@@ -30,6 +30,9 @@ data class IdentityDetails(
     val expirationDate: String = "",
 )
 
+/**
+ * Screen that shows the extracted ID details for the user to confirm before submission.
+ */
 @Composable
 fun IdentityReviewScreen(
     initialDetails: IdentityDetails, onBack: () -> Unit,
@@ -76,6 +79,9 @@ fun IdentityReviewScreen(
     }
 }
 
+/**
+ * Component used in IdentityReviewScreen to represent an editable detail field.
+ */
 @Composable
 private fun DetailField(label: String, value: String, onChange: (String) -> Unit) {
     OutlinedTextField(
