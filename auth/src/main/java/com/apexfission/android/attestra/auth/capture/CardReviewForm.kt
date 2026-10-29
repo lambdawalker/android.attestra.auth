@@ -38,7 +38,7 @@ import androidx.compose.ui.Modifier
         }
     }
     if (!data.isValid()) Text("A field is too long. Shorten it before saving.", color = MaterialTheme.colorScheme.error)
-    Button(onClick = onSave, enabled = !ui.busy && data.isValid() && !data.isEmpty() && ui.originCountry in countries.keys && (ui.reviewDirty || ui.record?.reviewed == null)) { Text("Save reviewed details") }
+    Button(onClick = onSave, enabled = !ui.busy && data.isValid() && !data.isEmpty() && ui.originCountry in countries.keys) { Text("Save and continue") }
     if (ui.reviewDirty) {
         Text("Unsaved edits are kept only while this screen is open.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         TextButton(onClick = onReset, enabled = !ui.busy) { Text("Discard edits and use latest details") }

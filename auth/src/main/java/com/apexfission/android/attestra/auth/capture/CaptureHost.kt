@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.apexfission.android.attestra.auth.ui.onboarding.common.LoadingTask
 import com.apexfission.android.attestra.auth.ui.onboarding.common.OnboardingLoadingScreen
 import com.apexfission.android.attestra.auth.identity.DocumentSide
+import com.apexfission.android.attestra.auth.ui.onboarding.id.CardDetailsSavedScreen
 import com.apexfission.android.attestra.auth.ui.theme.AttestraAuthTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -32,6 +33,7 @@ import kotlinx.coroutines.launch
     val ui by controller.state.collectAsState()
     val language = LocalConfiguration.current.locales[0].language
     val scope = rememberCoroutineScope()
+    var reviewSavedDetails by remember(controller) { mutableStateOf(false) }
     var initializing by remember(controller) { mutableStateOf(true) }
     var refreshGeneration by remember(controller) { mutableIntStateOf(0) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -67,6 +69,8 @@ import kotlinx.coroutines.launch
         ui = ui,
         onExit = onExit,
         initializing = initializing,
+        reviewSavedDetails = reviewSavedDetails,
+        onReviewSavedDetails = { reviewSavedDetails = true },
         allowNewCapture = allowNewCapture,
         onStart = { lang -> scope.launch { controller.continueToCapture(lang, allowNewCapture) } },
         onCamera = controller::camera,
@@ -79,7 +83,10 @@ import kotlinx.coroutines.launch
         onEditCard = controller::editCard,
         onResetReview = controller::resetReview,
         onEditOrigin = controller::editOrigin,
-        onSaveReview = { scope.launch { controller.saveReview() } },
+        onSaveReview = { scope.launch {
+            controller.saveReview()
+            if (controller.state.value.hasSavedReview()) reviewSavedDetails = false
+        } },
         onRestore = { refreshGeneration++; scope.launch { controller.restore() } },
         onCancel = { scope.launch { controller.cancel() } },
         onClose = controller::close,
@@ -92,6 +99,8 @@ internal fun CaptureHostContent(
     ui: CaptureUi,
     onExit: () -> Unit,
     initializing: Boolean = false,
+    reviewSavedDetails: Boolean = false,
+    onReviewSavedDetails: () -> Unit = {},
     allowNewCapture: Boolean = true,
     onStart: (String) -> Unit = {},
     onCamera: (DocumentSide) -> Unit = {},
@@ -111,7 +120,11 @@ internal fun CaptureHostContent(
     camera: @Composable ((ByteArray, ByteArray) -> Unit, () -> Unit, () -> Unit) -> Unit = { _, _, _ -> },
 ) {
     val language = LocalConfiguration.current.locales[0].language
-    val destination = captureDestination(ui, initializing)
+    val destination = captureDestination(ui, initializing, reviewSavedDetails)
+    if (destination == CaptureDestination.FINISH) {
+        CardDetailsSavedScreen(onDone = { onClose(); onExit() }, onReview = onReviewSavedDetails)
+        return
+    }
     if (destination == CaptureDestination.CAMERA) {
         camera(onCaptured, onCameraFailed, onCameraCancelled)
         return

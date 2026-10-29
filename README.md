@@ -180,7 +180,7 @@ starts enabled and can be toggled beside the shutter; manual capture remains ava
 Side labels guide the user and do not classify or verify a document.
 
 Both reviewed JPEGs are uploaded in order. Retry upload retains unfinished photos
-in memory; leaving the flow clears them. Both photos are finalized automatically after upload; pending extraction shows loading and failed extraction opens manual entry.
+in memory; leaving the flow clears them. Both photos are finalized automatically after upload; pending extraction shows loading and failed extraction opens manual entry. Saving the reviewed details opens a server-confirmed Details saved screen; see [save and finish](docs/identity-capture.md#save-and-finish).
 Activity recreation restarts any unsubmitted camera session.
 
 The detector and model share a JitPack artifact ID. `cardModelAssets` resolves
