@@ -40,7 +40,7 @@ class EmailCodeScreenshotTest {
             )
         }
     }
-    
+
     @PreviewTest
     @Preview(name = "Cannot Resend", widthDp = 393, heightDp = 852, showBackground = true, backgroundColor = 0xFF0F131B)
     @Composable

@@ -20,9 +20,9 @@ import com.apexfission.android.carddetector.ui.capture.CardCaptureConfig
 import com.apexfission.android.carddetector.ui.capture.TwoSidedCardCapture
 import java.io.ByteArrayOutputStream
 
-/** 
+/**
  * Screen that manages camera permissions and the ID document capture workflow.
- * Permission-gated front/back capture. Side labels guide users; they do not verify identity. 
+ * Permission-gated front/back capture. Side labels guide users; they do not verify identity.
  */
 @Composable
 fun IdentityCamera(onCaptured: (ByteArray, ByteArray) -> Unit, onError: () -> Unit, onCancel: () -> Unit) {
