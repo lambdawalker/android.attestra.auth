@@ -39,7 +39,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.apexfission.permissions)
-    implementation(libs.apexfission.card.model)
+    implementation(libs.apexfission.card.detector)
 
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
@@ -62,3 +62,21 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
+
+// Resolve the model in isolation: its JitPack artifact ID is shared with the detector.
+// Only assets enter this library, never the model AAR's classes or pinned core 0.1.0.
+val cardModelAssets by configurations.creating {
+    isCanBeConsumed = false
+    isTransitive = false
+}
+dependencies { cardModelAssets(libs.apexfission.card.model) }
+val prepareCardModelAssets by tasks.registering(Sync::class) {
+    from({ zipTree(cardModelAssets.singleFile) }) {
+        include("assets/**")
+        eachFile { path = path.removePrefix("assets/") }
+        includeEmptyDirs = false
+    }
+    into(layout.buildDirectory.dir("generated/cardModelAssets"))
+}
+android.sourceSets.getByName("main").assets.srcDir(prepareCardModelAssets)
+android.androidResources.noCompress += "tflite"
