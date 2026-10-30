@@ -10,6 +10,8 @@ Public visibility alone does not make a screen helper a preferred integration AP
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureApi.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.capture
+
 object CaptureClients
 fun api()
 fun uploads()
@@ -31,6 +33,8 @@ override suspend fun cancel(id: String): CaptureRecord
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureController.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.capture
+
 data class CaptureUi(
     val policy: CapturePolicy? = null,
     val record: CaptureRecord? = null,
@@ -70,6 +74,8 @@ fun close()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureHost.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.capture
+
 @Composable fun CaptureHost(
     controller: CaptureController,
     onExit: () -> Unit,
@@ -90,6 +96,8 @@ fun CaptureHostLightPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureModels.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.capture
+
 @Serializable data class DisclosureMessages(val en: String = "", val es: String = "", val fr: String = "")
 fun language(requested: String): String
 fun text(requested: String): String
@@ -190,6 +198,8 @@ class CaptureException(val status: Int, val code: String = "request_failed") : E
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/capture/SecureCaptureCheckpointStore.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.capture
+
 class SecureCaptureCheckpointStore(private val storage: SecureAuthStorage, environment: String, subject: String) : CaptureCheckpointStore
 override fun load()
 override fun save(value: CaptureCheckpoint)
@@ -201,6 +211,8 @@ override fun clear()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/discovery/AppConfiguration.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.discovery
+
 @Serializable data class RuntimeFeatures(val idCapture: Boolean)
 @Serializable data class RuntimeCapturePolicy(val documentType: String, val jurisdiction: String, val purpose: String)
 @Serializable data class RuntimeConfiguration(
@@ -223,6 +235,8 @@ suspend fun resolve(apiUrl: String, environment: String): AppConfigurationSnapsh
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/discovery/EnvironmentIndex.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.discovery
+
 @Serializable data class EnvironmentFeatures(val idCapture: Boolean = false)
 @Serializable data class EnvironmentConfiguration(
     val apiUrl: String,
@@ -259,6 +273,8 @@ suspend fun resolve(indexUrl: String = DEFAULT_INDEX_URL, environment: String): 
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/discovery/OnboardingPolicy.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.discovery
+
 @Serializable enum class Requirement
 @Serializable enum class PasswordPlacement
 @Serializable enum class CharacterRule
@@ -286,6 +302,8 @@ fun legacy(capture: Boolean)
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/email/EmailFlowController.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.email
+
 data class VerificationLink(val requestId: String, val tokenB: String)
 fun isValid(): Boolean
 sealed interface EmailScreen
@@ -317,6 +335,8 @@ fun changeEmail()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/email/EmailOnboardingHost.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.email
+
 fun parseVerificationLink(uri: Uri?, expectedHost: String): VerificationLink?
 @Composable
 fun EmailOnboardingHost(
@@ -339,6 +359,8 @@ fun route()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/email/EmailVerificationApi.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.email
+
 @Serializable data class AuthSession(
     @SerialName("access_token") val accessToken: String,
     @SerialName("id_token") val idToken: String,
@@ -367,6 +389,8 @@ override suspend fun confirmCode(requestId: String, tokenB: String, tokenC: Stri
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/email/ProofGenerator.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.email
+
 data class EmailProof(val tokenA: String, val challenge: String)
 class ProofGenerator(private val random: (ByteArray) -> Unit = SecureRandom()::nextBytes)
 fun create(): EmailProof
@@ -377,6 +401,8 @@ fun create(): EmailProof
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/email/SecureAuthStorage.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.email
+
 @Serializable data class PendingEmail(val email: String, val requestId: String, val tokenA: String, val createdAtMillis: Long)
 interface AuthStorage
 fun pending(): PendingEmail?
@@ -411,6 +437,8 @@ fun clearLocalUser()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/identity/IdentityIntegrationUnavailable.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.identity
+
 @Composable
 fun IdentityIntegrationUnavailable(onExit: () -> Unit)
 ```
@@ -420,6 +448,8 @@ fun IdentityIntegrationUnavailable(onExit: () -> Unit)
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/identity/IdentityModels.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.identity
+
 enum class DocumentSide
 ```
 
@@ -428,6 +458,8 @@ enum class DocumentSide
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/identity/capture/IdentityCamera.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.identity.capture
+
 @Composable
 fun IdentityCamera(onCaptured: (ByteArray, ByteArray) -> Unit, onError: () -> Unit, onCancel: () -> Unit)
 ```
@@ -437,6 +469,8 @@ fun IdentityCamera(onCaptured: (ByteArray, ByteArray) -> Unit, onError: () -> Un
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/passkey/PasskeyRegistration.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.passkey
+
 class PasskeyApiException(val signInRequired: Boolean) : Exception(if (signInRequired) "sign_in_required" else "passkey_request_failed")
 class PasskeyCancelled : Exception()
 class PasskeyUnsupported : Exception()
@@ -453,6 +487,8 @@ suspend fun create(options: String): String
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/passkey/ReturnAuthApi.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.passkey
+
 @Serializable data class SignInChallenge(val session: String, val options: String = "")
 @Serializable data class AccountStatus(
     @SerialName("passkey_registered") val passkeyRegistered: Boolean = false,
@@ -478,6 +514,8 @@ suspend fun status(access: String): AccountStatus
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/OnboardingCatalog.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding
+
 class OnboardingBusinessActions(private val onOpenIdentityCapture: () -> Unit = {})
 fun requestEmail(email: String)
 fun resendEmail()
@@ -502,6 +540,8 @@ fun OnboardingCatalogPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingComponents.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.common
+
 @Composable
 fun OnboardingFrame(
     title: String,
@@ -531,6 +571,8 @@ fun WaitingIndicator(description: String)
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingLoadingScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.common
+
 enum class LoadingTask(val title: String, val description: String, val step: String)
 @Composable
 fun OnboardingLoadingScreen(task: LoadingTask, onBack: () -> Unit, onLeave: (() -> Unit)? = null)
@@ -543,6 +585,8 @@ fun OnboardingLoadingScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailAttemptLimitScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.email
+
 @Composable
 fun EmailAttemptLimitScreen(
     email: String, onBack: () -> Unit, onRequestEmail: () -> Unit, onChangeEmail: () -> Unit,
@@ -557,6 +601,8 @@ fun EmailAttemptLimitScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.email
+
 @Composable
 fun EmailCodeScreen(
     email: String,
@@ -576,6 +622,8 @@ fun EmailCodeScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailLinkUnusableScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.email
+
 @Composable
 fun EmailLinkUnusableScreen(email: String, onBack: () -> Unit, onRequestEmail: () -> Unit, onChangeEmail: () -> Unit, canRequestEmail: Boolean = true)
 @Composable
@@ -587,6 +635,8 @@ fun EmailLinkUnusableScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailSessionRecoveryScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.email
+
 @Composable
 fun EmailSessionRecoveryScreen(onBack: () -> Unit, onSignIn: () -> Unit)
 @Composable
@@ -598,6 +648,8 @@ fun EmailSessionRecoveryScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailStartScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.email
+
 @Composable
 fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit, error: String? = null, onExistingAccount: (() -> Unit)? = null,
     passwordContent: (@Composable () -> Unit)? = null, passwordValid: Boolean = true,
@@ -611,6 +663,8 @@ fun EmailStartScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailWaitScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.email
+
 @Composable
 fun EmailWaitScreen(
     email: String, onBack: () -> Unit, onResend: () -> Unit, onChangeEmail: () -> Unit,
@@ -625,6 +679,8 @@ fun EmailWaitScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/CardDetailsSavedScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.id
+
 @Composable
 fun CardDetailsSavedScreen(onDone: () -> Unit, onReview: () -> Unit)
 @Composable
@@ -636,6 +692,8 @@ fun CardDetailsSavedScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityDocumentUnreadableScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.id
+
 @Composable
 fun IdentityDocumentUnreadableScreen(onBack: () -> Unit, onRetake: () -> Unit, onDashboard: () -> Unit)
 @Composable
@@ -647,6 +705,8 @@ fun IdentityDocumentUnreadableScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityReviewScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.id
+
 data class IdentityDetails(
     val fullName: String = "",
     val dateOfBirth: String = "",
@@ -674,6 +734,8 @@ fun IdentityReviewScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityStartScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.id
+
 @Composable
 fun IdentityStartScreen(
     onBack: () -> Unit, onStartCapture: () -> Unit, onSkip: () -> Unit,
@@ -695,6 +757,8 @@ fun IdentityStartScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentitySubmissionFailedScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.id
+
 @Composable
 fun IdentitySubmissionFailedScreen(onBack: () -> Unit, onRetry: () -> Unit, onDashboard: () -> Unit)
 @Composable
@@ -706,6 +770,8 @@ fun IdentitySubmissionFailedScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentitySuccessScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.id
+
 @Composable
 fun IdentitySuccessScreen(onBack: () -> Unit, onDashboard: () -> Unit, passkeyAdded: Boolean)
 @Composable
@@ -717,6 +783,8 @@ fun IdentitySuccessScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityUnsuccessfulScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.id
+
 @Composable
 fun IdentityUnsuccessfulScreen(
     onBack: () -> Unit, onDashboard: () -> Unit, onRetry: () -> Unit,
@@ -731,6 +799,8 @@ fun IdentityUnsuccessfulScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/passkey/PasskeyFailedScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.passkey
+
 @Composable
 fun PasskeyFailedScreen(onBack: () -> Unit, onRetry: () -> Unit, onDoLater: () -> Unit, cancelled: Boolean, required: Boolean = false)
 @Composable
@@ -742,6 +812,8 @@ fun PasskeyFailedScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/passkey/PasskeyStartScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.passkey
+
 @Composable
 fun PasskeyStartScreen(onBack: () -> Unit, onCreatePasskey: () -> Unit, onDoLater: () -> Unit, required: Boolean = false)
 @Composable
@@ -753,6 +825,8 @@ fun PasskeyStartScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/passkey/PasskeyUnsupportedScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.passkey
+
 @Composable
 fun PasskeyUnsupportedScreen(onBack: () -> Unit, onDoLater: () -> Unit, onCheckAgain: () -> Unit, required: Boolean = false)
 @Composable
@@ -764,6 +838,8 @@ fun PasskeyUnsupportedScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/password/PasswordScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.password
+
 @Composable
 fun PasswordField(value: String, onChange: (String) -> Unit, policy: PasswordPolicy? = null, optional: Boolean = false)
 @Composable
@@ -777,6 +853,8 @@ fun PasswordScreen(value: String, onChange: (String) -> Unit, onSubmit: () -> Un
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/signin/ReturnSignInScreens.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.signin
+
 @Composable
 fun ReturnSignInScreen(initialEmail: String, error: String?, onPasskey: (String) -> Unit, onEmail: (String) -> Unit, onBack: () -> Unit, onPassword: ((String) -> Unit)? = null)
 @Composable
@@ -788,6 +866,8 @@ fun ReturnEmailCodeScreen(email: String, error: String?, onVerify: (String) -> U
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/welcome/WelcomeScreen.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.onboarding.welcome
+
 @Composable
 fun WelcomeScreen(passkeyAdded: Boolean, onCheckId: () -> Unit)
 @Composable
@@ -799,6 +879,8 @@ fun WelcomeScreenPreview()
 [Source](../../auth/src/main/java/com/apexfission/android/attestra/auth/ui/theme/Theme.kt)
 
 ```kotlin
+package com.apexfission.android.attestra.auth.ui.theme
+
 @Composable
 fun AttestraAuthTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

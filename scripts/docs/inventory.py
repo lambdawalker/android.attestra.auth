@@ -39,7 +39,8 @@ def render():
         if not declarations:
             continue
         path = file.relative_to(ROOT).as_posix()
-        lines.extend([f'## {file.stem}', '', f'[Source](../../{path})', '', '```kotlin', *declarations, '```', ''])
+        package = next(line for line in text.splitlines() if line.startswith('package '))
+        lines.extend([f'## {file.stem}', '', f'[Source](../../{path})', '', '```kotlin', package, '', *declarations, '```', ''])
     return '\n'.join(lines)
 
 

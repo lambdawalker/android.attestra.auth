@@ -52,5 +52,16 @@ class SiteContracts(unittest.TestCase):
         self.assertEqual([],catalog['releases'])
         self.assertEqual('development',catalog['channels'][0]['kind'])
 
+    def test_unknown_release_cannot_silently_render_main(self):
+        catalog=json.loads((build.ROOT/'sites/versions.json').read_text())
+        catalog['releases']=[{'version':'1.0.0'}]
+        with self.assertRaises(ValueError):build.validate_catalog(catalog)
+
+    def test_stale_real_translation_keeps_current_canonical_scope(self):
+        path='docs/agents/api.md';english=build.sources()[path]
+        with patch.object(build,'sha',return_value='not-the-reviewed-hash'):
+            text,fallback=build.translated(path,english,'es')
+        self.assertTrue(fallback);self.assertEqual(english,text)
+
 
 if __name__=='__main__':unittest.main()

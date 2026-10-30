@@ -69,6 +69,7 @@ internal const val HAS_IDENTITY_DEMO = true
     onStart: () -> Unit, onReset: () -> Unit, onExit: () -> Unit,
     capture: @Composable () -> Unit,
 ) {
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(Modifier.fillMaxSize()) {
         Surface(color = MaterialTheme.colorScheme.tertiaryContainer) {
             Column(Modifier.fillMaxWidth().statusBarsPadding().padding(12.dp)) {
@@ -88,3 +89,4 @@ internal const val HAS_IDENTITY_DEMO = true
         }
     }
 }
+    }

@@ -39,6 +39,13 @@ class ScreenshotContracts(unittest.TestCase):
         with patch.object(suite,'ACCEPTED',Path('/nonexistent/attestra-baseline.json')):
             with self.assertRaises(ValueError):suite.restore()
 
+    def test_missing_required_variant_and_unknown_scenario_fail(self):
+        inventory=[{'id':'auth:Fixture.screen','variants':2}]
+        with self.assertRaises(ValueError):suite.validate_variants([],inventory)
+        with self.assertRaises(ValueError):suite.validate_variants([{'path':'auth/a.png','scenario':'auth:Fixture.screen'}],inventory)
+        with self.assertRaises(ValueError):suite.validate_variants([{'path':'auth/a.png','scenario':'unknown'}],inventory)
+        suite.validate_variants([{'path':'auth/a.png','scenario':'auth:Fixture.screen'},{'path':'auth/b.png','scenario':'auth:Fixture.screen'}],inventory)
+
     def test_composable_inventory_and_scenarios_are_complete(self):
         self.assertGreater(len(suite.coverage()), 0)
 

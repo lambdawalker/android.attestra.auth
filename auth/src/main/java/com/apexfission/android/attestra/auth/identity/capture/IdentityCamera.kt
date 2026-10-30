@@ -6,6 +6,9 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -81,5 +84,7 @@ private fun encodeJpeg(bitmap: Bitmap): ByteArray {
 /** Pure fallback UI; the runtime camera entry and preview use the same content. */
 @Composable
 internal fun NoCameraContent(onCancel: () -> Unit) {
-    Column { Text("This device has no camera."); Button(onClick = onCancel) { Text("Return") } }
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
+        Column(Modifier.padding(24.dp)) { Text("This device has no camera."); Button(onClick = onCancel) { Text("Return") } }
+    }
 }

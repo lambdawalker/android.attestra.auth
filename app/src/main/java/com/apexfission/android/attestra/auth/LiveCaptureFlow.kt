@@ -3,6 +3,9 @@ package com.apexfission.android.attestra.auth
 import android.util.Base64
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -72,5 +75,7 @@ import kotlinx.serialization.json.jsonPrimitive
 
 /** Pure authentication-required content shared by runtime and screenshot fixtures. */
 @Composable internal fun CaptureSignInRequired(onExit: () -> Unit) {
-    Column(Modifier.padding(24.dp)) { Text("Sign in to the configured service to capture your ID."); Button(onClick = onExit) { Text("Return") } }
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
+        Column(Modifier.padding(24.dp)) { Text("Sign in to the configured service to capture your ID."); Button(onClick = onExit) { Text("Return") } }
+    }
 }

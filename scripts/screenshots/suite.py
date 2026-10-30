@@ -30,7 +30,7 @@ def render_inputs():
     paths = set()
     for module in ('auth', 'app', 'identity-mock', 'buildSrc'):
         for path in (ROOT / module).rglob('*'):
-            if path.is_file() and not any(part in ('build', '.gradle', 'screenshotTestDebug') for part in path.relative_to(ROOT).parts) and path.suffix in ('.kt', '.kts', '.xml'):
+            if path.is_file() and not any(part in ('build', '.gradle', 'screenshotTestDebug') for part in path.relative_to(ROOT).parts) and path.suffix in ('.kt', '.kts', '.xml', '.ttf', '.otf', '.png', '.jpg', '.jpeg', '.webp', '.json', '.svg'):
                 paths.add(path)
     paths.update(ROOT / p for p in ('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties', 'gradle.properties', 'settings.gradle.kts', 'build.gradle.kts', 'docs/screenshots/scenarios.json'))
     files = {p.relative_to(ROOT).as_posix(): digest(p.read_bytes()) for p in sorted(paths)}
@@ -80,6 +80,18 @@ def coverage():
     return inventory
 
 
+def validate_variants(images, inventory):
+    if not images or len({i['path'] for i in images}) != len(images):
+        raise ValueError('Zero or duplicate candidate image paths')
+    expected = {s['id']: s['variants'] for s in inventory}
+    if not {i['scenario'] for i in images} <= set(expected):
+        raise ValueError('Unknown image scenario')
+    for scenario, count in expected.items():
+        actual = sum(i['scenario'] == scenario for i in images)
+        if actual != count:
+            raise ValueError(f'Missing required variants for {scenario}: {actual}/{count}')
+
+
 def candidates():
     inventory = coverage()
     if CANDIDATES.exists():
@@ -100,12 +112,9 @@ def candidates():
             dest = CANDIDATES / relative
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(path, dest)
-            images.append(dict(path=relative.as_posix(), scenario=scenario['id'], fixture=scenario['fixture'], capture_kind='component-preview', theme='dark' if '_Dark_' in path.stem else 'light' if '_Light_' in path.stem else scenario.get('theme', 'fixture-default'), viewport_dp=scenario['viewport_dp'], locale=scenario['locale'], font_scale=scenario['font_scale'], **png_info(path)))
-    for scenario in inventory:
-        actual = sum(i['scenario'] == scenario['id'] for i in images)
-        if actual != scenario['variants']:
-            raise ValueError(f"Missing required variants for {scenario['id']}: {actual}/{scenario['variants']}")
-    manifest = {'schemaVersion': 1, 'status': 'candidates-not-approved', 'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'inputs': render_inputs(), 'toolchain': {'versions_sha256': digest((ROOT/'gradle/libs.versions.toml').read_bytes()), 'renderer': 'Compose screenshot alpha16', 'platform': 'Linux host layoutlib; no device', 'fonts': 'renderer platform fonts', 'clock_animation': 'renderer capture frame; permission autoplay disabled'}, 'images': images}
+            images.append(dict(path=relative.as_posix(), scenario=scenario['id'], fixture=scenario['fixture'], capture_kind='component-preview', status=scenario['status'], theme='dark' if '_Dark_' in path.stem else 'light' if '_Light_' in path.stem else scenario.get('theme', 'fixture-default'), viewport_dp=scenario['viewport_dp'], locale=scenario['locale'], font_scale=scenario['font_scale'], **png_info(path)))
+    validate_variants(images, inventory)
+    manifest = {'schemaVersion': 1, 'status': 'candidates-not-approved', 'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'inputs': render_inputs(), 'toolchain': {'versions_sha256': digest((ROOT/'gradle/libs.versions.toml').read_bytes()), 'renderer': 'Compose screenshot alpha16', 'java': subprocess.run(['java', '-version'], capture_output=True, text=True).stderr.splitlines()[0], 'platform': 'Linux host layoutlib; no device', 'fonts': 'renderer platform fonts', 'clock_animation': 'renderer capture frame; permission autoplay disabled'}, 'images': images}
     (CANDIDATES / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     from export import gallery
     gallery(CANDIDATES, images)
@@ -127,6 +136,7 @@ def accept(directory, reviewer):
     manifest = read(directory / 'manifest.json')
     if manifest['status'] != 'candidates-not-approved' or not reviewer.strip():
         raise ValueError('Explicit review of candidate images is required')
+    validate_variants(manifest['images'], coverage())
     validate_manifest(directory, manifest)
     with zipfile.ZipFile(ARCHIVE, 'w', zipfile.ZIP_DEFLATED) as archive:
         for image in manifest['images']:
@@ -152,6 +162,7 @@ def restore():
     if not ACCEPTED.exists():
         raise ValueError('No approved baseline. Run the manual candidate workflow, inspect it, then accept explicitly.')
     manifest = read(ACCEPTED)
+    validate_variants(manifest['images'], coverage())
     if manifest['status'] != 'reviewed-baselines' or digest(ARCHIVE.read_bytes()) != manifest['archive_sha256']:
         raise ValueError('Baseline archive does not match approved manifest')
     if manifest['inputs']['sha256'] != render_inputs()['sha256']:
@@ -172,6 +183,8 @@ def restore():
             if digest(data) != image['sha256']:
                 raise ValueError('Baseline image hash mismatch')
             dest.write_bytes(data)
+            if png_info(dest) != {key: image[key] for key in ('sha256', 'width', 'height')}:
+                raise ValueError('Approved image dimensions do not match manifest')
     print('Restored approved baseline inputs; validation may now compare without updating them')
 
 

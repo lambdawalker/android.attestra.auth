@@ -47,7 +47,7 @@ def resolve(current,href,locale,docs,raw=False):
   return BASE+'assets/'+target
  # Intentionally leave the documentation site for executable source / prototypes.
  kind='tree' if p.is_dir() else 'blob'
- ref='main' if target.startswith(('docs/','sites/')) or p.suffix=='.md' else CONFIG['source_ref']
+ ref=CONFIG['source_ref']
  return f'https://github.com/{CONFIG["repository"]}/{kind}/{ref}/{target}'+('#'+u.fragment if u.fragment else '')
 
 class Links(Treeprocessor):
@@ -108,11 +108,15 @@ def validate():
  if errors:raise ValueError('\n'.join(errors[:60]))
  print(f'Validated {len(files)} HTML pages, project-base links and anchors')
 
+def validate_catalog(catalog):
+ if catalog['releases']:raise ValueError('No release snapshots supported yet: implement immutable rendering before advertising a release')
+ if catalog['module']!='auth' or [c['kind'] for c in catalog['channels']]!=['development']:raise ValueError('Unexpected module/channel metadata')
+
 def build():
  docs=sources()
  if not docs:raise ValueError('No documentation')
  catalog=json.loads((ROOT/'sites/versions.json').read_text())
- if catalog['releases']:raise ValueError('No release snapshots supported yet: implement immutable rendering before advertising a release')
+ validate_catalog(catalog)
  if OUT.exists():shutil.rmtree(OUT)
  OUT.mkdir(parents=True)
  (OUT/'.nojekyll').write_text('')
@@ -151,7 +155,11 @@ def build():
  (OUT/'agents').mkdir()
  (OUT/'agents/index.md').write_text(raw_markdown(docs['docs/agents/index.md'],'docs/agents/index.md','en',docs))
  if 'IMPORT.md'in docs:(OUT/'IMPORT.md').write_text(raw_markdown(docs['IMPORT.md'],'IMPORT.md','en',docs))
- (OUT/'llms.txt').write_text(f'# {CONFIG["title"]}\n\nCurrent source, not a published release.\n\n- [Agent entry]({BASE}agents/index.md)\n- [Documentation catalog]({BASE}versions.json)\n- [English]({route("docs/agents/index.md","en",True)})\n- [Español; English fallback where marked]({route("docs/agents/index.md","es",True)})\n')
+ discovery={'Agent entry':'docs/agents/index.md','Installation':'IMPORT.md','Quickstart':'docs/agents/quickstart.md','API':'docs/agents/api.md','Concepts':'docs/agents/concepts.md','Recipes':'docs/agents/recipes.md','Limitations':'docs/agents/limitations.md','Troubleshooting':'docs/agents/troubleshooting.md','Migration':'docs/agents/migration.md','Demos':'docs/agents/demos.md'}
+ (OUT/'llms.txt').write_text(f'# {CONFIG["title"]}\n\nModule auth · Development/main only · no confirmed published release.\n\n'+''.join(f'- [{label}]({route(path,"en",True)})\n' for label,path in discovery.items())+f'- [Version/language catalog]({BASE}versions.json)\n- [Spanish entry; explicit fallback where marked]({route("docs/agents/index.md","es",True)})\n')
+ catalog['build_source_ref']=CONFIG['source_ref']
+ catalog['raw_entries']={locale:route('docs/agents/index.md',locale,True) for locale in ['en','es']}
+ catalog['human_entries']={locale:route('docs/agents/index.md',locale) for locale in ['en','es']}
  (OUT/'versions.json').write_text(json.dumps(catalog,indent=2))
  (OUT/'index.html').write_text(f'<!doctype html><html lang="en"><meta charset="utf-8"><title>{CONFIG["title"]}</title><meta http-equiv="refresh" content="0;url={route("docs/agents/index.md")}"><a href="{route("docs/agents/index.md")}">Documentation / Documentación</a></html>')
  validate()
