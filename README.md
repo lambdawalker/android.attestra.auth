@@ -1,12 +1,19 @@
 # Attestra Android authentication
 
-The `:auth` module implements email confirmation, passkey registration, email/passkey/password sign-in, session restoration, and policy-controlled onboarding with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. The ID capture flow supports front/back capture, direct private S3 uploads, asynchronous file checks, recovery and cancellation. A debug-only capture mock works without deployment. Parsing and identity validation remain separate future features. See [Android capture](docs/identity-capture.md) and the [backend contract](docs/identity/http-contract.md).
+The `:auth` module implements email confirmation, passkey registration, email/passkey/password sign-in, session restoration, and policy-controlled onboarding with Ktor, protected storage, and Android Credential Manager. `:app` hosts the live flow and UI catalog. The ID capture flow supports front/back capture, direct private S3 uploads, asynchronous file checks, recovery and cancellation. A debug-only capture mock works without deployment. Text extraction and editable review are implemented; identity validation remains a separate future feature. See [Android capture](docs/identity-capture.md) and the [backend contract](docs/identity/http-contract.md).
 
 Build settings are organized as local Gradle convention plugins. See [build configuration](docs/build-configuration.md) for feature scripts, value precedence, and signing inputs.
 
+## Documentation
+
+Start with [installation](IMPORT.md), [consumer guides](docs/agents/index.md),
+[quickstart and runnable demo](docs/agents/quickstart.md), or [screenshots](docs/screenshots.md).
+The human HTML site is built from the same sources under `sites/`; hosting is not
+claimed live until a Pages deployment succeeds. See [site maintenance](sites/README.md).
+
 ## Test ID capture without deploying the backend
 
-Install a debug build and choose **Test ID capture** from the entry screen. Use a sample card, select a capture scenario, capture and preview both sides, upload, and finish capture. The flow ends at “Document captured”; it does not parse details or approve an identity. No API configuration or sign-in is required for this demo. Mock transport is excluded from release builds.
+Install a debug build and choose **Test ID capture** from the entry screen. Use a sample card, select a capture scenario, capture and preview both sides, and follow automatic upload/processing to review and save. The mock can simulate extraction failure for manual entry; it does not approve an identity. No API configuration or sign-in is required for this demo. Mock transport is excluded from release builds.
 
 The `:auth` library includes identity capture and requires **Android 9 (API 28)**, as do the demo app and debug mock module. Builds use compile SDK 37 and Java 17. See the [identity guide](docs/identity/README.md) for lifecycle behavior, recovery scenarios, and remaining device checks.
 
@@ -59,7 +66,7 @@ attestraLinkHost=attestrabond.com
 
 Use your own stack's `apiUrl` if it differs from this example; when `pulumi stack output apiUrl` is missing, verify the selected stack and finish `pulumi up`. These values can also be passed through CI. The link host must serve `https://HOST/.well-known/assetlinks.json` with the app's package `com.apexfission.android.attestra.auth` and signing certificate SHA-256 to make Android App Links open directly in the app. On other devices or when the app isn't associated, the website must host `/verify-email` and show the manual code screen.
 
-The launcher opens a choice screen in the existing `MainActivity`: **Start onboarding** runs the live email flow, and **Open UI catalog** previews every screen without calling the backend. With no explicit API URL, Start onboarding waits for index discovery and offers Retry if unavailable; the catalog still works. The system Back action returns to the choice screen, or to the catalog list when previewing an individual screen. A valid HTTPS `/verify-email` App Link opens live onboarding directly, including when the catalog is currently visible. The manifest accepts links only for the configured host, and the activity checks the incoming origin again before handling one. Visiting a link never calls the backend with B alone.
+The launcher opens a choice screen in the existing `MainActivity`: **Open onboarding** runs the live email flow, and **Open UI catalog** previews every screen without calling the backend. With no explicit API URL, Open onboarding waits for index discovery and offers Retry if unavailable; the catalog still works. The system Back action returns to the choice screen, or to the catalog list when previewing an individual screen. A valid HTTPS `/verify-email` App Link opens live onboarding directly, including when the catalog is currently visible. The manifest accepts links only for the configured host, and the activity checks the incoming origin again before handling one. Visiting a link never calls the backend with B alone.
 
 ### Verify Android App Links on a device
 

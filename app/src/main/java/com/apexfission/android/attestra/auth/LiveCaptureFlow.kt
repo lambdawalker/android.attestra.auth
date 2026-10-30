@@ -3,6 +3,9 @@ package com.apexfission.android.attestra.auth
 import android.util.Base64
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -49,7 +52,7 @@ import kotlinx.serialization.json.jsonPrimitive
     }.getOrNull()
     val account = remember(storage) { subject() }
     if (account == null || config.apiUrl.isBlank()) {
-        Column(Modifier.padding(24.dp)) { Text("Sign in to the configured service to capture your ID."); Button(onClick = onExit) { Text("Return") } }
+        CaptureSignInRequired(onExit)
         return
     }
     val client = remember { CaptureClients.api() }
@@ -68,4 +71,11 @@ import kotlinx.serialization.json.jsonPrimitive
         if (controller.state.value.signInRequired) storage.clearSession()
         onExit()
     }, startCaptureOnEntry = true, acceptedPolicy = acceptedPolicy, requireReviewedPolicy = true, allowNewCapture = config.canStartCapture()) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
+}
+
+/** Pure authentication-required content shared by runtime and screenshot fixtures. */
+@Composable internal fun CaptureSignInRequired(onExit: () -> Unit) {
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
+        Column(Modifier.padding(24.dp)) { Text("Sign in to the configured service to capture your ID."); Button(onClick = onExit) { Text("Return") } }
+    }
 }

@@ -24,3 +24,6 @@ __pycache__/
 # Reproducible documentation renders are published as CI artifacts.
 /docs/generated/screenshots/
 /auth/src/screenshotTestDebug/reference/
+/sites/dist/
+/sites/preview/
+/app/src/screenshotTestDebug/reference/

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "captures": [
+    {
+      "path": "docs/assets/screenshots/email-start-light.png",
+      "image_sha256": "7b338efc69a361bf2da0228572b41c209627590a88f48c1792c742b0c2f15191",
+      "width": 1032,
+      "height": 2237,
+      "scenario": "auth:DocumentationScreenshotTest.emailStart",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "theme": "light",
+      "locale": "en",
+      "source_commit": "db811142dc2f736623c1b2dfde82a306a04b8167",
+      "render_inputs_sha256": "3a26e561fb87f5986192ec1a4a4be704f77c52bd502fc4e2cae651c228372c81",
+      "caption": "Synthetic component preview: emailStart",
+      "alt": "Attestra emailStart in light theme; synthetic fixture data"
+    },
+    {
+      "path": "docs/assets/screenshots/read-document-dark.png",
+      "image_sha256": "e723e8661962a29a46fd52779b0e713c1c1569623001402df0c8951b690a1a68",
+      "width": 1032,
+      "height": 2237,
+      "scenario": "auth:DocumentationScreenshotTest.readDocument",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "theme": "dark",
+      "locale": "en",
+      "source_commit": "db811142dc2f736623c1b2dfde82a306a04b8167",
+      "render_inputs_sha256": "3a26e561fb87f5986192ec1a4a4be704f77c52bd502fc4e2cae651c228372c81",
+      "caption": "Synthetic component preview: readDocument",
+      "alt": "Attestra readDocument in dark theme; synthetic fixture data"
+    },
+    {
+      "path": "docs/assets/screenshots/details-saved-light.png",
+      "image_sha256": "e555f691dadff20ad9dcd8cdddd079ee662cebdec1a932aca7aa7e5d56da0118",
+      "width": 1032,
+      "height": 2237,
+      "scenario": "auth:DocumentationScreenshotTest.detailsSaved",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "theme": "light",
+      "locale": "en",
+      "source_commit": "db811142dc2f736623c1b2dfde82a306a04b8167",
+      "render_inputs_sha256": "3a26e561fb87f5986192ec1a4a4be704f77c52bd502fc4e2cae651c228372c81",
+      "caption": "Synthetic component preview: detailsSaved",
+      "alt": "Attestra detailsSaved in light theme; synthetic fixture data"
+    }
+  ]
+}

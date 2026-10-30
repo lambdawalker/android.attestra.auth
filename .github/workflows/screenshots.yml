@@ -2,8 +2,14 @@ name: Render documentation screenshots
 on:
   pull_request:
   push:
-    branches: [main, previews]
+    branches: [main]
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Generate candidates for review, or validate accepted baselines'
+        type: choice
+        options: [candidates, validate]
+        default: candidates
 concurrency:
   group: screenshots-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -13,7 +19,9 @@ jobs:
   render:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -21,20 +29,30 @@ jobs:
             17
             25
       - uses: gradle/actions/setup-gradle@v4
-      - name: Render all screenshot previews
-        run: bash gradlew :auth:updateDebugScreenshotTest --stacktrace
-      - name: Check rendering and export documentation gallery
-        run: python3 scripts/screenshots/export.py
-      - name: Validate rendered references
-        run: bash gradlew :auth:validateDebugScreenshotTest --stacktrace
-      - name: Upload screenshots and reports
+      - name: Verify required scenarios and coverage
+        run: |
+          python3 scripts/screenshots/suite.py coverage
+          python3 -m unittest discover -s scripts/screenshots -p 'test_*.py'
+      - name: Generate candidates without accepting them
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'candidates'
+        run: |
+          bash gradlew :auth:updateDebugScreenshotTest :app:updateDebugScreenshotTest --stacktrace
+          python3 scripts/screenshots/suite.py candidates
+      - name: Restore reviewed baseline inputs
+        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'candidates'
+        run: python3 scripts/screenshots/suite.py restore
+      - name: Compare with accepted baselines without updating
+        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'candidates'
+        run: bash gradlew :auth:validateDebugScreenshotTest :app:validateDebugScreenshotTest --stacktrace
+      - name: Upload candidate images and comparison reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: onboarding-screenshots
           path: |
             docs/generated/screenshots/
-            auth/src/screenshotTestDebug/reference/
             auth/build/reports/screenshotTest/
             auth/build/outputs/screenshotTest-results/
-          if-no-files-found: error
+            app/build/reports/screenshotTest/
+            app/build/outputs/screenshotTest-results/
+          if-no-files-found: warn

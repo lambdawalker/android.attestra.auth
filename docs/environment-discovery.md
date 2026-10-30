@@ -53,7 +53,7 @@ try {
 - When index/environment, API URL, region, Cognito pool or client changes, the demo clears local authentication/proofs before using the new configuration. Upgrading a legacy installation clears its unbound saved auth once. Capture-only flag changes do not force sign-out. Applications embedding `:auth` must apply equivalent isolation before constructing their authenticated clients.
 - Explicit `attestraApiBaseUrl` (including an exported configuration file) selects static mode. It never serves as an automatic fallback for failed discovery.
 
-The index does not currently publish App Link hostnames or capture document-type policy. The manifest uses `attestraLinkHost` (default `<environment>.attestrabond.com`); capture obtains its supported document policy through the existing capture API. Discovery does not enable parsing or identity validation.
+The index does not currently publish App Link hostnames or capture document-type policy. The manifest uses `attestraLinkHost` (default `<environment>.attestrabond.com`); capture obtains its supported document policy through the existing capture API. Discovery does not itself perform extraction or identity validation; the capture backend owns extraction and identity validation remains separate.
 
 ## Verification
 

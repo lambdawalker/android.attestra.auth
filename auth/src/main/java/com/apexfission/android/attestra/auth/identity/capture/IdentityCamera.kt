@@ -6,6 +6,9 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -28,7 +31,7 @@ import java.io.ByteArrayOutputStream
 fun IdentityCamera(onCaptured: (ByteArray, ByteArray) -> Unit, onError: () -> Unit, onCancel: () -> Unit) {
     val context = LocalContext.current
     if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-        Column { Text("This device has no camera."); Button(onClick = onCancel) { Text("Return") } }
+        NoCameraContent(onCancel)
         return
     }
     HandlePermissions(
@@ -76,4 +79,12 @@ private fun encodeJpeg(bitmap: Bitmap): ByteArray {
             out.toByteArray().also { require(it.size <= CaptureApi.MAX_JPEG_BYTES) }
         }
     } finally { if (scaled !== bitmap) scaled.recycle() }
+}
+
+/** Pure fallback UI; the runtime camera entry and preview use the same content. */
+@Composable
+internal fun NoCameraContent(onCancel: () -> Unit) {
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
+        Column(Modifier.padding(24.dp)) { Text("This device has no camera."); Button(onClick = onCancel) { Text("Return") } }
+    }
 }

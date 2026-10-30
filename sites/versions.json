@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "module": "auth",
+  "canonicalLanguage": "en",
+  "languages": [
+    "en",
+    "es"
+  ],
+  "channels": [
+    {
+      "id": "main",
+      "kind": "development",
+      "agent_entry": "agents/index.md"
+    }
+  ],
+  "releases": [],
+  "archiveBoundary": "Development/source only. No auth tags, GitHub releases or artifact publication configuration at 2026-10-30 audit."
+}

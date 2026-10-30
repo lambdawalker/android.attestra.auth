@@ -1,0 +1,52 @@
+{
+  "docs/agents/index.md": {
+    "path": "docs/es/agents/index.md",
+    "source_sha256": "022056ac8dfa121c53e71cc1af951689ce59a4531ed1ed06c49a728f0c5493c8",
+    "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
+  },
+  "docs/agents/quickstart.md": {
+    "path": "docs/es/agents/quickstart.md",
+    "source_sha256": "97efa4f25a08ba5a0ffc02dddb8ec5752a227c0df05a732d106804d2096b4cf1",
+    "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
+  },
+  "docs/agents/concepts.md": {
+    "path": "docs/es/agents/concepts.md",
+    "source_sha256": "c48ff263f373580cbc862084affd39b9879557827398ae7a1a27259b1942b11a",
+    "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
+  },
+  "docs/agents/api.md": {
+    "path": "docs/es/agents/api.md",
+    "source_sha256": "e527c403d49d0e0be53b471156d7f73f43d0c3c47b3fdb1363da9ac0080c9135",
+    "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
+  },
+  "docs/agents/recipes.md": {
+    "path": "docs/es/agents/recipes.md",
+    "source_sha256": "edf5c7eec293f18ab7abbaf1dfa333d0c227b84b5a2edc26e0ae3f0b5c481878",
+    "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
+  },
+  "docs/agents/limitations.md": {
+    "path": "docs/es/agents/limitations.md",
+    "source_sha256": "8c9d14f2131d692feffb900886bbff6ba9fac40d80bc8e8b5144861ce4b9f96e",
+    "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
+  },
+  "docs/agents/troubleshooting.md": {
+    "path": "docs/es/agents/troubleshooting.md",
+    "source_sha256": "dd90d8e1fb72e11bb5e8d441dc59ce8b98ed0589e345e71d0ba2fd37a82ba479",
+    "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
+  },
+  "docs/agents/migration.md": {
+    "path": "docs/es/agents/migration.md",
+    "source_sha256": "42d101b6728fc391330cd4248b4bbea588234a7f6ced8d0a8ffa3a4d9af5ea4d",
+    "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
+  },
+  "docs/agents/demos.md": {
+    "path": "docs/es/agents/demos.md",
+    "source_sha256": "4c7eb24cdb668d20533c9ec0702bbcaaa6c705c043b772f96f6b2d7da74fa195",
+    "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
+  },
+  "IMPORT.md": {
+    "path": "docs/es/IMPORT.md",
+    "source_sha256": "970705c1f97fbc165cd1f15b0ad3aec308010c555c090f4ff24f5ddcf80abfdd",
+    "provenance": "Reviewed Spanish source-integration and release-status translation; 2026-10-30."
+  }
+}

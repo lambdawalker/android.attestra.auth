@@ -1,0 +1,45 @@
+name: Screenshot candidates
+on:
+  pull_request:
+    paths:
+      - 'auth/**'
+      - 'app/**'
+      - 'identity-mock/**'
+      - 'buildSrc/**'
+      - 'gradle/**'
+      - 'gradle.properties'
+      - 'scripts/screenshots/**'
+      - 'docs/screenshots/scenarios.json'
+      - '.github/workflows/screenshot-candidates.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: screenshot-candidates-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  candidates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            17
+            25
+      - uses: gradle/actions/setup-gradle@v4
+      - run: python3 scripts/screenshots/suite.py coverage
+      - run: bash gradlew :auth:updateDebugScreenshotTest :app:updateDebugScreenshotTest --stacktrace
+      - run: python3 scripts/screenshots/suite.py candidates
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screenshot-candidates
+          path: |
+            docs/generated/screenshots/
+            auth/build/reports/screenshotTest/
+            app/build/reports/screenshotTest/
+          if-no-files-found: error
