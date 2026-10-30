@@ -1,0 +1,56 @@
+name: Verify auth publishing
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  scripts:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r scripts/requirements-setup.txt
+      - run: python -m unittest discover -s scripts/tests -v
+      - run: python scripts/publishing_config.py check
+      - run: python scripts/module_release.py verify
+  publication:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        destination: [maven-central, jitpack]
+    env:
+      RELEASE_REPOSITORY: ${{ matrix.destination }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r scripts/requirements-publishing.txt
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: |
+            17
+            25
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Build unsigned release publication without credentials or remote upload
+        shell: bash
+        env:
+          DESTINATION: ${{ matrix.destination }}
+        run: |
+          args=()
+          if [ "$DESTINATION" = jitpack ]; then args+=(-PjitpackBuild=true); fi
+          bash gradlew :auth:testDebugUnitTest :auth:assembleRelease :auth:publishAllPublicationsToVerificationRepository -PreleaseModule=auth -PreleaseVersion=0.1.0 '-PPOM_LICENSE_NAME=CI validation fixture only' -PPOM_LICENSE_URL=https://example.invalid/license "${args[@]}" --no-daemon
+          python scripts/module_release.py check-local --module auth --version 0.1.0 --source "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: auth-publication-${{ matrix.destination }}
+          path: build/verification-repository/

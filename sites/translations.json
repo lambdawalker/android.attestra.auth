@@ -46,7 +46,7 @@
   },
   "IMPORT.md": {
     "path": "docs/es/IMPORT.md",
-    "source_sha256": "970705c1f97fbc165cd1f15b0ad3aec308010c555c090f4ff24f5ddcf80abfdd",
-    "provenance": "Reviewed Spanish source-integration and release-status translation; 2026-10-30."
+    "source_sha256": "48ac9d9149a0eac85c9e93a006240d296a2462e8fb3b648183ebb79ebe6fc7f2",
+    "provenance": "Spanish installation translation reviewed against canonical publishing/source-only state; 2026-10-30. No confirmed release."
   }
 }

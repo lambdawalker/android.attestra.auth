@@ -1,4 +1,14 @@
+// BEGIN MAVEN PUBLICATION ONLY
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SourcesJar
+import org.gradle.api.publish.PublishingExtension
+
+// END MAVEN PUBLICATION ONLY
 plugins {
+// BEGIN MAVEN PUBLICATION ONLY
+    id("com.vanniktech.maven.publish")
+// END MAVEN PUBLICATION ONLY
     id("com.android.library")
     alias(libs.plugins.screenshot)
     alias(libs.plugins.kotlin.compose)
@@ -87,3 +97,67 @@ androidComponents.onVariants { variant ->
     )
 }
 android.androidResources.noCompress += "tflite"
+// BEGIN MAVEN PUBLICATION ONLY
+
+
+// Only the auth release variant is a publication. app and identity-mock are local.
+val jitpackBuild = providers.gradleProperty("jitpackBuild").orElse("false").map(String::toBoolean)
+val projectUrl = "https://github.com/lambdawalker/android.attestra.auth"
+val pomLicenseName = providers.gradleProperty("POM_LICENSE_NAME").orElse("")
+val pomLicenseUrl = providers.gradleProperty("POM_LICENSE_URL").orElse("")
+mavenPublishing {
+    coordinates(
+        if (jitpackBuild.get()) "com.github.lambdawalker" else providers.gradleProperty("GROUP").get(),
+        if (jitpackBuild.get()) "android.attestra.auth" else providers.gradleProperty("POM_ARTIFACT_ID").get(),
+        if (jitpackBuild.get()) "auth~v${project.version}" else project.version.toString()
+    )
+    configure(AndroidSingleVariantLibrary(variant = "release", javadocJar = JavadocJar.Empty(), sourcesJar = SourcesJar.Sources()))
+    if (!jitpackBuild.get()) publishToMavenCentral()
+    if (!jitpackBuild.get() && providers.gradleProperty("signingInMemoryKey").isPresent) signAllPublications()
+    pom {
+        name.set("Attestra Auth")
+        description.set("Android email, passkey and identity-capture onboarding for Attestra.")
+        inceptionYear.set("2026")
+        url.set(projectUrl)
+        licenses { license { name.set(pomLicenseName); url.set(pomLicenseUrl) } }
+        developers { developer {
+            id.set("lambdawalker")
+            name.set("David Garcia")
+            url.set("https://github.com/lambdawalker")
+        } }
+        scm {
+            url.set(projectUrl)
+            connection.set("scm:git:$projectUrl.git")
+            developerConnection.set("scm:git:ssh://git@github.com/lambdawalker/android.attestra.auth.git")
+        }
+    }
+}
+tasks.withType<com.vanniktech.maven.publish.tasks.JavadocJar>().configureEach {
+    from(rootProject.file("README.md"))
+    from(rootProject.file("docs/agents")) { include("**/*.md"); into("guides") }
+    from(rootProject.file("LICENSE"))
+}
+tasks.withType<org.gradle.jvm.tasks.Jar>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+}
+extensions.configure<PublishingExtension> {
+    repositories.maven {
+        name = "verification"
+        url = rootProject.layout.buildDirectory.dir("verification-repository").get().asFile.toURI()
+    }
+}
+val verifyPublicationLicense = tasks.register("verifyPublicationLicense") {
+    doLast {
+        require(pomLicenseName.get().isNotBlank() && pomLicenseUrl.get().startsWith("https://")) {
+            "Owner must set POM_LICENSE_NAME/POM_LICENSE_URL in gradle.properties before publishing; no license is inferred"
+        }
+    }
+}
+tasks.configureEach {
+    if (name.contains("MavenCentral", ignoreCase = true)) {
+        dependsOn(rootProject.tasks.named("verifyPublicationReservation"), verifyPublicationLicense)
+    }
+    if (this is org.gradle.api.publish.maven.tasks.PublishToMavenLocal) dependsOn(verifyPublicationLicense)
+}
+// END MAVEN PUBLICATION ONLY

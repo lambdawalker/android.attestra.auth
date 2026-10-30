@@ -1,0 +1,25 @@
+<!-- Generated from confirmed auth metadata and docs/templates/IMPORT.md.template. Run python scripts/module_release.py generate. -->
+# Integrate Attestra auth
+
+Only publicly confirmed releases appear below. Tags, local verification builds and
+pending uploads are not installation evidence.
+
+{{INSTALLATION}}
+
+## Source workspace
+
+Until a release is confirmed, clone this repository and use its existing Gradle
+workspace. The runnable `:app` uses `implementation(project(":auth"))`.
+Do not transplant `auth/` alone: it needs root conventions, `buildSrc` model-asset
+extraction and the dependency catalog. The sample APK version is independent.
+
+## Toolchain and dependencies
+
+Android API 28 minimum, compile SDK 37 and Java 17 bytecode. The Gradle daemon
+uses JDK 25. Keep the pinned Gradle/AGP/Kotlin versions in the repository.
+The permissions and detector dependencies use JitPack, including when auth is
+installed from Central. Model assets are extracted from the isolated, pinned model
+AAR and bundled into auth; do not add its model tag alongside the detector at runtime.
+
+See [quickstart](docs/agents/quickstart.md), [the catalog](gradle/libs.versions.toml)
+and [publishing and owner setup](docs/releases.md).

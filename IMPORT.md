@@ -1,39 +1,27 @@
-# Integrate Attestra auth from source
+<!-- Generated from confirmed auth metadata and docs/templates/IMPORT.md.template. Run python scripts/module_release.py generate. -->
+# Integrate Attestra auth
 
-**Development/source only. No confirmed stable auth package is available.**
-The repository has no auth publication configuration or GitHub release catalog
-at this audit. The sample APK's `versionName = "1.0"` is not a library release.
-No Maven Central/JitPack installation coordinate is advertised for `:auth`.
+Only publicly confirmed releases appear below. Tags, local verification builds and
+pending uploads are not installation evidence.
 
-## Supported workspace
+## attestra-auth
 
-Clone this repository and build its existing Gradle workspace. The runnable
-`:app` consumes `:auth` with:
+No confirmed release.
 
-```kotlin
-implementation(project(":auth"))
-```
+## Source workspace
 
-Use [quickstart](docs/agents/quickstart.md) and the complete compiled host in
-[MainActivity](app/src/main/java/com/apexfission/android/attestra/auth/MainActivity.kt).
-Do not copy the `auth/` directory into an unrelated Gradle build without adapting
-its root convention plugins, `buildSrc` model-asset task and dependency catalog.
-That standalone transplant is not a verified distribution path.
+Until a release is confirmed, clone this repository and use its existing Gradle
+workspace. The runnable `:app` uses `implementation(project(":auth"))`.
+Do not transplant `auth/` alone: it needs root conventions, `buildSrc` model-asset
+extraction and the dependency catalog. The sample APK version is independent.
 
 ## Toolchain and dependencies
 
-Android API 28 minimum; compile SDK 37; Java 17 bytecode. The wrapper, AGP, Kotlin,
-Compose and dependency pins are authoritative in [the catalog](gradle/libs.versions.toml),
-[wrapper](gradle/wrapper/gradle-wrapper.properties) and [auth build](auth/build.gradle.kts).
-The pinned detector and model tags share a JitPack artifact identity. The build
-resolves model assets in an isolated, nontransitive configuration; do not install
-the model tag alongside the detector as competing runtime dependencies.
+Android API 28 minimum, compile SDK 37 and Java 17 bytecode. The Gradle daemon
+uses JDK 25. Keep the pinned Gradle/AGP/Kotlin versions in the repository.
+The permissions and detector dependencies use JitPack, including when auth is
+installed from Central. Model assets are extracted from the isolated, pinned model
+AAR and bundled into auth; do not add its model tag alongside the detector at runtime.
 
-## Future release evidence
-
-Before adding an auth package, record confirmed destination, exact coordinates,
-version, immutable code/documentation identities and public artifact evidence in
-`sites/versions.json`. Preserve old contracts and installations. The current site
-rejects unimplemented release snapshots rather than silently rendering current
-code under a historical version. Package publication and finalization automation
-are not implemented here and are outside this documentation task.
+See [quickstart](docs/agents/quickstart.md), [the catalog](gradle/libs.versions.toml)
+and [publishing and owner setup](docs/releases.md).
