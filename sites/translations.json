@@ -1,7 +1,7 @@
 {
   "docs/agents/index.md": {
     "path": "docs/es/agents/index.md",
-    "source_sha256": "a29478bc0d119a0754497738b3a33563a8facb2d5a02efc9c163711217edd1d3",
+    "source_sha256": "022056ac8dfa121c53e71cc1af951689ce59a4531ed1ed06c49a728f0c5493c8",
     "provenance": "Spanish consumer translation reviewed against canonical contracts; 2026-10-30. Identifiers and code fences preserved."
   },
   "docs/agents/quickstart.md": {

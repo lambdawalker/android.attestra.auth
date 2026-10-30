@@ -1,0 +1,1505 @@
+{
+  "schemaVersion": 1,
+  "status": "reviewed-baselines",
+  "source_commit": "db811142dc2f736623c1b2dfde82a306a04b8167",
+  "inputs": {
+    "files": {
+      "app/build.gradle.kts": "758da509ec0cc0c915119a49c35278c53f0f85ce2cb16b72da7ea273868890c8",
+      "app/src/androidTest/java/com/apexfission/android/attestra/auth/ExampleInstrumentedTest.kt": "0c6778ae17b24edd861f16d51edfe9c8bc3969eb20cb64a9eebcc56fb5a8342e",
+      "app/src/debug/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt": "d5712ac1bed2ca2c88528e11c684477e04f49ebec0bcb8fa7e65ceacbd39c5b4",
+      "app/src/main/AndroidManifest.xml": "a1e11eade61501fdd41ad9578e9b1d0ce5c0eac099d18eb9e19beb5abb9af9e5",
+      "app/src/main/java/com/apexfission/android/attestra/auth/AssociationCheck.kt": "863c6861b4a3fb2a132cb72edc66584481a511d8993824bf0904201887021862",
+      "app/src/main/java/com/apexfission/android/attestra/auth/AssociationCheckViewModel.kt": "f7bb7ed9100d84c3690b13c7c437b5f5286add491cddd3df14ffdcdd3f76986f",
+      "app/src/main/java/com/apexfission/android/attestra/auth/BackendConfiguration.kt": "6a2a8c54bd8226e40fe1b9fbad475354e03833a9af29cd9e9b423f410863b295",
+      "app/src/main/java/com/apexfission/android/attestra/auth/EnvironmentViewModel.kt": "06489f07b81785d08d74f9449e818bb1b1ca62f43b9cdf583647dd5c1a640337",
+      "app/src/main/java/com/apexfission/android/attestra/auth/LiveCaptureFlow.kt": "0c3916fce777878a4dbb5674a405940c8a32557cfc90f586515fa226dea2d862",
+      "app/src/main/java/com/apexfission/android/attestra/auth/LocalUserReset.kt": "d654f5049ee82d06b9748904c6bbdcbeceaface28875a603fe5942431e78e94c",
+      "app/src/main/java/com/apexfission/android/attestra/auth/LocalUserResetViewModel.kt": "dcf6e528450e041402210fc619afdd2a50016a2644e17f9ece39a78c946ac3b3",
+      "app/src/main/java/com/apexfission/android/attestra/auth/MainActivity.kt": "6c05d00b51c04417f797de2b364ef2f6f13db850508bc246058751dc5d357601",
+      "app/src/main/java/com/apexfission/android/attestra/auth/OnboardingEntryScreen.kt": "70c9a02cd1d9500e5eee71e472d3795c86d0579197c585377c519c9fce6e7699",
+      "app/src/main/res/drawable/ic_launcher_background.xml": "ed423c73a6f40a4d2909f0901e60527b3a807cd59e1b5593bcaae1808b1c6321",
+      "app/src/main/res/drawable/ic_launcher_foreground.xml": "01d1a6a6c1234eb7fe270d097eb283d72b9c95ae5118886f1b6573aad280f1f7",
+      "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml": "88f7653499ef524126ea5018a99baf9cc3269e7e584d6205dfdd76db39f39cc0",
+      "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml": "88f7653499ef524126ea5018a99baf9cc3269e7e584d6205dfdd76db39f39cc0",
+      "app/src/main/res/mipmap-hdpi/ic_launcher.webp": "dd00996198640ed28fbc09cdcd7a3807cf8707f3eb255b659634da3ca6a6ff01",
+      "app/src/main/res/mipmap-hdpi/ic_launcher_round.webp": "1ed73f5341a69d3b41c7e02e126803f50cc8c3284adf4bbb737f0c93577aef07",
+      "app/src/main/res/mipmap-mdpi/ic_launcher.webp": "846219e6f72fe9a6c104ca8919cbee36a101e7d2ff8da9da67b689a5888f060d",
+      "app/src/main/res/mipmap-mdpi/ic_launcher_round.webp": "4e2c58b91de01130e6479e00cbbaaf6e77cd961dd2c8e303cf13cd077fa92632",
+      "app/src/main/res/mipmap-xhdpi/ic_launcher.webp": "398340dad816fc9a6338cb151a8cf1e45b926f9bfb70628b24c4bd2523cc94d4",
+      "app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp": "91b490aef86574901137f0a252272e1f1add99c1ad709e0696ed68929b88d261",
+      "app/src/main/res/mipmap-xxhdpi/ic_launcher.webp": "58ae87fa0c5b5d1562d27fd648d2c061553fe20e3ed570bde588162d01ea7a27",
+      "app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp": "3009fad079f5772f30ecd767f98924367fbe0f81c30048d672d4fda2d5ca7d12",
+      "app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp": "f98fef5bc3bfe5b65692c40ad1cbae2bec4faf9f1b249c397626740db71b62d8",
+      "app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp": "5faf033745c8c882c43bb1b372d4e4a5890caec63d9892a2e756c954108b85dc",
+      "app/src/main/res/values/colors.xml": "b5626527d503417f0d8e5b1e08f338de7b31173bf0e122815f03e64932adbd88",
+      "app/src/main/res/values/strings.xml": "7b95000f4ab4ead02f8b1f181d18b0cef364e5f7ff062edc20d7d49dd8cbad4f",
+      "app/src/main/res/values/themes.xml": "59263085bbb4cd240d1a43b5f3e91a89a3b51ce88b301368f4c59002a19ce5d2",
+      "app/src/main/res/xml/backup_rules.xml": "bc5bc124f1b7f170838e33969ae2e10cfc11250445f832680a890e664016a883",
+      "app/src/main/res/xml/data_extraction_rules.xml": "7219803e4f33f8ccaa6fed431cc0f14d9c7e880f22fdd33e2d50a1727af71a09",
+      "app/src/release/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt": "675b6cb65a5a08fd789633e6d2e0ce6777a9c580b686df78194f65693be1bba7",
+      "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt": "147662f61e3f2fd690a816ccf72cb44beff2198fa58d170c4ffe4a331abfe2e9",
+      "app/src/test/java/com/apexfission/android/attestra/auth/AssociationCheckTest.kt": "5e2a5acd40b74b6b93222d8cc387fdb280f9b84d97bbdf22667edb60b530e823",
+      "app/src/test/java/com/apexfission/android/attestra/auth/BackendConfigurationTest.kt": "e4608fceee81c73dbde80772e1d7d017b88c4853f2fc5b78ea57e18f0edead6c",
+      "app/src/test/java/com/apexfission/android/attestra/auth/ExampleUnitTest.kt": "16b87eda1ce72147e5883bba841cc273cdef745cc3bb33c2dc7e9049cb767ad9",
+      "app/src/test/java/com/apexfission/android/attestra/auth/LocalUserResetTest.kt": "82c24d039d35d57aaf0758ed85542b2c8ac61970b73aab5207d8d6f113dc5943",
+      "auth/build.gradle.kts": "9fb405840a5e57e35e34a536b7596a17f49ff3c9fa1bc17d198780ec06c85c23",
+      "auth/src/androidTest/java/com/apexfission/android/attestra/auth/ExampleInstrumentedTest.kt": "d7c93aba1a656e72eaac77f569dd86d919738eacded6e10b6c83dac7ce7e9b7f",
+      "auth/src/main/AndroidManifest.xml": "b04d356d17902c3c22de02a06dafc380ce7e30a538c3bd550f5f7676efb6f4a6",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureApi.kt": "a66d140747d77833c5a679ddc687e6dd79e2a7f039c784ebb7f8db7197923a05",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureController.kt": "9e2ce0fd53b51c0479576fc709e26bec20e3c27c6200f1b9d69117f30cb3fcb0",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureDestination.kt": "404339844ce59b6fc87dc4b84dd7033e84dc6e195b66c02a4e9317c508b68270",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureHost.kt": "ab72756b45d61c3f6cb31a7dc15d00d04aff21a5566ddbaeaf3f1238b396a8cc",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureModels.kt": "7aae8ca7e5230430bf6cc89d9ad65a1fcae5203fd7edeab8e969dd48570dca4d",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CardReviewForm.kt": "1b232b4f3025a519b42dc2fe54bc504f66c551129365129c29d68b2becee8bb1",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/capture/SecureCaptureCheckpointStore.kt": "4c20e44f7e085042a1327a596c6a46d886602c2abf92503d16073ae4efb50b87",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/discovery/AppConfiguration.kt": "173225af45c50faba1ed3bdb2c28e082b96c4a413a955c451eb66773fbfa6d90",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/discovery/EnvironmentIndex.kt": "5131b1d63f6fa2a837f858b9cf11bde5e337e75f4f838a23f50eba0d925f689f",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/discovery/OnboardingPolicy.kt": "51e58a893d3bb158afa0a01371d1bfd2380bfaebb4a747db74b7144dd5f7c5df",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/email/EmailFlowController.kt": "58bed89ac6df052953cbe8d016247f8d8ae0cf7c6cf6d226f7dd0f023cc60e8c",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/email/EmailOnboardingHost.kt": "32e75fed2d11ab94a85fcf1fa299992f052633d94f0a1cc8c16ee9369c09b9de",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/email/EmailVerificationApi.kt": "d23a20703da399f5bf906b7ff72c8175fdb9f2507c005d4edeb92f777687f0cc",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/email/PendingPassword.kt": "29224c4eadb3e8923ef4600c381cc92d207570ca8087650f1221b622354056b8",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/email/ProofGenerator.kt": "84b5f9496c8909e747c91444eabfa390618bf47a49564bbc7aedcf073ba22415",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/email/SecureAuthStorage.kt": "0c0913f491e908a1f7abb2970b16c07ffaf69fcba3ff00670bc3d5d42105f5d9",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/identity/IdentityIntegrationUnavailable.kt": "611eecb5e56569ca4c220da238182632f27e2d2e800c4a02d53914dc10ac642e",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/identity/IdentityModels.kt": "dbba1e65e645f74fefd7b07244bbdc8238216dc5f7cd1a0389568c5d2d8a31b7",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/identity/capture/CaptureConfirmation.kt": "a84f0b6ecee434ab9f223a0e60ceabadd2e75df51ba3cbcf45e6533686cd30a5",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/identity/capture/IdentityCamera.kt": "d2fcf236e2098947be492e5ac4ab46a9b0c6321761f150623183e38a3b177ec1",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/identity/capture/IdentityCardModel.kt": "04f557cc12059a241c7a5b2a870da10be0c7c8fdc06c526d00675af229301f6f",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/passkey/PasskeyRegistration.kt": "7f4ec685184765816297c989e467e754c716e3432ce93e83dd57fb5940125f8e",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/passkey/ReturnAuthApi.kt": "9d9087bfba1a55d53bac70e192e5be11922f83f0d9a3a95aa33f75d33b7b862f",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/OnboardingCatalog.kt": "3768985256e2ef5bde9dca941934c24b64a138b80b13d41ccf14d59aaf88334c",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingComponents.kt": "a0038ced05a9c9530ed94cde027e92ed0f44d69ea73858832bc4d99c95c95d02",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingLoadingScreen.kt": "21a7cdf879f73652d508cd4ff045e6cacaf04547630766e093bc0e49625fc941",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailAttemptLimitScreen.kt": "3c87fc16a432989bd51345c2e49952af40b042b9742404bb344ede3bbea283f3",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreen.kt": "63ea8fa3cc3f629d4606a940ca60431d25f6c1759bf4b1795ee143bfc5e183e4",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailLinkUnusableScreen.kt": "458daefac66f69ce33dda7a75a07c55a1b393d921e34fb36e8c7ce93b644715b",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailSessionRecoveryScreen.kt": "a8d4716f37115f6aa133f03a6f062743903e4c030c870f85c50e68061fcf0970",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailStartScreen.kt": "73c52bced3a79946fd86be8825581ab8646701443cb75f27e93baa0701438b70",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailWaitScreen.kt": "01cce9d83e8564145668a4c9ddd63763402a99274b99ab9d02a9af93ce1905de",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/CardDetailsSavedScreen.kt": "81cc3b5560c2a34d4ab79cbaa37710b5f27ebdcbbc41025a9714dd0dc4abd75e",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityDocumentUnreadableScreen.kt": "4b3cecc5e46c7285ca82051bd7e57cb835fded75c2888f70531910264f9175e2",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityReviewScreen.kt": "509fd12457dab13e93659559e50d35a59e33623ac8ceeaac9dec4599ebbcff76",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityStartScreen.kt": "ad9aa7dcb1697dfaf5bcfbb96e0f8427620ae6ebcab2ca743027f07ef3114654",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentitySubmissionFailedScreen.kt": "b5478712040909434295aafa7454764a258193f2fbfcf4ebc7b023397c89f05b",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentitySuccessScreen.kt": "d80079ff0e88e1fff777c5cf975b173f6aed40f35bc77fed983c43a09f6b6a77",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityUnsuccessfulScreen.kt": "d5195a82b54f35dc51ac4906a0e209b2124262555250910699af2849ec1128d0",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/passkey/PasskeyFailedScreen.kt": "0930831378581087ad98b776da61f31df7413af9355271d9785e27739b3402d7",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/passkey/PasskeyStartScreen.kt": "65f49e1edef33e3180df59d397aa087ae6fd3c3c17d0f30792b77688f8941e73",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/passkey/PasskeyUnsupportedScreen.kt": "e07823c428702c625dfcbb86b83794a671a11d11a53fbe49d54d06307e1e20cd",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/password/PasswordScreen.kt": "ba9d19ea39b2a48d32864786c8ddd535cb8e07ed1a8a7aa035c97d8c8315683c",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/signin/ReturnSignInScreens.kt": "82d3d219732e7511a52d7fb67c0be93bc7f20a19dc5430aaf9a9a88418fa53a9",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/welcome/WelcomeScreen.kt": "56995ecf644dafa613fdfbafeec76ad5af9cc383206fa6e5f1fb6e8f410ab7e9",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/theme/Color.kt": "c77a44411ba218a8bf465e192660f327f035c05bcd992b6204e2cb1284176036",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/theme/Theme.kt": "6dffa9a6bd285bf9fc0cd0d4f8fc73c3ecf5954d377d757de3ffc8fa62e5397e",
+      "auth/src/main/java/com/apexfission/android/attestra/auth/ui/theme/Type.kt": "2805051da80579801a0e8de72f29ff15577e7922efcd6c60107377f088ff758c",
+      "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt": "9347ad9898dd2c1c9c2df82e3d107f2b84c1641e57ff2b1d785886b86e809ab7",
+      "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt": "2d3b928cfd430f85141a4b4e2e88f1b76d37a3032cf7975e400f22bb27d87a7b",
+      "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest.kt": "fc3583b4fa0bc043791b22ab8686fb5a92c254852e0db09553fe595bdf76d6f2",
+      "auth/src/screenshotTest/kotlin/com/apexfission/android/permission/PermissionBundleScreenshotTest.kt": "7bc8a94b66f31aaf6edfc501a5a718effb4e463bf38a76d8275a35737ce6948a",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/ExampleUnitTest.kt": "16b87eda1ce72147e5883bba841cc273cdef745cc3bb33c2dc7e9049cb767ad9",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/capture/CaptureControllerTest.kt": "993b9b9c00bd2b1f9431100d5dced45dff3ba1020ed0ba52df1496b3c864818c",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/capture/CaptureDestinationTest.kt": "6b21ad1d33332abcf07ec5b33818bf9a007af4e65cef8f0090dac6923ed58177",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/capture/CapturePolicyContractTest.kt": "8dd4f80796deb2fbf9907577a6848407577460ad59f221a20b32da1f2e952ccc",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/capture/CardDataContractTest.kt": "d3f02c31bce6428477547e768f57925c3c10a24b6423a263106dbeb69806edbe",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/capture/DisclosureMessagesTest.kt": "9e481a91d3066183a8a9e1ad2bbfc65d9dcce7dc9d60f9a53560c6d9d0a3f4f3",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/discovery/AppConfigurationTest.kt": "041ab715e1c9d43efa8b22352873280eb06a46c27272646a1f9e9436f1a18a14",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/discovery/EnvironmentIndexTest.kt": "aea3da8ea57615b087599bac45bd20f82d842267f57b71155db2be3f566874fa",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/discovery/OnboardingPolicyTest.kt": "27f9a960258c50fee26f94fb9c887c39497108ca24cb4fe4866d94ae0efd14e9",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/email/EmailFlowControllerTest.kt": "80fdfcb1f7dd026c416c4f9472c3f3ebe27a3f43e6f3e80cd18e2c10d79288e9",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/email/EmailVerificationApiTest.kt": "a74ca57ad43c89f4e3df169884014fbba5df4a721b09fd073df009fb3afcfb2f",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/email/PendingPasswordTest.kt": "2de1d27f9ab31f772e59f017f2aa5cd66d53aba2a0e695c8b7faa2d2014178b5",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/email/ProofGeneratorTest.kt": "72bcea6998498f910f35502aa59e4605a31eea3c9f45c010245c8417be758ef6",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/passkey/PasskeyRegistrationApiTest.kt": "30b2c004359960dfbe4f849a418e9e91c377b9ce8a81f3e0b3e22052caa53423",
+      "auth/src/test/java/com/apexfission/android/attestra/auth/passkey/ReturnAuthApiTest.kt": "b7da92f81791d86f7c4c149e3302a7b3bffb993d6ea416ced3e84c6d9f27a4a2",
+      "build.gradle.kts": "57916f2d3926b7686e55da43089987794f40cdf5a35cd557da0f650e60dc5066",
+      "buildSrc/build.gradle.kts": "759e458bb65c84d3dfcb3202ac2da9dd0d05aa64508bc33f580578122a554345",
+      "buildSrc/settings.gradle.kts": "4ecac2bc814b72eb9cced7af2efc8e3e49d9da5251550d49d6171d651f5ce24c",
+      "buildSrc/src/main/kotlin/PrepareCardModelAssets.kt": "785fc5adaba48b7342e47b4315056a0c83782d30ea8eb42e075773e1f4b3102f",
+      "buildSrc/src/main/kotlin/attestra.endpoints.gradle.kts": "2864f334e9a0db995665badb9e8612c03a6853b65dd3f4f2234e5ec55aeda9ae",
+      "buildSrc/src/main/kotlin/attestra.signing.gradle.kts": "e6ccc9cbba952a52bfb126a940e71b3c77f26f882e0e348d78e0e6f52e8ac8ac",
+      "docs/screenshots/scenarios.json": "55b45335ceed727846fcb0a1f74b1a0955347a6d11dd37b84fa3eaf75d53b856",
+      "gradle/libs.versions.toml": "ce9ee66689d3bc0f11f80f28b75e11bac56833153ac627d9ca11c64d9b064357",
+      "gradle/wrapper/gradle-wrapper.properties": "8d8a9c29d44a5921d120d615c953d4c33cd10b60d7945f8cc0644c8b3f391b4f",
+      "gradle.properties": "4ac2919cbfd52cbbf8763598a5ed5af65377a33f7b56a715a6212f470905e169",
+      "identity-mock/build.gradle.kts": "b59f055d612e30418a458fe1b894cd0df7844232e5e8619af356a92a62371c74",
+      "identity-mock/src/main/AndroidManifest.xml": "571f2735faf5e857752ee057ac8ef63425576a721616c60b86ee5d4c0a2d682f",
+      "identity-mock/src/main/java/com/apexfission/android/attestra/identitymock/MockIdentityServer.kt": "981d22b5f4a89777f304f15426a78766b992d883932817121e02995f0762e6a9",
+      "identity-mock/src/test/java/com/apexfission/android/attestra/identitymock/MockIdentityServerTest.kt": "19539e6cd646541504ee504f733a36e1f9d98a275762b1d26da9d71132f0eae9",
+      "settings.gradle.kts": "67d5d73af32b41d8ca1e7b25ec6be01d97ffdab8f9e8f72100a27838e6fb65e8"
+    },
+    "sha256": "3a26e561fb87f5986192ec1a4a4be704f77c52bd502fc4e2cae651c228372c81"
+  },
+  "toolchain": {
+    "versions_sha256": "ce9ee66689d3bc0f11f80f28b75e11bac56833153ac627d9ca11c64d9b064357",
+    "renderer": "Compose screenshot alpha16",
+    "java": "openjdk version \"25.0.5\" 2026-10-20 LTS",
+    "platform": "Linux host layoutlib; no device",
+    "fonts": "renderer platform fonts",
+    "clock_animation": "renderer capture frame; permission autoplay disabled"
+  },
+  "images": [
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/detailsSaved_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.detailsSaved",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "db9ee52528564f8fb5148367ebc8c270a6f12a5dc455160e80293e4eb13c0a1c",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/detailsSaved_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.detailsSaved",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "e555f691dadff20ad9dcd8cdddd079ee662cebdec1a932aca7aa7e5d56da0118",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailLimit_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailLimit",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "919aaf43c3f468310815662bdab975a69908a0f6c29d0158f5d79596283257d4",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailLimit_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailLimit",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "4edcf374ca19e185fef4e3fa81a8d6e3905a104043ca89a24cc2c2224b42b8bb",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailLinkUnusable_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailLinkUnusable",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "4a0f8d08f205ec8b0153963f4f241da1658674ee5c9d39b6cd52de427011e988",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailLinkUnusable_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailLinkUnusable",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "623be8320806c781ec2d5cbf05bcfec7b69096ea5fe9ccfca546e0d1fe9b6985",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailRecovery_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailRecovery",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "8e5a12ece4fe0dfd9f82c1118b6717254066119dce3d1203fdd11ea503d27724",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailRecovery_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailRecovery",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "2718e26d21e206f289a8fd61cb333c1d4608f864d6d71ae820f49ad493fe15fd",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailStart_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailStart",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "60e4f50bc40365c044ac06a798ad181399087054a0f540206e4e8929ef56165d",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailStart_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailStart",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "7b338efc69a361bf2da0228572b41c209627590a88f48c1792c742b0c2f15191",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailWait_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailWait",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "d30fea29643164f4b20d5b527a5819020b8c006167684ec8885a7a033406bb99",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/emailWait_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.emailWait",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "1e36b2cdfea0cf76e5b77c6249db658b13c785f66165c7691f5ef793cad213d1",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/extractedReview_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.extractedReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "8802b0c116a36a50f58d1462b6ccaa03fa4a3f21f8d68356f333a037dce92514",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/extractedReview_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.extractedReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "d421e55efb52979326954d77785a1275866f5f82700e6dd2502eb059f9241b12",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/identityStart_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.identityStart",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "b2070c0fd03436a2e9285fcbb9f203f773756f2d424d8493fcfc4e360c75398b",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/identityStart_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.identityStart",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "443d35b02802b932279cf0a4d97309c76b3f20e54f5db19f609305b18795d662",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/identitySubmissionFailed_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.identitySubmissionFailed",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "26d5fba39849cf14d8d179c21af4ebea138d07a10d4950aa62a7095df2452664",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/identitySubmissionFailed_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.identitySubmissionFailed",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "485ca5885e8e0eec904c7e17de0400707defc16a3d361e56a981408b7ec5fb46",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/identityUnreadable_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.identityUnreadable",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "1fd6549b471bfc44e7bbbef02875d70a83851660f6d15a32165b8fa51de74419",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/identityUnreadable_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.identityUnreadable",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "0172cb892c85961737adec1531d373155d2f1ec6d5d9ce8d312cb5b5047458a8",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/manualReview_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.manualReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "97e8b6cc43e41ca738d8b1317a304607285dc490b4036dc7aa09e9a9bc4a9bb5",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/manualReview_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.manualReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "cecfb09835424bcf9900df350deca49535855c20acf7d1ea09ed737304cddfcd",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/passkeyFailed_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.passkeyFailed",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "88bf64bc6a9fc58cd7f1e120277c3411a8cfebe7591d516b00a1a42caf29eb7a",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/passkeyFailed_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.passkeyFailed",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "25a5fd2d155b6a266521de8112173d1e0be8373069f81796f8aea457c7d49ea1",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/passkeyStart_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.passkeyStart",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "d930aa518b57c95a966ced27733a87040997fdfc5c29a77201598046033751eb",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/passkeyStart_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.passkeyStart",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "ed4f36d7bcc4aa8c1aae88277965195ea3214d025357576e57bfdf32da2eecc7",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/passkeyUnsupported_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.passkeyUnsupported",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "4f49fb7bb8217681c0d28189f046ca55a0247f26ef13dc78c08ae8823ff81ce9",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/passkeyUnsupported_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.passkeyUnsupported",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "7fe1c76566b8ac4a7d99ceaebb455fbd6a1aedadb3bf4bdcadea06254f1a4fe0",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/password_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.password",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "d4547dcb8cd8588b32e65aed29571096668ed6540d3b20a251f934b5d2d654fc",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/password_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.password",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "f7d5d944a960b1c6d6061ec389b65416048a278849f9a866f7cfba740277b507",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/prepareCapture_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.prepareCapture",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "e494ea03adc8091921e22e4dec2c4b915657a20706435142fc0b442eb80d009b",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/prepareCapture_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.prepareCapture",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "d8735df084820b377d9165cd4424f11633e34ff5db84f13ba6ac77e879f61da8",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/readDocument_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.readDocument",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "e723e8661962a29a46fd52779b0e713c1c1569623001402df0c8951b690a1a68",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/readDocument_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.readDocument",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "57176ee604344c86bd4b43640d42bd9a2a8c0e08b4918167dab6983c7e27b27b",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/returnCode_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.returnCode",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "77d68cff6e7feb5058f35df2f24bd3c02e90feb63914e523e16b05e4b4fa49c3",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/returnCode_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.returnCode",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "2b3488a408caa1b76702bc3287875d44007e235ddfc219c4ca310904f23f69bb",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/returnSignIn_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.returnSignIn",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "3339ee24ed7b7f20c9af552851d2c823a51a31e894df2f4079e68fe0e5f7cf1a",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/returnSignIn_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.returnSignIn",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "e65deba9bbaec2da9aaa849d651cfa0b77a87ee91bad0e659e458a264f16fbf5",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/uploadDocument_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.uploadDocument",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "518f771074211345f7b47f82dade024bda1f51c2e2219943efc91f768303487b",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/uploadDocument_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.uploadDocument",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "8241f15845300ffa8fa7356bb8df1287d8318555f188f937c3e786cfaadfc563",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/welcome_Dark_e7358aa4_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.welcome",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "e3241663b82663e30023d196134e10ecbbbc95b32a3da2f58bd54e8bbdf6f3f9",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest/welcome_Light_64b0ec47_0.png",
+      "scenario": "auth:DocumentationScreenshotTest.welcome",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "55d8b843fcc52a0f38953f3dc91ac08bd0fb218953ba43d1db40d7ea6fe11b1d",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/catalog_Dark_e7358aa4_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.catalog",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "28adc2721cb51dabb4772d1ac36746d185b18f147cef31060fc5dba2fef6fa56",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/catalog_Light_64b0ec47_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.catalog",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "9665094346eb18a7bde56378163f9fb3abc1d4f237195018bbe66c9c2da232c7",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/components_Dark_e7358aa4_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.components",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "f05734ee26c5cb6aec2e70682d2bbecce7a80195bda75acc040875d93ce5a267",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/components_Light_64b0ec47_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.components",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "4757343c11a00d128cd89e97d68b18a3fa7a6ccb32e45f1ae50f1a78f74c4e44",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyBackReview_Dark_e7358aa4_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyBackReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "8a7fe93bb44f614c547e9f3baad66ed91ca709a160b034f8d9ceaa0f72465314",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyBackReview_Light_64b0ec47_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyBackReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "3692db9b09502c2628d0d9ef0d454738918a6b150205ced5b0c567921d55772a",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyFrontReview_Dark_e7358aa4_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyFrontReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "1dacaf45e158fdd5819c7903c0e927cb61c2bc19add270a371f0b0aca906dd40",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyFrontReview_Light_64b0ec47_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyFrontReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "2103bac2fa77080181ac0f1e25f7de41c1d3eba18ad39d817dc5b0face105776",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyIdentityReview_Dark_e7358aa4_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyIdentityReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "legacy-design",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "947f60bf7b36d9f62b5a28fb78292d12d471bb5de8c0027768aecca19961b4af",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyIdentityReview_Light_64b0ec47_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyIdentityReview",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "legacy-design",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "73df73c93cbdebae1e105afe22c1e7bae31d7df3df6fa0dc57e3ccbec9b1a659",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyIdentitySuccess_Dark_e7358aa4_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyIdentitySuccess",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "legacy-design",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "93acb1ab48cb8d7789660b25618bb48d78230f8d2d7d0abd9709e849877a7a27",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyIdentitySuccess_Light_64b0ec47_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyIdentitySuccess",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "legacy-design",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "d0fc9952a175e938976a8333d0fee5991ed74bad5232d6c2dcfb69695fa75e85",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyIdentityUnsuccessful_Dark_e7358aa4_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyIdentityUnsuccessful",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "legacy-design",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "1386e5eb6f815a3973506bfbc051efcae5cb577d455dabff097fd662a0760863",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/legacyIdentityUnsuccessful_Light_64b0ec47_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.legacyIdentityUnsuccessful",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "legacy-design",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "8f8c2c19495ccd90ba8da5c93ece417e5bfdb80c4bc925896ce142e64c34b5d8",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/narrowLargeTextError_Narrow large text_976b60ba_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.narrowLargeTextError",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        320,
+        740
+      ],
+      "locale": "en",
+      "font_scale": 1.3,
+      "sha256": "d6144adf2318af052218b5394774afd9e34b0faa5ba70feddc1633e11d691be7",
+      "width": 840,
+      "height": 1943
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/noCamera_Dark_e7358aa4_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.noCamera",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "32ee5f721b26323ba63a73a958856e1ef8c6a4e83f88387633e5f8a9df68bd4d",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/noCamera_Light_64b0ec47_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.noCamera",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "161d612efcc31460ba70435bc962ed55a714c91be1b977d3de991adef565a6f6",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/unavailable_Dark_e7358aa4_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.unavailable",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "65b7b296618d8f80d861c01109f7fc3a9505f57effaf5a63fac3c3bd065eb371",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest/unavailable_Light_64b0ec47_0.png",
+      "scenario": "auth:SupplementalScreenshotTest.unavailable",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "e921e27580041864c7d19e53f8e9e490878e4b7e699f1fb1b301331f0bb3045b",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest/cannotResend_Cannot Resend_8b74bb04_0.png",
+      "scenario": "auth:EmailCodeScreenshotTest.cannotResend",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "fixture-default",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "dc44bcb3fb2c0e289f4ab006ce3b691abdf19f76395f0c24990c0e1335492b15",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest/emptyState_Empty_3736393a_0.png",
+      "scenario": "auth:EmailCodeScreenshotTest.emptyState",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "fixture-default",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "7f7c12fd8290803492fb468ab8e0885e4882dacee9df9058f1b721fe54232331",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest/withError_With Error_a0f3c5cd_0.png",
+      "scenario": "auth:EmailCodeScreenshotTest.withError",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "fixture-default",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "3f443ab8e135fc534fa227cf39116eb7712fffd6b92bd416bbc0e291152b87cd",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/permission/PermissionBundleScreenshotTest/autoplayReadingProgress_Camera page_039c5a25_0.png",
+      "scenario": "auth:PermissionBundleScreenshotTest.autoplayReadingProgress",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/permission/PermissionBundleScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "fixture-default",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "07189e3a72678817b15a5576679d7dff32f1dace9bfa66f0793a5ba84ae9103b",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/permission/PermissionBundleScreenshotTest/deniedState_Denied State_b93f219e_0.png",
+      "scenario": "auth:PermissionBundleScreenshotTest.deniedState",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/permission/PermissionBundleScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "fixture-default",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "2c1883a31ce74849e8d3c57c016e8a9b88a7a93c7cb0a7766e91c32f3a0818ba",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/permission/PermissionBundleScreenshotTest/microphoneState_Microphone State_bccb0c17_0.png",
+      "scenario": "auth:PermissionBundleScreenshotTest.microphoneState",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/permission/PermissionBundleScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "fixture-default",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "6efa8aeb988eef5bdf03a98a1651657b9d639ab969d7eac45ab51650d56e5d5c",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "auth/com/apexfission/android/permission/PermissionBundleScreenshotTest/overviewState_Overview State_e79024f8_0.png",
+      "scenario": "auth:PermissionBundleScreenshotTest.overviewState",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/permission/PermissionBundleScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "fixture-default",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "d248af8f31a30f3b31671452ba836f0fd397db21ec80a3952becda696349c830",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/configurationFailure_Dark_e7358aa4_0.png",
+      "scenario": "app:AppScreenshotTest.configurationFailure",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "3b4de0a28de664e17225e893932d53da3848b25aae8f47aa24a5fdac9260c684",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/configurationFailure_Light_64b0ec47_0.png",
+      "scenario": "app:AppScreenshotTest.configurationFailure",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "1a29aaaee8bb4b6dcfa390b8061d06f3970861902bad74ed6295a7d69f49550f",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/configurationLoading_Dark_e7358aa4_0.png",
+      "scenario": "app:AppScreenshotTest.configurationLoading",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "a706e6e94df49602a168f8b0dbc38a98a79f7e8fc7a00dc594a18bb3434de62d",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/configurationLoading_Light_64b0ec47_0.png",
+      "scenario": "app:AppScreenshotTest.configurationLoading",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "9b60d16c1bb419e3fbba4b49dd243a31f30b1ad94fc49b709be4732d1b0feabe",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/menu_Dark_e7358aa4_0.png",
+      "scenario": "app:AppScreenshotTest.menu",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "dec1399e16353cbc3383e9a7358458e45ae329002b9e5964be5d19fe2b90ed58",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/menu_Light_64b0ec47_0.png",
+      "scenario": "app:AppScreenshotTest.menu",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "c22767436bcc81d49d4eef4eabd40c0139a723e9f905808167a08655e60583c8",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/mockOptions_Dark_e7358aa4_0.png",
+      "scenario": "app:AppScreenshotTest.mockOptions",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "5e943b44ae94bcd06684777a521043645d73c98810faa1cc10818a1c1526f671",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/mockOptions_Light_64b0ec47_0.png",
+      "scenario": "app:AppScreenshotTest.mockOptions",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "34578c18df00298306fd0fb17ac790645e936c9b3a5ddfd0383ddf89a0b0b5ce",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/resetting_Dark_e7358aa4_0.png",
+      "scenario": "app:AppScreenshotTest.resetting",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "65ebdc7ec334b8a1326ed27337b861b32a04c69f63747970b893258b64c435b9",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/resetting_Light_64b0ec47_0.png",
+      "scenario": "app:AppScreenshotTest.resetting",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "21f452c39254c74c75483b2302ef74115ecc1a0207914e4b897e899eb6b7cbdb",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/signInRequired_Dark_e7358aa4_0.png",
+      "scenario": "app:AppScreenshotTest.signInRequired",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "dark",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "5a7d90928e42cc3f8a82da1e265d29240d3cf8df719f0d28749f3883c7ce6384",
+      "width": 1032,
+      "height": 2237
+    },
+    {
+      "path": "app/com/apexfission/android/attestra/auth/AppScreenshotTest/signInRequired_Light_64b0ec47_0.png",
+      "scenario": "app:AppScreenshotTest.signInRequired",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "theme": "light",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "sha256": "b912bce004c3c30a74b90c4a9beb009f1fd0ccfaaa7ea43438e424e071bbaec2",
+      "width": 1032,
+      "height": 2237
+    }
+  ],
+  "reviewed_by": "Codex visual review 2026-10-30: all 80 images reviewed; six themed fallback/demo corrections inspected; other images checked against first reviewed render",
+  "archive_sha256": "33b7648c21f24365e515d6945fe287bce6a601256c17d9066903cc325e8f7148"
+}

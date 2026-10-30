@@ -139,7 +139,7 @@ def build():
    text,fallback=translated(path,english,locale)
    link_source=json.loads((ROOT/'sites/translations.json').read_text())[path]['path'] if locale=='es' and not fallback else path
    engine=markdown.Markdown(extensions=['fenced_code','tables','toc','codehilite'],extension_configs={'codehilite':{'guess_lang':False}})
-   content=engine.convert(raw_markdown(text,link_source,locale,docs,False)).replace("<img ", '<img loading="lazy" decoding="async" ')
+   content=engine.convert(raw_markdown(text,link_source,locale,docs,False)).replace("<img ", '<img loading="lazy" decoding="async" ').replace('<table>', '<table tabindex="0">')
    title=re.search(r'^# (.+)',text,re.M).group(1) if re.search(r'^# (.+)',text,re.M) else path
    nav=''.join('<a '+('aria-current="page" ' if p==path else '')+f'href="{route(p,locale)}">{html.escape(labels[locale])}</a>' for p,labels in CONFIG['nav'].items())
    other='es' if locale=='en' else 'en'
@@ -149,7 +149,7 @@ def build():
    dest=OUT/(route(path,locale)[len(BASE):]);dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(body)
    raw=OUT/(route(path,locale,True)[len(BASE):]);raw.parent.mkdir(parents=True,exist_ok=True)
    raw.write_text(('> '+notice+'\n\n' if notice else '')+raw_markdown(text,link_source,locale,docs))
-   search.append({'title':title+(' [English fallback]' if fallback else ''),'url':route(path,locale),'text':re.sub('<[^>]+>',' ',content)[:15000]})
+   search.append({'title':title+(' [English fallback]' if fallback else ''),'url':route(path,locale),'text':re.sub('<[^>]+>',' ',content)})
   (OUT/locale/'search.json').write_text(json.dumps(search,ensure_ascii=False))
  # Stable discovery entry points contain absolute raw Markdown links.
  (OUT/'agents').mkdir()

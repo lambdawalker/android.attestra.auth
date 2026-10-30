@@ -140,7 +140,9 @@ def accept(directory, reviewer):
     validate_manifest(directory, manifest)
     with zipfile.ZipFile(ARCHIVE, 'w', zipfile.ZIP_DEFLATED) as archive:
         for image in manifest['images']:
-            archive.write(directory / image['path'], image['path'])
+            info = zipfile.ZipInfo(image['path'], date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, (directory / image['path']).read_bytes())
     manifest.update(status='reviewed-baselines', reviewed_by=reviewer, archive_sha256=digest(ARCHIVE.read_bytes()))
     ACCEPTED.write_text(json.dumps(manifest, indent=2) + '\n')
     promote_docs(directory, manifest)
@@ -192,7 +194,13 @@ def verify_docs():
     path = ROOT / 'docs/screenshots/documentation.json'
     if not path.exists():
         raise ValueError('Missing reviewed documentation provenance')
+    approved = read(ACCEPTED)
+    inputs = render_inputs()['sha256']
     for image in read(path)['captures']:
+        if image['render_inputs_sha256'] != inputs or approved['inputs']['sha256'] != inputs:
+            raise ValueError('Documentation screenshot render inputs changed')
+        if not any(i['scenario'] == image['scenario'] and i['sha256'] == image['image_sha256'] for i in approved['images']):
+            raise ValueError('Documentation image is not an approved baseline')
         actual = png_info(ROOT / image['path'])
         if actual != dict(sha256=image['image_sha256'], width=image['width'], height=image['height']):
             raise ValueError('Documentation image/hash/dimensions drift: ' + image['path'])

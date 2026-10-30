@@ -8,6 +8,21 @@ a generic OAuth SDK, background authentication service, or identity-verification
 
 Read [installation](../../IMPORT.md), then [quickstart](quickstart.md).
 
+
+## Implemented UI walkthrough
+
+These English-language screens are component previews with synthetic data, not
+captures of real account success. Start with email, wait for document extraction,
+and finish only after the server acknowledges saved details.
+
+| Start | Processing | Saved |
+| --- | --- | --- |
+| <img src="../assets/screenshots/email-start-light.png" alt="Email setup; synthetic light-theme preview" width="210"> | <img src="../assets/screenshots/read-document-dark.png" alt="Document reading; synthetic dark-theme preview" width="210"> | <img src="../assets/screenshots/details-saved-light.png" alt="Saved details; synthetic light-theme preview" width="210"> |
+
+See [demos and recovery scenarios](demos.md) for actions and expected outcomes.
+
+On narrow screens, scroll the image walkthrough horizontally.
+
 | Task | Read | Preferred API / source |
 | --- | --- | --- |
 | Embed interactive onboarding | [Quickstart](quickstart.md) | `EmailOnboardingHost`, sample `MainActivity` |
@@ -46,16 +61,3 @@ owns service operations; its
 [capture contract](https://raw.githubusercontent.com/lambdawalker/go.attestra.aws.auth/main/docs/id-capture.md)
 is authoritative for HTTP serialization. Follow links as raw Markdown; prototype
 timers are not evidence of successful backend behavior.
-
-
-## Implemented UI walkthrough
-
-These English-language screens are component previews with synthetic data, not
-captures of real account success. Start with email, wait for document extraction,
-and finish only after the server acknowledges saved details.
-
-| Start | Processing | Saved |
-| --- | --- | --- |
-| <img src="../assets/screenshots/email-start-light.png" alt="Email setup; synthetic light-theme preview" width="210"> | <img src="../assets/screenshots/read-document-dark.png" alt="Document reading; synthetic dark-theme preview" width="210"> | <img src="../assets/screenshots/details-saved-light.png" alt="Saved details; synthetic light-theme preview" width="210"> |
-
-See [demos and recovery scenarios](demos.md) for actions and expected outcomes.

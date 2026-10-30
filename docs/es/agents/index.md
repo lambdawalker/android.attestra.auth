@@ -8,6 +8,21 @@ un servicio de autenticación en segundo plano ni un motor de verificación de i
 
 Lea [instalación](../IMPORT.md) y después [inicio rápido](quickstart.md).
 
+
+## Recorrido de UI implementada
+
+Estas pantallas están en inglés y usan datos sintéticos; no demuestran éxito de
+una cuenta real. Comience con correo, espere extracción y finalice solo cuando
+el servidor confirme los datos guardados.
+
+| Inicio | Procesamiento | Guardado |
+| --- | --- | --- |
+| <img src="../../assets/screenshots/email-start-light.png" alt="Correo; interfaz inglesa clara y datos sintéticos" width="210"> | <img src="../../assets/screenshots/read-document-dark.png" alt="Lectura; interfaz inglesa oscura y datos sintéticos" width="210"> | <img src="../../assets/screenshots/details-saved-light.png" alt="Guardado; interfaz inglesa clara y datos sintéticos" width="210"> |
+
+Consulte [demos y recuperación](demos.md) para acciones y resultados esperados.
+
+En pantallas estrechas, desplace horizontalmente el recorrido de imágenes.
+
 | Tarea | Guía | API preferida |
 | --- | --- | --- |
 | Incorporar la interfaz de autenticación | [Inicio rápido](quickstart.md) | `EmailOnboardingHost`, `MainActivity` de ejemplo |
@@ -42,16 +57,3 @@ La [entrada central para agentes](https://raw.githubusercontent.com/lambdawalker
 posee requisitos y arquitectura; la [entrada del backend](https://raw.githubusercontent.com/lambdawalker/go.attestra.aws.auth/main/docs/agents/index.md)
 posee operaciones. El [contrato de captura](https://raw.githubusercontent.com/lambdawalker/go.attestra.aws.auth/main/docs/id-capture.md)
 es la autoridad para HTTP. Los temporizadores de prototipos no demuestran éxito real.
-
-
-## Recorrido de UI implementada
-
-Estas pantallas están en inglés y usan datos sintéticos; no demuestran éxito de
-una cuenta real. Comience con correo, espere extracción y finalice solo cuando
-el servidor confirme los datos guardados.
-
-| Inicio | Procesamiento | Guardado |
-| --- | --- | --- |
-| <img src="../../assets/screenshots/email-start-light.png" alt="Correo; interfaz inglesa clara y datos sintéticos" width="210"> | <img src="../../assets/screenshots/read-document-dark.png" alt="Lectura; interfaz inglesa oscura y datos sintéticos" width="210"> | <img src="../../assets/screenshots/details-saved-light.png" alt="Guardado; interfaz inglesa clara y datos sintéticos" width="210"> |
-
-Consulte [demos y recuperación](demos.md) para acciones y resultados esperados.
