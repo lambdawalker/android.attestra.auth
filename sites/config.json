@@ -1,0 +1,85 @@
+{
+  "repository": "lambdawalker/android.attestra.auth",
+  "title": "Android auth",
+  "source_ref": "main",
+  "sources": [
+    "README.md",
+    "IMPORT.md",
+    "AGENTS.md",
+    "AI_INTEGRATION_GUIDE.md",
+    "docs/*.md",
+    "docs/agents/**/*.md",
+    "docs/identity/*.md",
+    "sites/README.md"
+  ],
+  "nav": {
+    "docs/agents/index.md": {
+      "en": "Overview",
+      "es": "Resumen"
+    },
+    "IMPORT.md": {
+      "en": "Installation",
+      "es": "Instalaci\u00f3n"
+    },
+    "docs/agents/quickstart.md": {
+      "en": "Quickstart",
+      "es": "Inicio r\u00e1pido"
+    },
+    "docs/agents/concepts.md": {
+      "en": "Concepts & ownership",
+      "es": "Conceptos y recursos"
+    },
+    "docs/agents/api.md": {
+      "en": "API contracts",
+      "es": "Contratos de API"
+    },
+    "docs/agents/api-inventory.md": {
+      "en": "Declarations",
+      "es": "Declaraciones"
+    },
+    "docs/agents/recipes.md": {
+      "en": "Integration recipes",
+      "es": "Recetas de integraci\u00f3n"
+    },
+    "docs/agents/demos.md": {
+      "en": "Demos & screenshots",
+      "es": "Demos y capturas"
+    },
+    "docs/agents/limitations.md": {
+      "en": "Limitations",
+      "es": "Limitaciones"
+    },
+    "docs/agents/troubleshooting.md": {
+      "en": "Troubleshooting",
+      "es": "Soluci\u00f3n de problemas"
+    },
+    "docs/agents/migration.md": {
+      "en": "Migration",
+      "es": "Migraci\u00f3n"
+    },
+    "docs/environment-discovery.md": {
+      "en": "Environment discovery",
+      "es": "Entornos"
+    },
+    "docs/runtime-configuration.md": {
+      "en": "Runtime policy",
+      "es": "Pol\u00edtica din\u00e1mica"
+    },
+    "docs/android-signing.md": {
+      "en": "Signing & App Links",
+      "es": "Firma y App Links"
+    },
+    "docs/identity-capture.md": {
+      "en": "Capture integration",
+      "es": "Captura de documentos"
+    },
+    "docs/screenshots.md": {
+      "en": "Screenshot maintenance",
+      "es": "Mantenimiento de capturas"
+    },
+    "sites/README.md": {
+      "en": "Site maintenance",
+      "es": "Mantenimiento del sitio"
+    }
+  }
+}

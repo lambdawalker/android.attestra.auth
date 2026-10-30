@@ -56,22 +56,35 @@ internal const val HAS_IDENTITY_DEMO = true
     val uploads = remember(server) { server.client() }
     DisposableEffect(client, uploads) { onDispose { client.close(); uploads.close() } }
     val controller = remember(generation) { CaptureController(CaptureApi(MockCaptureServer.ORIGIN, client, uploads) { MockCaptureServer.TOKEN }, store) }
+    MockCaptureContent(started, selected, { selected = it },
+        { server.scenario = selected; started = true },
+        { controller.close(); store.clear(); server.reset(); started = false; generation++ }, onExit) {
+        CaptureHost(controller, onExit, startCaptureOnEntry = !showTestOptions) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
+    }
+}
+
+/** Pure debug demo shell; injected capture content never starts services in previews. */
+@Composable internal fun MockCaptureContent(
+    started: Boolean, selected: MockScenario, onSelect: (MockScenario) -> Unit,
+    onStart: () -> Unit, onReset: () -> Unit, onExit: () -> Unit,
+    capture: @Composable () -> Unit,
+) {
     Column(Modifier.fillMaxSize()) {
         Surface(color = MaterialTheme.colorScheme.tertiaryContainer) {
             Column(Modifier.fillMaxWidth().statusBarsPadding().padding(12.dp)) {
                 Text("LOCAL CAPTURE MOCK • Sample cards only. Uploads and file checks are simulated on this device.", style = MaterialTheme.typography.labelMedium)
-                if (started) TextButton(onClick = { controller.close(); store.clear(); server.reset(); started = false; generation++ }) { Text("New sample capture") }
+                if (started) TextButton(onClick = { onReset() }) { Text("New sample capture") }
             }
         }
         Box(Modifier.weight(1f)) {
             if (!started) Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Test document capture", style = MaterialTheme.typography.headlineSmall)
                 MockScenario.entries.forEach { scenario ->
-                    OutlinedButton(onClick = { selected = scenario }, modifier = Modifier.fillMaxWidth()) { Text(if (selected == scenario) "✓ ${scenario.label}" else scenario.label) }
+                    OutlinedButton(onClick = { onSelect(scenario) }, modifier = Modifier.fillMaxWidth()) { Text(if (selected == scenario) "✓ ${scenario.label}" else scenario.label) }
                 }
-                Button(onClick = { server.scenario = selected; started = true }) { Text("Start sample capture") }
+                Button(onClick = { onStart() }) { Text("Start sample capture") }
                 TextButton(onClick = onExit) { Text("Return") }
-            } else CaptureHost(controller, onExit, startCaptureOnEntry = !showTestOptions) { captured, error, cancel -> IdentityCamera(captured, error, cancel) }
+            } else capture()
         }
     }
 }

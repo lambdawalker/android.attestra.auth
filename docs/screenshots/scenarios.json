@@ -1,0 +1,798 @@
+{
+  "schemaVersion": 1,
+  "scenarios": [
+    {
+      "id": "auth:DocumentationScreenshotTest.emailStart",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "emailStart",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "emailStart"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.emailWait",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "emailWait",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "emailWait"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.emailLimit",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "emailLimit",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "emailLimit"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.emailLinkUnusable",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "emailLinkUnusable",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "emailLinkUnusable"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.emailRecovery",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "emailRecovery",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "emailRecovery"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.passkeyStart",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "passkeyStart",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "passkeyStart"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.passkeyFailed",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "passkeyFailed",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "passkeyFailed"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.passkeyUnsupported",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "passkeyUnsupported",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "passkeyUnsupported"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.identityStart",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "identityStart",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "identityStart"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.identityUnreadable",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "identityUnreadable",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "identityUnreadable"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.identitySubmissionFailed",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "identitySubmissionFailed",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "identitySubmissionFailed"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.detailsSaved",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "detailsSaved",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "detailsSaved"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.welcome",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "welcome",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "welcome"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.password",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "password",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "password"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.returnSignIn",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "returnSignIn",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "returnSignIn"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.returnCode",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "returnCode",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "returnCode"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.prepareCapture",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "prepareCapture",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "prepareCapture"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.uploadDocument",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "uploadDocument",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "uploadDocument"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.readDocument",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "readDocument",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "readDocument"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.extractedReview",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "extractedReview",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "extractedReview"
+    },
+    {
+      "id": "auth:DocumentationScreenshotTest.manualReview",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/DocumentationScreenshotTest.kt",
+      "method": "manualReview",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "manualReview"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.components",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "components",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "components"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.catalog",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "catalog",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "catalog"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.unavailable",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "unavailable",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "unavailable"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.noCamera",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "noCamera",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "noCamera"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.legacyFrontReview",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "legacyFrontReview",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "legacyFrontReview"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.legacyBackReview",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "legacyBackReview",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "legacyBackReview"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.legacyIdentityReview",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "legacyIdentityReview",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "legacy-design",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "legacyIdentityReview"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.legacyIdentitySuccess",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "legacyIdentitySuccess",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "legacy-design",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "legacyIdentitySuccess"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.legacyIdentityUnsuccessful",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "legacyIdentityUnsuccessful",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "legacy-design",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "legacyIdentityUnsuccessful"
+    },
+    {
+      "id": "auth:EmailCodeScreenshotTest.emptyState",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest.kt",
+      "method": "emptyState",
+      "variants": 1,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "emptyState"
+    },
+    {
+      "id": "auth:EmailCodeScreenshotTest.withError",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest.kt",
+      "method": "withError",
+      "variants": 1,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "withError"
+    },
+    {
+      "id": "auth:EmailCodeScreenshotTest.cannotResend",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreenshotTest.kt",
+      "method": "cannotResend",
+      "variants": 1,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "cannotResend"
+    },
+    {
+      "id": "auth:PermissionBundleScreenshotTest.autoplayReadingProgress",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/permission/PermissionBundleScreenshotTest.kt",
+      "method": "autoplayReadingProgress",
+      "variants": 1,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "autoplayReadingProgress"
+    },
+    {
+      "id": "auth:PermissionBundleScreenshotTest.overviewState",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/permission/PermissionBundleScreenshotTest.kt",
+      "method": "overviewState",
+      "variants": 1,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "overviewState"
+    },
+    {
+      "id": "auth:PermissionBundleScreenshotTest.microphoneState",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/permission/PermissionBundleScreenshotTest.kt",
+      "method": "microphoneState",
+      "variants": 1,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "microphoneState"
+    },
+    {
+      "id": "auth:PermissionBundleScreenshotTest.deniedState",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/permission/PermissionBundleScreenshotTest.kt",
+      "method": "deniedState",
+      "variants": 1,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "deniedState"
+    },
+    {
+      "id": "app:AppScreenshotTest.menu",
+      "module": "app",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "method": "menu",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "menu"
+    },
+    {
+      "id": "app:AppScreenshotTest.resetting",
+      "module": "app",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "method": "resetting",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "resetting"
+    },
+    {
+      "id": "app:AppScreenshotTest.configurationLoading",
+      "module": "app",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "method": "configurationLoading",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "configurationLoading"
+    },
+    {
+      "id": "app:AppScreenshotTest.configurationFailure",
+      "module": "app",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "method": "configurationFailure",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "configurationFailure"
+    },
+    {
+      "id": "app:AppScreenshotTest.signInRequired",
+      "module": "app",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "method": "signInRequired",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "signInRequired"
+    },
+    {
+      "id": "app:AppScreenshotTest.mockOptions",
+      "module": "app",
+      "fixture": "app/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/AppScreenshotTest.kt",
+      "method": "mockOptions",
+      "variants": 2,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        393,
+        852
+      ],
+      "locale": "en",
+      "font_scale": 1.0,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "mockOptions"
+    },
+    {
+      "id": "auth:SupplementalScreenshotTest.narrowLargeTextError",
+      "module": "auth",
+      "fixture": "auth/src/screenshotTest/kotlin/com/apexfission/android/attestra/auth/ui/onboarding/SupplementalScreenshotTest.kt",
+      "method": "narrowLargeTextError",
+      "variants": 1,
+      "capture_kind": "component-preview",
+      "status": "implemented-ui",
+      "viewport_dp": [
+        320,
+        740
+      ],
+      "locale": "en",
+      "font_scale": 1.3,
+      "density": "renderer default; recorded output dimensions",
+      "animation": "renderer-controlled; permission autoAdvance=false",
+      "caption": "Email-code error at narrow width and large text",
+      "theme": "dark"
+    }
+  ]
+}

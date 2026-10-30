@@ -28,7 +28,7 @@ import java.io.ByteArrayOutputStream
 fun IdentityCamera(onCaptured: (ByteArray, ByteArray) -> Unit, onError: () -> Unit, onCancel: () -> Unit) {
     val context = LocalContext.current
     if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-        Column { Text("This device has no camera."); Button(onClick = onCancel) { Text("Return") } }
+        NoCameraContent(onCancel)
         return
     }
     HandlePermissions(
@@ -76,4 +76,10 @@ private fun encodeJpeg(bitmap: Bitmap): ByteArray {
             out.toByteArray().also { require(it.size <= CaptureApi.MAX_JPEG_BYTES) }
         }
     } finally { if (scaled !== bitmap) scaled.recycle() }
+}
+
+/** Pure fallback UI; the runtime camera entry and preview use the same content. */
+@Composable
+internal fun NoCameraContent(onCancel: () -> Unit) {
+    Column { Text("This device has no camera."); Button(onClick = onCancel) { Text("Return") } }
 }

@@ -1,0 +1,510 @@
+{
+  "schemaVersion": 1,
+  "headless_modules": {
+    "identity-mock": "Debug transport/state fixture; no owned composables."
+  },
+  "composables": [
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureHost.kt",
+      "symbol": "CaptureHost",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.readDocument",
+        "auth:DocumentationScreenshotTest.extractedReview",
+        "auth:DocumentationScreenshotTest.manualReview",
+        "auth:DocumentationScreenshotTest.detailsSaved"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CaptureHost.kt",
+      "symbol": "CaptureHostContent",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.readDocument",
+        "auth:DocumentationScreenshotTest.extractedReview",
+        "auth:DocumentationScreenshotTest.manualReview",
+        "auth:DocumentationScreenshotTest.detailsSaved"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CardReviewForm.kt",
+      "symbol": "CardReviewForm",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.extractedReview",
+        "auth:DocumentationScreenshotTest.manualReview"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/capture/CardReviewForm.kt",
+      "symbol": "CardField",
+      "kind": "visual-parent",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.extractedReview",
+        "auth:DocumentationScreenshotTest.manualReview"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/email/EmailOnboardingHost.kt",
+      "symbol": "EmailOnboardingHost",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.emailStart",
+        "auth:DocumentationScreenshotTest.emailWait",
+        "auth:EmailCodeScreenshotTest.emptyState",
+        "auth:EmailCodeScreenshotTest.withError",
+        "auth:DocumentationScreenshotTest.emailLimit",
+        "auth:DocumentationScreenshotTest.emailRecovery",
+        "auth:DocumentationScreenshotTest.passkeyStart",
+        "auth:DocumentationScreenshotTest.password",
+        "auth:DocumentationScreenshotTest.returnSignIn"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/identity/IdentityIntegrationUnavailable.kt",
+      "symbol": "IdentityIntegrationUnavailable",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.unavailable"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/identity/capture/CaptureConfirmation.kt",
+      "symbol": "CaptureConfirmation",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.legacyFrontReview",
+        "auth:SupplementalScreenshotTest.legacyBackReview"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/identity/capture/IdentityCamera.kt",
+      "symbol": "IdentityCamera",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.noCamera",
+        "auth:PermissionBundleScreenshotTest.overviewState"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/identity/capture/IdentityCamera.kt",
+      "symbol": "NoCameraContent",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.noCamera"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/OnboardingCatalog.kt",
+      "symbol": "OnboardingCatalog",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.catalog"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingComponents.kt",
+      "symbol": "OnboardingFrame",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.components"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingComponents.kt",
+      "symbol": "OnboardingCard",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.components"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingComponents.kt",
+      "symbol": "BodyText",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.components"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingComponents.kt",
+      "symbol": "StatusRow",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.components"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingComponents.kt",
+      "symbol": "WaitingIndicator",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.components"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/common/OnboardingLoadingScreen.kt",
+      "symbol": "OnboardingLoadingScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.prepareCapture",
+        "auth:DocumentationScreenshotTest.uploadDocument",
+        "auth:DocumentationScreenshotTest.readDocument"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailAttemptLimitScreen.kt",
+      "symbol": "EmailAttemptLimitScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.emailLimit"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailCodeScreen.kt",
+      "symbol": "EmailCodeScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:EmailCodeScreenshotTest.emptyState",
+        "auth:EmailCodeScreenshotTest.withError",
+        "auth:EmailCodeScreenshotTest.cannotResend"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailLinkUnusableScreen.kt",
+      "symbol": "EmailLinkUnusableScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.emailLinkUnusable"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailSessionRecoveryScreen.kt",
+      "symbol": "EmailSessionRecoveryScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.emailRecovery"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailStartScreen.kt",
+      "symbol": "EmailStartScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.emailStart"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/email/EmailWaitScreen.kt",
+      "symbol": "EmailWaitScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.emailWait"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/CardDetailsSavedScreen.kt",
+      "symbol": "CardDetailsSavedScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.detailsSaved"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityDocumentUnreadableScreen.kt",
+      "symbol": "IdentityDocumentUnreadableScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.identityUnreadable"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityReviewScreen.kt",
+      "symbol": "IdentityReviewScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.legacyIdentityReview"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityReviewScreen.kt",
+      "symbol": "DetailField",
+      "kind": "visual-parent",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.legacyIdentityReview"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityStartScreen.kt",
+      "symbol": "IdentityStartScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.identityStart"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentitySubmissionFailedScreen.kt",
+      "symbol": "IdentitySubmissionFailedScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.identitySubmissionFailed"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentitySuccessScreen.kt",
+      "symbol": "IdentitySuccessScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.legacyIdentitySuccess"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/id/IdentityUnsuccessfulScreen.kt",
+      "symbol": "IdentityUnsuccessfulScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:SupplementalScreenshotTest.legacyIdentityUnsuccessful"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/passkey/PasskeyFailedScreen.kt",
+      "symbol": "PasskeyFailedScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.passkeyFailed"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/passkey/PasskeyStartScreen.kt",
+      "symbol": "PasskeyStartScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.passkeyStart"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/passkey/PasskeyUnsupportedScreen.kt",
+      "symbol": "PasskeyUnsupportedScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.passkeyUnsupported"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/password/PasswordScreen.kt",
+      "symbol": "PasswordField",
+      "kind": "visual-parent",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.password"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/password/PasswordScreen.kt",
+      "symbol": "PasswordScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.password"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/signin/ReturnSignInScreens.kt",
+      "symbol": "ReturnSignInScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.returnSignIn"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/signin/ReturnSignInScreens.kt",
+      "symbol": "ReturnEmailCodeScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.returnCode"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/onboarding/welcome/WelcomeScreen.kt",
+      "symbol": "WelcomeScreen",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.welcome"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/attestra/auth/ui/theme/Theme.kt",
+      "symbol": "AttestraAuthTheme",
+      "kind": "direct",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.emailStart"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "app/src/debug/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt",
+      "symbol": "AccountIdentityFlow",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.readDocument",
+        "auth:DocumentationScreenshotTest.manualReview"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "app/src/debug/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt",
+      "symbol": "IdentityDemo",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "app:AppScreenshotTest.menu",
+        "auth:DocumentationScreenshotTest.manualReview",
+        "app:AppScreenshotTest.mockOptions"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "app/src/debug/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt",
+      "symbol": "DirectIdentityCapture",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.readDocument",
+        "auth:DocumentationScreenshotTest.manualReview"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "app/src/debug/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt",
+      "symbol": "MockCaptureFlow",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.readDocument",
+        "auth:DocumentationScreenshotTest.manualReview",
+        "app:AppScreenshotTest.mockOptions"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "app/src/main/java/com/apexfission/android/attestra/auth/LiveCaptureFlow.kt",
+      "symbol": "CapturePrivacy",
+      "kind": "nonvisual-runtime",
+      "scenarios": [],
+      "note": "No visual output; FLAG_SECURE requires device verification."
+    },
+    {
+      "source": "app/src/main/java/com/apexfission/android/attestra/auth/LiveCaptureFlow.kt",
+      "symbol": "LiveCaptureFlow",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.readDocument",
+        "auth:DocumentationScreenshotTest.manualReview",
+        "app:AppScreenshotTest.signInRequired"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "app/src/main/java/com/apexfission/android/attestra/auth/OnboardingEntryScreen.kt",
+      "symbol": "OnboardingEntryScreen",
+      "kind": "direct",
+      "scenarios": [
+        "app:AppScreenshotTest.menu",
+        "app:AppScreenshotTest.resetting"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "app/src/main/java/com/apexfission/android/attestra/auth/OnboardingEntryScreen.kt",
+      "symbol": "EnvironmentStatusScreen",
+      "kind": "direct",
+      "scenarios": [
+        "app:AppScreenshotTest.configurationLoading",
+        "app:AppScreenshotTest.configurationFailure"
+      ],
+      "note": "Covered with deterministic offline fixture inputs."
+    },
+    {
+      "source": "app/src/release/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt",
+      "symbol": "IdentityDemo",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "app:AppScreenshotTest.menu",
+        "auth:DocumentationScreenshotTest.manualReview",
+        "app:AppScreenshotTest.mockOptions"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "app/src/release/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt",
+      "symbol": "DirectIdentityCapture",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.readDocument",
+        "auth:DocumentationScreenshotTest.manualReview"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "app/src/release/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt",
+      "symbol": "AccountIdentityFlow",
+      "kind": "runtime-delegation",
+      "scenarios": [
+        "auth:DocumentationScreenshotTest.readDocument",
+        "auth:DocumentationScreenshotTest.manualReview"
+      ],
+      "note": "Visual children are covered; services, live camera, permissions and navigation require device tests."
+    },
+    {
+      "source": "app/src/main/java/com/apexfission/android/attestra/auth/LiveCaptureFlow.kt",
+      "symbol": "CaptureSignInRequired",
+      "kind": "direct",
+      "scenarios": [
+        "app:AppScreenshotTest.signInRequired"
+      ],
+      "note": "Same pure visual content is used in runtime and preview."
+    },
+    {
+      "source": "app/src/debug/java/com/apexfission/android/attestra/auth/IdentityRuntime.kt",
+      "symbol": "MockCaptureContent",
+      "kind": "direct",
+      "scenarios": [
+        "app:AppScreenshotTest.mockOptions"
+      ],
+      "note": "Same pure visual content is used in runtime and preview."
+    }
+  ]
+}

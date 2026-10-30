@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.screenshot)
     id("attestra.endpoints")
     id("attestra.signing")
     alias(libs.plugins.kotlin.compose)
@@ -32,6 +33,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
     buildFeatures {
         compose = true
     }
@@ -58,6 +60,8 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
 
+    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
+    screenshotTestImplementation(libs.screenshot.validation.api)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
