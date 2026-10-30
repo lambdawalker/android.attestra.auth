@@ -4,15 +4,29 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_run:
+    workflows: [Publish Attestra auth, Finalize Attestra auth release]
+    types: [completed]
 permissions:
   contents: read
 jobs:
   build:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
+    outputs:
+      source: ${{ steps.source.outputs.sha }}
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.event.pull_request.head.sha || github.sha }}
+      - name: Record exact documentation source
+        id: source
+        shell: bash
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
@@ -50,9 +64,10 @@ jobs:
         id: current
         env:
           GH_TOKEN: ${{ github.token }}
+          DOCS_BUILD_SHA: ${{ needs.build.outputs.source }}
         run: |
           head=$(gh api repos/${{ github.repository }}/commits/main --jq .sha)
-          if [ "$head" = "${{ github.sha }}" ]; then echo 'publish=true' >> "$GITHUB_OUTPUT"; fi
+          if [ "$head" = "$DOCS_BUILD_SHA" ]; then echo 'publish=true' >> "$GITHUB_OUTPUT"; fi
       - uses: actions/configure-pages@v5
         if: steps.current.outputs.publish == 'true'
       - uses: actions/deploy-pages@v4

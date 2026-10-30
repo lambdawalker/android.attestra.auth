@@ -51,3 +51,18 @@ class ScreenshotContracts(unittest.TestCase):
 
 
 if __name__=='__main__':unittest.main()
+
+class PublishingProvenanceTests(unittest.TestCase):
+    def test_publication_additions_preserve_accepted_visual_inputs(self):
+        approved=suite.read(suite.ACCEPTED)
+        self.assertEqual(approved['inputs']['sha256'],suite.render_inputs()['sha256'])
+    def test_runtime_build_changes_remain_fingerprinted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);path=root/'auth/build.gradle.kts';path.parent.mkdir()
+            before='android { compileSdk = 37 }\n'
+            publishing='// BEGIN MAVEN PUBLICATION ONLY\nmavenPublishing { }\n// END MAVEN PUBLICATION ONLY\n'
+            with patch.object(suite,'ROOT',root):
+                path.write_text(before+publishing)
+                self.assertEqual(before.encode(),suite.render_bytes(path))
+                path.write_text(before.replace('37','38')+publishing)
+                self.assertNotEqual(before.encode(),suite.render_bytes(path))

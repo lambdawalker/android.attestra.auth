@@ -1,0 +1,6 @@
+# Gradle daemon uses JDK 25; published bytecode remains Java 17.
+jdk:
+  - openjdk17
+  - openjdk25
+install:
+  - python3 scripts/jitpack_build.py

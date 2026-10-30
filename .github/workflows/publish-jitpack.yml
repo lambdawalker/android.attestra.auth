@@ -1,0 +1,98 @@
+name: Build selected library on JitPack
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      module:
+        required: true
+        type: string
+      version:
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: attestra-auth-releases
+      cancel-in-progress: false
+    env:
+      RELEASE_REPOSITORY: jitpack
+      RELEASE_MODULE: ${{ inputs.module }}
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install -r scripts/requirements-publishing.txt
+      - name: Configure release identity
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - name: Resolve version and reconcile failed JitPack attempt
+        id: release
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: python3 scripts/module_release.py prepare --module "$RELEASE_MODULE" --version "$REQUESTED_VERSION"
+      - name: Check out original release source
+        if: steps.release.outputs.skip != 'true'
+        env:
+          SOURCE_SHA: ${{ steps.release.outputs.source }}
+        run: git checkout --detach "$SOURCE_SHA"
+      - uses: actions/setup-java@v5
+        if: steps.release.outputs.skip != 'true'
+        with:
+          distribution: temurin
+          java-version: |
+            17
+            25
+      - uses: gradle/actions/setup-gradle@v5
+        if: steps.release.outputs.skip != 'true'
+        with:
+          cache-disabled: true
+      - name: Verify unsigned candidate
+        if: steps.release.outputs.skip != 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          SOURCE_SHA: ${{ steps.release.outputs.source }}
+        run: |
+          bash gradlew ":$RELEASE_MODULE:testDebugUnitTest" ":$RELEASE_MODULE:publishAllPublicationsToVerificationRepository" -PjitpackBuild=true "-PreleaseModule=$RELEASE_MODULE" "-PreleaseVersion=$RELEASE_VERSION" --no-daemon
+          python3 scripts/module_release.py check-local --module "$RELEASE_MODULE" --version "$RELEASE_VERSION" --source "$SOURCE_SHA"
+      - name: Reserve destination and canonical source tag atomically
+        if: steps.release.outputs.skip != 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          SOURCE_SHA: ${{ steps.release.outputs.source }}
+        run: python3 scripts/module_release.py reserve --module "$RELEASE_MODULE" --version "$RELEASE_VERSION" --source "$SOURCE_SHA"
+      - name: Trigger build and verify public artifacts and source
+        if: steps.release.outputs.skip != 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: python3 scripts/module_release.py confirm --module "$RELEASE_MODULE" --version "$RELEASE_VERSION" --timeout 1800
+      - name: Generate latest available installation instructions
+        if: steps.release.outputs.skip != 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          SOURCE_SHA: ${{ steps.release.outputs.source }}
+        run: python3 scripts/module_release.py finalize --module "$RELEASE_MODULE" --version "$RELEASE_VERSION" --source "$SOURCE_SHA"
+      - name: Recovery guidance
+        if: failure()
+        run: |
+          echo 'Keep the canonical tag. Inspect the JitPack build log and public artifact state.'
+          echo 'For a successful or pending build, Finalize Attestra auth release verifies the original version.'
+          echo 'For a terminal failed build with no artifacts, merge corrected source and rerun Publish with a newer version or blank.'
+          echo 'Preparation archives the proven failed journal atomically before allocating the corrected release. See docs/releases.md.'

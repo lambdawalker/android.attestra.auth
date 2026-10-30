@@ -80,6 +80,10 @@
     "sites/README.md": {
       "en": "Site maintenance",
       "es": "Mantenimiento del sitio"
+    },
+    "docs/releases.md": {
+      "en": "Publishing & recovery",
+      "es": "Publicaci\u00f3n y recuperaci\u00f3n"
     }
   }
 }

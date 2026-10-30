@@ -72,3 +72,5 @@ Camera streams, Android system dialogs, focus, inference, navigation, privacy-wi
 behavior and lifecycle/process restoration require separate device/backend tests.
 Legacy identity-decision mockups are marked `legacy-design`, not live verification.
 The UI pictured is English even when the surrounding guide is Spanish.
+
+Publication-only Gradle additions are delimited by `BEGIN MAVEN PUBLICATION ONLY` / `END MAVEN PUBLICATION ONLY` in the root/auth build files and `gradle.properties`. They are excluded from visual render-input hashes. Android configuration, dependencies, toolchain and UI sources remain fingerprinted; the original reviewed images and provenance are retained. Do not put visual/build-runtime changes inside these publishing blocks.

@@ -148,7 +148,7 @@ bash gradlew :app:installDebug \
   -PattestraLinkHost=app.your-domain.com
 ```
 
-On Windows use `.\gradlew.bat` with the same tasks and properties. `installDebug` requires a connected device/emulator; the APK is under `app/build/outputs/apk/debug/`. The `:auth` module is consumed by `:app`; this repository does not define an independent Maven publishing or production app-store release workflow. CI runs auth unit tests and assembles the demo app with placeholder hosts; it does not validate a deployed AWS stack or real domain associations.
+On Windows use `.\gradlew.bat` with the same tasks and properties. `installDebug` requires a connected device/emulator; the APK is under `app/build/outputs/apk/debug/`. The `:auth` module is consumed by `:app`; Maven Central and JitPack publishing for `:auth` is described in [the release runbook](docs/releases.md). No production app-store release workflow is defined. CI runs auth unit tests and assembles the demo app with placeholder hosts; it does not validate a deployed AWS stack or real domain associations.
 
 Before a release, exercise fresh same-device and cross-device links, app restarts, invalid/expired proofs, registration cancellation, passkey and OTP sign-in, required/optional/disabled routing, password setup/sign-in, and capture cancellation on a device with the installed build's signing association. Follow the design acceptance criteria for expected outcomes. Keep diagnostic trace cleanup separate from documentation changes.
 
@@ -201,3 +201,7 @@ Render offline screen images with the **Render documentation screenshots** workf
 Its artifact includes a browsable light/dark gallery and PNGs for documentation.
 See [screenshot rendering and export](docs/screenshots.md) for commands, coverage,
 and the distinction between rendering checks and approved visual baselines.
+
+## Library publishing
+
+See [publishing setup and recovery](docs/releases.md). Run `python scripts/setup_github_environments.py` after installing `scripts/requirements-setup.txt` to configure GitHub deployment environments. Read [IMPORT.md](IMPORT.md) for confirmed installation choices; proposed coordinates are not a release.

@@ -26,6 +26,23 @@ def read(path):
     return json.loads(path.read_text())
 
 
+def render_bytes(path):
+    """Exclude delimited publication-only additions, retaining original visual inputs.
+
+    This applies only to three known Gradle configuration files. UI, dependencies,
+    SDK/toolchain and ordinary build configuration remain in the render contract.
+    Baseline images/manifests retain their original source and hashes.
+    """
+    data = path.read_bytes()
+    relative = path.relative_to(ROOT).as_posix()
+    if relative in ('build.gradle.kts', 'auth/build.gradle.kts', 'gradle.properties'):
+        data = re.sub(rb'(?m)^(?://|#) BEGIN MAVEN PUBLICATION ONLY\n.*?^(?://|#) END MAVEN PUBLICATION ONLY\n', b'', data, flags=re.S)
+        if relative == 'build.gradle.kts':
+            # The accepted root script ends at its closing brace without a newline.
+            data = data.rstrip(b'\n')
+    return data
+
+
 def render_inputs():
     paths = set()
     for module in ('auth', 'app', 'identity-mock', 'buildSrc'):
@@ -33,7 +50,7 @@ def render_inputs():
             if path.is_file() and not any(part in ('build', '.gradle', 'screenshotTestDebug') for part in path.relative_to(ROOT).parts) and path.suffix in ('.kt', '.kts', '.xml', '.ttf', '.otf', '.png', '.jpg', '.jpeg', '.webp', '.json', '.svg'):
                 paths.add(path)
     paths.update(ROOT / p for p in ('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties', 'gradle.properties', 'settings.gradle.kts', 'build.gradle.kts', 'docs/screenshots/scenarios.json'))
-    files = {p.relative_to(ROOT).as_posix(): digest(p.read_bytes()) for p in sorted(paths)}
+    files = {p.relative_to(ROOT).as_posix(): digest(render_bytes(p)) for p in sorted(paths)}
     return {'files': files, 'sha256': digest(json.dumps(files, sort_keys=True).encode())}
 
 

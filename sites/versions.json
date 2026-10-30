@@ -14,5 +14,5 @@
     }
   ],
   "releases": [],
-  "archiveBoundary": "Development/source only. No auth tags, GitHub releases or artifact publication configuration at 2026-10-30 audit."
+  "archiveBoundary": "Development/source only. Publishing tooling is configured, but no auth artifact has been confirmed. Confirmed installation facts are retained in docs/releases/history."
 }

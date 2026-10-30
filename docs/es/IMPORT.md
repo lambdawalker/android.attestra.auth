@@ -1,34 +1,28 @@
-# Integrar Attestra auth desde fuente
+<!-- Generado a partir de metadatos confirmados de auth. La plantilla canónica es docs/templates/IMPORT.md.template. -->
+# Integrar Attestra auth
 
-**Solo Desarrollo/código fuente. No hay un paquete auth estable confirmado.**
-No hay configuración de publicación auth ni catálogo de releases GitHub en esta
-auditoría. `versionName = "1.0"` del APK no es versión de la biblioteca. No se
-anuncian coordenadas auth de Maven Central o JitPack.
+Solo aparecen versiones confirmadas públicamente. Las etiquetas, compilaciones
+locales de verificación y cargas pendientes no prueban que un paquete esté disponible.
 
-## Espacio de trabajo admitido
+## attestra-auth
 
-Clone el repositorio y compile su espacio Gradle existente. `:app` consume `:auth` así:
+No hay una versión confirmada.
 
-```kotlin
-implementation(project(":auth"))
-```
+## Espacio de trabajo desde fuente
 
-Use [inicio rápido](agents/quickstart.md) y el
-[anfitrión compilado](../../app/src/main/java/com/apexfission/android/attestra/auth/MainActivity.kt).
-Copiar `auth/` a otro proyecto requiere adaptar convenciones raíz, tarea de activos
-de `buildSrc` y catálogo. Ese trasplante no es una distribución independiente verificada.
+Hasta confirmar una versión, clone este repositorio y use su espacio Gradle
+existente. La aplicación `:app` usa `implementation(project(":auth"))`.
+No trasplante únicamente `auth/`: necesita convenciones raíz, extracción de activos
+del modelo mediante `buildSrc` y el catálogo de dependencias. La versión del APK
+es independiente.
 
-## Requisitos
+## Herramientas y dependencias
 
-API 28 mínimo, compile SDK 37, bytecode Java 17. Las versiones reales están en
-[catálogo](../../gradle/libs.versions.toml), [wrapper](../../gradle/wrapper/gradle-wrapper.properties)
-y [build auth](../../auth/build.gradle.kts). Detector y modelo comparten identidad
-JitPack; el build extrae activos del modelo de forma aislada/no transitiva. No
-instale ambas etiquetas como dependencias runtime en conflicto.
+API 28 mínimo, compile SDK 37 y bytecode Java 17. El daemon de Gradle usa JDK 25.
+Conserve las versiones fijadas de Gradle, AGP y Kotlin del repositorio.
+Los permisos y el detector usan JitPack, incluso si auth se instala desde Central.
+Los activos del modelo se extraen del AAR aislado y fijado del modelo y se incluyen
+en auth; no agregue su etiqueta junto al detector como dependencia de ejecución.
 
-## Versiones futuras
-
-Antes de publicar auth registre destino confirmado, coordenadas exactas, versión,
-identidades inmutables y evidencia pública en `sites/versions.json`. Conserve contratos
-anteriores. El renderer rechaza snapshots de releases no implementados en lugar de
-etiquetar código actual como antiguo. Esta tarea no publica ni implementa finalización de paquetes.
+Consulte [inicio rápido](agents/quickstart.md), [el catálogo](../../gradle/libs.versions.toml)
+y [publicación y configuración](../releases.md).
