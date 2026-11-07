@@ -34,10 +34,12 @@ jobs:
           python3 scripts/screenshots/suite.py coverage
           python3 -m unittest discover -s scripts/screenshots -p 'test_*.py'
       - name: Generate candidates without accepting them
+        shell: bash
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'candidates'
         run: |
           bash gradlew :auth:updateDebugScreenshotTest :app:updateDebugScreenshotTest --stacktrace
           python3 scripts/screenshots/suite.py candidates
+          python3 scripts/screenshots/review.py | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Restore reviewed baseline inputs
         if: github.event_name != 'workflow_dispatch' || inputs.mode != 'candidates'
         run: python3 scripts/screenshots/suite.py restore

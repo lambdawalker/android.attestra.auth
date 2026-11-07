@@ -31,6 +31,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r sites/requirements.txt
+      - run: python scripts/documentation_history.py verify
       - run: python scripts/docs/inventory.py --check
       - run: python scripts/docs/verify.py
       - run: python scripts/screenshots/suite.py coverage

@@ -33,6 +33,9 @@ jobs:
       - run: python3 scripts/screenshots/suite.py coverage
       - run: bash gradlew :auth:updateDebugScreenshotTest :app:updateDebugScreenshotTest --stacktrace
       - run: python3 scripts/screenshots/suite.py candidates
+      - name: Classify screenshot changes
+        shell: bash
+        run: python3 scripts/screenshots/review.py | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
         if: always()
         with:

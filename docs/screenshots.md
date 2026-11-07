@@ -21,7 +21,11 @@ python3 scripts/screenshots/suite.py candidates
 Open `docs/generated/screenshots/index.html`. The artifact includes PNGs and a
 manifest recording scenario, source fixture, source commit, relevant input hashes,
 viewport, theme, locale, font scale, output dimensions and renderer provenance.
-Candidate files are not approved baselines and do not change the committed archive.
+Candidate files do not update the committed archive. The artifact includes a
+`review/summary.txt`. If all PNG hashes match but the render inputs changed,
+review and apply `review/provenance.patch` from the repository root with
+`git apply`. If images changed, open `review/index.html` for before-and-after
+panels, then follow the baseline acceptance steps below.
 
 ### 2. Inspect and accept deliberately
 
