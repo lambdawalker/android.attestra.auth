@@ -7,7 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalAutofillManager
@@ -33,7 +33,7 @@ fun EmailCodeScreen(
     attemptsRemaining: Int? = null,
     canResend: Boolean = true,
 ) {
-    var code by rememberSaveable { mutableStateOf("") }
+    var code by remember { mutableStateOf("") }
     val codeDescription = stringResource(R.string.auth_six_digit_confirmation_code)
     val autofillManager = LocalAutofillManager.current
     OnboardingFrame(
