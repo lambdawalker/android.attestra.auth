@@ -165,11 +165,11 @@
     <string name="auth_try_a_supported_device_or_password_manager_you_can_add_a_passkey">"지원되는 기기 또는 비밀번호 관리자를 사용해 보세요. 패스키는 나중에 추가할 수 있습니다."</string>
     <string name="auth_check_again_if_this_device_s_passkey_support_has_changed">"이 기기의 패스키 지원 여부가 변경되었다면 다시 확인하세요."</string>
     <string name="auth_you_can_use_email_sign_in_while_no_passkey_is_registered">"등록된 패스키가 없을 때는 이메일로 로그인할 수 있습니다."</string>
-    <string name="auth_this_confirmation_link_can_t_be_used">"이 확인 링크를 사용할 수 없음"</string>
+    <string name="auth_this_confirmation_link_can_t_be_used">"이 확인은 사용할 수 없습니다"</string>
     <string name="auth_request_a_new_email">"새 이메일 요청"</string>
     <string name="auth_change_email_address">"이메일 주소 변경"</string>
-    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"이 링크는 만료되었거나 교체되었을 수 있습니다. 이메일 재전송을 요청하고 가장 최근 링크를 여세요."</string>
-    <string name="auth_the_old_link_and_code_cannot_be_reused">"기존 링크와 코드는 다시 사용할 수 없습니다."</string>
+    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"이 링크 또는 코드는 만료되었거나 새 것으로 교체되었을 수 있습니다. 새 이메일을 요청하고 최신 링크 또는 코드를 사용하세요."</string>
+    <string name="auth_the_old_link_and_code_cannot_be_reused">"이전 링크와 코드는 다시 사용할 수 없습니다."</string>
     <string name="auth_start_with_your_email">"이메일로 시작"</string>
     <string name="auth_continue">"계속"</string>
     <string name="auth_already_have_an_account_sign_in">"이미 계정이 있나요? 로그인"</string>
@@ -183,6 +183,10 @@
     <string name="auth_enter_the_six_digit_code_from_the_email_you_just_opened_to_confir">"이 기기에서 확인하려면 방금 연 이메일의 6자리 코드를 입력하세요."</string>
     <string name="auth_confirmation_code">"확인 코드"</string>
     <string name="auth_six_digit_confirmation_code">"6자리 확인 코드"</string>
+    <string name="auth_paste_code">"코드 붙여넣기"</string>
+    <string name="auth_enter_verification_code">"인증 코드 입력"</string>
+    <string name="auth_enter_the_six_digit_code_from_the_email_to_confirm_this_address">"최신 이메일의 6자리 코드를 입력하여 이 기기에서 이 이메일 주소를 확인하세요."</string>
+    <string name="auth_open_the_link_or_enter_the_code_from_the_latest_email_for">"확인 링크를 열거나 최신 이메일의 6자리 코드를 입력하세요:"</string>
     <string name="auth_attempts_remaining_1_s">"남은 시도 횟수: %1$s"</string>
     <string name="auth_the_code_is_separate_from_the_link_entering_it_does_not_submit_au">"코드는 링크와 별개입니다. 입력해도 자동으로 제출되지 않습니다."</string>
     <string name="auth_email_verified">"이메일 인증됨"</string>
