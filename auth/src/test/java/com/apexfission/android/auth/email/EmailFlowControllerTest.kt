@@ -20,10 +20,12 @@ class EmailFlowControllerTest {
     }
     private inner class FakeApi : EmailVerificationGateway {
         var localCalls = 0
+        var localCodeCalls = 0
         var manualCalls = 0
         override suspend fun signup(email: String, challenge: String) = token
         override suspend fun resend(requestId: String) = Unit
         override suspend fun confirmLocal(requestId: String, tokenB: String, tokenA: String): AuthSession { localCalls++; return session }
+        override suspend fun confirmLocalCode(requestId: String, tokenA: String, tokenC: String): AuthSession { localCodeCalls++; return session }
         override suspend fun confirmCode(requestId: String, tokenB: String, tokenC: String): AuthSession { manualCalls++; return session }
     }
 
@@ -38,6 +40,29 @@ class EmailFlowControllerTest {
         assertEquals(token, controller.verifiedRequestId)
         assertEquals(session, store.tokens)
         assertEquals(null, store.saved)
+        assertTrue(controller.screen is EmailScreen.Verified)
+    }
+
+    @Test fun initiatingDeviceCanEnterCodeWithoutOpeningLink() = runBlocking {
+        val api = FakeApi()
+        val store = MemoryStorage()
+        val controller = EmailFlowController(
+            api,
+            store,
+            ProofGenerator { bytes -> bytes.fill(1) },
+            now = { 1_000L },
+        )
+        controller.start("person@example.test")
+        assertTrue(controller.screen is EmailScreen.Wait)
+
+        controller.enterCode()
+        val codeScreen = controller.screen as EmailScreen.Code
+        assertEquals(token, codeScreen.requestId)
+        assertEquals(null, codeScreen.tokenB)
+
+        controller.confirmCode("000123")
+        assertEquals(1, api.localCodeCalls)
+        assertEquals(0, api.manualCalls)
         assertTrue(controller.screen is EmailScreen.Verified)
     }
 
