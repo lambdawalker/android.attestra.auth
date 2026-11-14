@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.tooling.preview.Preview
 import com.apexfission.android.auth.library.R
 import com.apexfission.android.auth.ui.onboarding.common.BodyText
@@ -34,20 +35,30 @@ fun EmailCodeScreen(
 ) {
     var code by rememberSaveable { mutableStateOf("") }
     val codeDescription = stringResource(R.string.auth_six_digit_confirmation_code)
+    val autofillManager = LocalAutofillManager.current
     OnboardingFrame(
         title = stringResource(R.string.auth_complete_email_verification),
         icon = Icons.Default.Mail,
         step = "2/5",
-        onBack = onBack,
+        onBack = {
+            autofillManager?.cancel()
+            onBack()
+        },
         primaryLabel = if (error == null) {
             stringResource(R.string.auth_verify_email)
         } else {
             stringResource(R.string.auth_try_again)
         },
-        onPrimary = { onVerify(code) },
+        onPrimary = {
+            autofillManager?.cancel()
+            onVerify(code)
+        },
         primaryEnabled = code.length == 6,
         secondaryLabel = stringResource(R.string.auth_resend_email),
-        onSecondary = onResend,
+        onSecondary = {
+            autofillManager?.cancel()
+            onResend()
+        },
         secondaryEnabled = canResend,
     ) {
         OnboardingCard {
