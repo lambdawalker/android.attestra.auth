@@ -100,13 +100,11 @@ class EmailFlowController(
                 EmailApiError.Kind.LINK_UNUSABLE -> EmailScreen.Code(
                     email,
                     link.requestId,
-                    tokenB = link.tokenB,
                     error = "Automatic verification didn't work. Enter the code from your email.",
                 )
                 else -> EmailScreen.Code(
                     email,
                     link.requestId,
-                    tokenB = link.tokenB,
                     error = "We couldn't verify automatically. Enter the code from your email or try again.",
                 )
             }
@@ -115,7 +113,6 @@ class EmailFlowController(
             screen = EmailScreen.Code(
                 email,
                 link.requestId,
-                tokenB = link.tokenB,
                 error = "We couldn't verify automatically. Enter the code from your email or try again.",
             )
         }
