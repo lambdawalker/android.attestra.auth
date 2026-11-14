@@ -183,6 +183,10 @@
     <string name="auth_enter_the_six_digit_code_from_the_email_you_just_opened_to_confir">"Enter the six-digit code from the email you just opened to confirm on this device."</string>
     <string name="auth_confirmation_code">"Confirmation code"</string>
     <string name="auth_six_digit_confirmation_code">"Six-digit confirmation code"</string>
+    <string name="auth_paste_code">"Paste code"</string>
+    <string name="auth_enter_verification_code">"Enter verification code"</string>
+    <string name="auth_enter_the_six_digit_code_from_the_email_to_confirm_this_address">"Enter the six-digit code from the latest email to confirm this address on this device."</string>
+    <string name="auth_open_the_link_or_enter_the_code_from_the_latest_email_for">"Open the confirmation link, or enter the six-digit code from the latest email for:"</string>
     <string name="auth_attempts_remaining_1_s">"Attempts remaining: %1$s"</string>
     <string name="auth_the_code_is_separate_from_the_link_entering_it_does_not_submit_au">"The code is separate from the link. Entering it does not submit automatically."</string>
     <string name="auth_email_verified">"Email verified"</string>
