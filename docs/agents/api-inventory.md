@@ -537,7 +537,8 @@ class EmailFlowController(
     fun changeEmail()
 }
 ```
-## `auth/src/main/java/com/apexfission/android/auth/email/EmailOnboardingHost.kt`
+
+## auth/src/main/java/com/apexfission/android/auth/email/EmailOnboardingHost.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/email/EmailOnboardingHost.kt)
 
@@ -674,7 +675,8 @@ class EmailVerificationApi(baseUrl: String, private val client: HttpClient) : Em
     override suspend fun confirmCode(requestId: String, tokenB: String, tokenC: String): AuthSession
 }
 ```
-## `auth/src/main/java/com/apexfission/android/auth/email/ProofGenerator.kt`
+
+## auth/src/main/java/com/apexfission/android/auth/email/ProofGenerator.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/email/ProofGenerator.kt)
 
@@ -1077,7 +1079,8 @@ fun StatusRow(label: String, detail: String, complete: Boolean = true)
 @Composable
 fun WaitingIndicator(description: String)
 ```
-## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingLoadingScreen.kt`
+
+## auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingLoadingScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingLoadingScreen.kt)
 
@@ -1181,7 +1184,8 @@ fun EmailCodeScreen(
 @Composable
 fun EmailCodeScreenPreview()
 ```
-## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailLinkUnusableScreen.kt`
+
+## auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailLinkUnusableScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailLinkUnusableScreen.kt)
 
@@ -1308,7 +1312,8 @@ fun EmailWaitScreen(
 @Composable
 fun EmailWaitScreenPreview()
 ```
-## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/id/CardDetailsSavedScreen.kt`
+
+## auth/src/main/java/com/apexfission/android/auth/ui/onboarding/id/CardDetailsSavedScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/id/CardDetailsSavedScreen.kt)
 
@@ -1686,7 +1691,8 @@ fun ReturnEmailCodeScreen(
     onBack: () -> Unit,
 )
 ```
-## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/welcome/WelcomeScreen.kt`
+
+## auth/src/main/java/com/apexfission/android/auth/ui/onboarding/welcome/WelcomeScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/welcome/WelcomeScreen.kt)
 
