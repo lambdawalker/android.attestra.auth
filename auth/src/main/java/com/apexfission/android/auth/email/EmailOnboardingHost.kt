@@ -403,8 +403,13 @@ fun EmailOnboardingHost(
                 { PasswordField(password, { password = it }, onboarding.passwordPolicy, onboarding.password == Requirement.OPTIONAL) }
             } else null)
         is EmailScreen.Wait -> EmailWaitScreen(
-            screen.email, changeEmail, resend, changeEmail,
-            canResend = canResend, resendHelp = screen.help ?: if (canResend) null else activityContext.getString(R.string.auth_you_can_request_another_email_in_a_minute),
+            email = screen.email,
+            onBack = changeEmail,
+            onResend = resend,
+            onChangeEmail = changeEmail,
+            onEnterCode = controller::enterCode,
+            canResend = canResend,
+            resendHelp = screen.help ?: if (canResend) null else activityContext.getString(R.string.auth_you_can_request_another_email_in_a_minute),
             onSignIn = { clearPassword(); returnEmail = screen.email; returnMode = "choice" },
         )
         is EmailScreen.Code -> EmailCodeScreen(
