@@ -22,9 +22,14 @@ class EmailFlowControllerTest {
         var localCalls = 0
         var localCodeCalls = 0
         var manualCalls = 0
+        var localError: EmailApiError? = null
         override suspend fun signup(email: String, challenge: String) = token
         override suspend fun resend(requestId: String) = Unit
-        override suspend fun confirmLocal(requestId: String, tokenB: String, tokenA: String): AuthSession { localCalls++; return session }
+        override suspend fun confirmLocal(requestId: String, tokenB: String, tokenA: String): AuthSession {
+            localCalls++
+            localError?.let { throw it }
+            return session
+        }
         override suspend fun confirmLocalCode(requestId: String, tokenA: String, tokenC: String): AuthSession { localCodeCalls++; return session }
         override suspend fun confirmCode(requestId: String, tokenB: String, tokenC: String): AuthSession { manualCalls++; return session }
     }
@@ -61,6 +66,30 @@ class EmailFlowControllerTest {
         assertEquals(null, codeScreen.tokenB)
 
         controller.confirmCode("000123")
+        assertEquals(1, api.localCodeCalls)
+        assertEquals(0, api.manualCalls)
+        assertTrue(controller.screen is EmailScreen.Verified)
+    }
+
+    @Test fun failedLinkOnInitiatingDeviceFallsBackToAAndNewestCode() = runBlocking {
+        val api = FakeApi().apply {
+            localError = EmailApiError(EmailApiError.Kind.LINK_UNUSABLE)
+        }
+        val store = MemoryStorage()
+        val controller = EmailFlowController(
+            api,
+            store,
+            ProofGenerator { bytes -> bytes.fill(1) },
+            now = { 1_000L },
+        )
+        controller.start("person@example.test")
+
+        controller.openLink(VerificationLink(token, token))
+        val codeScreen = controller.screen as EmailScreen.Code
+        assertEquals(null, codeScreen.tokenB)
+
+        controller.confirmCode("000123")
+        assertEquals(1, api.localCalls)
         assertEquals(1, api.localCodeCalls)
         assertEquals(0, api.manualCalls)
         assertTrue(controller.screen is EmailScreen.Verified)
