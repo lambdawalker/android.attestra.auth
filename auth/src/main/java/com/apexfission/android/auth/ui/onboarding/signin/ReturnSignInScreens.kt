@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.apexfission.android.auth.library.R
@@ -88,14 +89,21 @@ fun ReturnEmailCodeScreen(
     onBack: () -> Unit,
 ) {
     var code by rememberSaveable(email) { mutableStateOf("") }
+    val autofillManager = LocalAutofillManager.current
     OnboardingFrame(
         title = stringResource(R.string.auth_sign_in_with_email),
         icon = Icons.Default.Lock,
         step = stringResource(R.string.auth_account),
-        onBack = onBack,
+        onBack = {
+            autofillManager?.cancel()
+            onBack()
+        },
         primaryLabel = stringResource(R.string.auth_verify_code),
         primaryEnabled = code.length == 6,
-        onPrimary = { onVerify(code) },
+        onPrimary = {
+            autofillManager?.cancel()
+            onVerify(code)
+        },
     ) {
         OnboardingCard {
             BodyText(stringResource(R.string.auth_enter_the_six_digit_sign_in_code_sent_to_1_s_this_is_separate_fro, email))
