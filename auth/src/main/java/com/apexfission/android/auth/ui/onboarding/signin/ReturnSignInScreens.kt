@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -36,7 +36,7 @@ fun ReturnSignInScreen(
     onBack: () -> Unit,
     onPassword: ((String) -> Unit)? = null,
 ) {
-    var email by rememberSaveable(initialEmail) { mutableStateOf(initialEmail) }
+    var email by remember(initialEmail) { mutableStateOf(initialEmail) }
     val valid = Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
     OnboardingFrame(
         title = stringResource(R.string.auth_sign_in_to_continue_285),
@@ -88,7 +88,7 @@ fun ReturnEmailCodeScreen(
     onVerify: (String) -> Unit,
     onBack: () -> Unit,
 ) {
-    var code by rememberSaveable(email) { mutableStateOf("") }
+    var code by remember(email) { mutableStateOf("") }
     val autofillManager = LocalAutofillManager.current
     OnboardingFrame(
         title = stringResource(R.string.auth_sign_in_with_email),
