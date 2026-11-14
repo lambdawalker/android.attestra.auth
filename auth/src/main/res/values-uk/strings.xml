@@ -165,11 +165,11 @@
     <string name="auth_try_a_supported_device_or_password_manager_you_can_add_a_passkey">"Спробуйте підтримуваний пристрій або менеджер паролів. Ключ доступу можна додати пізніше."</string>
     <string name="auth_check_again_if_this_device_s_passkey_support_has_changed">"Перевірте ще раз, якщо підтримка ключів доступу на цьому пристрої змінилася."</string>
     <string name="auth_you_can_use_email_sign_in_while_no_passkey_is_registered">"Поки ключ доступу не зареєстровано, ви можете входити за допомогою електронної пошти."</string>
-    <string name="auth_this_confirmation_link_can_t_be_used">"Це посилання для підтвердження не можна використати"</string>
+    <string name="auth_this_confirmation_link_can_t_be_used">"Це підтвердження не можна використати"</string>
     <string name="auth_request_a_new_email">"Запросити новий лист"</string>
     <string name="auth_change_email_address">"Змінити електронну адресу"</string>
-    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"Термін дії посилання міг минути або його могли замінити. Запросіть ще один лист і відкрийте найновіше посилання."</string>
-    <string name="auth_the_old_link_and_code_cannot_be_reused">"Старі посилання й код не можна використати повторно."</string>
+    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"Термін дії цього посилання або коду міг завершитися, або їх було замінено. Запросіть новий лист і використайте найновіше посилання або код."</string>
+    <string name="auth_the_old_link_and_code_cannot_be_reused">"Старі посилання та коди не можна використовувати повторно."</string>
     <string name="auth_start_with_your_email">"Почніть з електронної пошти"</string>
     <string name="auth_continue">"Продовжити"</string>
     <string name="auth_already_have_an_account_sign_in">"Уже маєте обліковий запис? Увійдіть"</string>
@@ -183,6 +183,10 @@
     <string name="auth_enter_the_six_digit_code_from_the_email_you_just_opened_to_confir">"Введіть шестизначний код із щойно відкритого листа для підтвердження на цьому пристрої."</string>
     <string name="auth_confirmation_code">"Код підтвердження"</string>
     <string name="auth_six_digit_confirmation_code">"Шестизначний код підтвердження"</string>
+    <string name="auth_paste_code">"Вставити код"</string>
+    <string name="auth_enter_verification_code">"Ввести код підтвердження"</string>
+    <string name="auth_enter_the_six_digit_code_from_the_email_to_confirm_this_address">"Введіть шестизначний код з останнього листа, щоб підтвердити цю адресу на цьому пристрої."</string>
+    <string name="auth_open_the_link_or_enter_the_code_from_the_latest_email_for">"Відкрийте посилання для підтвердження або введіть шестизначний код з останнього листа для:"</string>
     <string name="auth_attempts_remaining_1_s">"Залишилося спроб: %1$s"</string>
     <string name="auth_the_code_is_separate_from_the_link_entering_it_does_not_submit_au">"Код використовується окремо від посилання. Введення коду не надсилає його автоматично."</string>
     <string name="auth_email_verified">"Електронну пошту підтверджено"</string>
