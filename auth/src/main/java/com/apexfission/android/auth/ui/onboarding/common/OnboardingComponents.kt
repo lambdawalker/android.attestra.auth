@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,15 +39,27 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.autofill.contentType
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import com.apexfission.android.auth.ui.theme.AttestraAuthTheme
 
 /**
@@ -164,6 +178,80 @@ fun OnboardingCard(content: @Composable () -> Unit) {
     ) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             content()
+        }
+    }
+}
+
+internal fun normalizeEmailOneTimeCode(value: String): String =
+    value.filter(Char::isDigit).take(6)
+
+/**
+ * Shared six-digit email OTP input. The six slots are decoration around one
+ * logical text field so keyboard input and clipboard paste behave like a normal field.
+ */
+@Composable
+fun EmailOneTimeCodeField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    contentDescriptionText: String,
+    modifier: Modifier = Modifier,
+) {
+    val focus = remember { FocusRequester() }
+    val clipboard = LocalClipboardManager.current
+    val update: (String) -> Unit = { raw -> onValueChange(normalizeEmailOneTimeCode(raw)) }
+
+    LaunchedEffect(Unit) { focus.requestFocus() }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        BasicTextField(
+            value = value,
+            onValueChange = update,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 50.dp)
+                .focusRequester(focus)
+                .contentType(ContentType("emailOTPCode"))
+                .semantics { contentDescription = contentDescriptionText },
+            decorationBox = { innerTextField ->
+                Box(Modifier.fillMaxWidth()) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        repeat(6) { index ->
+                            Surface(
+                                modifier = Modifier.weight(1f).heightIn(min = 50.dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                shape = MaterialTheme.shapes.extraSmall,
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        value.getOrNull(index)?.toString() ?: "",
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Box(Modifier.matchParentSize().alpha(0.01f)) { innerTextField() }
+                }
+            },
+        )
+        TextButton(
+            onClick = {
+                clipboard.getText()?.text?.let(update)
+                focus.requestFocus()
+            },
+            shape = MaterialTheme.shapes.small,
+        ) {
+            Text(stringResource(R.string.auth_paste_code))
         }
     }
 }
