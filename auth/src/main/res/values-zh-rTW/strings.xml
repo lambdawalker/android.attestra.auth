@@ -165,11 +165,11 @@
     <string name="auth_try_a_supported_device_or_password_manager_you_can_add_a_passkey">"請嘗試支援的裝置或密碼管理工具。您可以稍後新增通行金鑰。"</string>
     <string name="auth_check_again_if_this_device_s_passkey_support_has_changed">"如果此裝置對通行金鑰的支援情況有變更，請再次檢查。"</string>
     <string name="auth_you_can_use_email_sign_in_while_no_passkey_is_registered">"尚未註冊通行金鑰時，您可以使用電子郵件登入。"</string>
-    <string name="auth_this_confirmation_link_can_t_be_used">"此確認連結無法使用"</string>
+    <string name="auth_this_confirmation_link_can_t_be_used">"此確認無法使用"</string>
     <string name="auth_request_a_new_email">"要求新的電子郵件"</string>
     <string name="auth_change_email_address">"變更電子郵件地址"</string>
-    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"此連結可能已過期或被取代。請要求再次傳送電子郵件，並開啟最新的連結。"</string>
-    <string name="auth_the_old_link_and_code_cannot_be_reused">"舊連結和驗證碼無法重複使用。"</string>
+    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"此連結或驗證碼可能已過期或已被取代。請要求新的電子郵件並使用最新的連結或驗證碼。"</string>
+    <string name="auth_the_old_link_and_code_cannot_be_reused">"舊連結和驗證碼不能重複使用。"</string>
     <string name="auth_start_with_your_email">"從電子郵件開始"</string>
     <string name="auth_continue">"繼續"</string>
     <string name="auth_already_have_an_account_sign_in">"已經有帳戶了嗎？登入"</string>
@@ -183,6 +183,10 @@
     <string name="auth_enter_the_six_digit_code_from_the_email_you_just_opened_to_confir">"請輸入剛開啟的電子郵件中的六位數驗證碼，以在此裝置上確認。"</string>
     <string name="auth_confirmation_code">"確認碼"</string>
     <string name="auth_six_digit_confirmation_code">"六位數確認碼"</string>
+    <string name="auth_paste_code">"貼上驗證碼"</string>
+    <string name="auth_enter_verification_code">"輸入驗證碼"</string>
+    <string name="auth_enter_the_six_digit_code_from_the_email_to_confirm_this_address">"輸入最新電子郵件中的六位數驗證碼，以在此裝置上確認此電子郵件地址。"</string>
+    <string name="auth_open_the_link_or_enter_the_code_from_the_latest_email_for">"開啟確認連結，或輸入最新電子郵件中的六位數驗證碼："</string>
     <string name="auth_attempts_remaining_1_s">"剩餘嘗試次數：%1$s"</string>
     <string name="auth_the_code_is_separate_from_the_link_entering_it_does_not_submit_au">"驗證碼與連結互相獨立。輸入驗證碼不會自動提交。"</string>
     <string name="auth_email_verified">"電子郵件地址已驗證"</string>
