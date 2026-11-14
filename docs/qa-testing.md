@@ -8,6 +8,7 @@ Verified Android App Links require an approved signing certificate, including th
 |---|---|
 | UI catalog and isolated unit tests | Ordinary debug builds are sufficient; no deployed domain association is needed. |
 | Email link opening the app | Approved signing certificate, matching manifest hostname, published association, and device-side App Links verification. |
+| Same-device six-digit signup code | A fresh signup pending on that installation and a backend that supports A+C. App Link routing is not required for this fallback. |
 | Passkey registration and sign-in | Approved signing certificate and credential association, compatible relying-party configuration, and a configured device credential provider. |
 | ID capture or another flow reached through onboarding | Use the approved build when the test includes the email App Link; capture itself does not introduce an App Links requirement. |
 
@@ -68,7 +69,7 @@ Test routing without using a real verification token:
 & $adb -s $serial shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d 'https://dev.attestrabond.com/verify-email'
 ```
 
-This checks whether Android routes to the app; without a request and proof, it cannot confirm an email. Do not add a package or component restriction to this routing test: that would bypass normal link resolution. Then request a fresh signup email and tap its link on the intended device.
+This checks whether Android routes to the app; without a request and proof, it cannot confirm an email. Do not add a package or component restriction to this routing test: that would bypass normal link resolution. Then request a fresh signup email and test both same-device paths: tap its link for A+B, and in a separate fresh signup stay in the app, choose **Enter verification code**, and submit the newest six-digit code for A+C.
 
 ## Troubleshooting and acceptance checks
 
@@ -81,7 +82,7 @@ This checks whether Android routes to the app; without a request and proof, it c
 | Browser fallback returns an error | Association hosting only serves the well-known file; it does not provide a `/verify-email` web page. Website fallback is a separate deployment. |
 | APK cannot replace the installed app | Check application ID and signing identity. Switching certificates may require uninstalling, which removes local app data. |
 
-Before considering onboarding verified, exercise a fresh same-device email, resend/newest-email behavior, expired/invalid links, app restart, and relevant passkey/OTP flows. Cross-device email confirmation needs a deployed browser fallback; do not count publishing assetlinks.json as implementing that page. Record the environment, variant, installed fingerprint, Android version, device verification output and observed result. Do not include live email proofs, OTPs or passwords in reports.
+Before considering onboarding verified, exercise fresh same-device A+B and A+C confirmation, resend/newest-email behavior, expired/invalid links and codes, app restart, and relevant passkey/OTP flows. Cross-device email confirmation needs a deployed browser fallback; do not count publishing assetlinks.json as implementing that page. Record the environment, variant, installed fingerprint, Android version, device verification output and observed result. Do not include live email proofs, OTPs or passwords in reports.
 
 Official references: [Verify Android App Links](https://developer.android.com/training/app-links/verify-applinks) and [Android Debug Bridge](https://developer.android.com/tools/adb).
 
