@@ -194,7 +194,7 @@
   {
     "guide": "docs/agents/api-inventory.md",
     "path": "auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingComponents.kt",
-    "sha256": "2f5335db88dc3a5fce968bd6afa56d78ce03e566dc43dd4b7cb678862637af36",
+    "sha256": "e6f1ce599c06e827ba3ecaf5347aa5c5de71f05bf53ee9221d551e40c4548fbe",
     "visibility": "public"
   },
   {
