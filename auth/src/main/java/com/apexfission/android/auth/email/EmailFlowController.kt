@@ -121,6 +121,16 @@ class EmailFlowController(
         }
     }
 
+    fun enterCode() {
+        val current = screen as? EmailScreen.Wait ?: return
+        val pending = storage.pending()?.takeIf { it.requestId == current.requestId }
+        screen = if (pending != null) {
+            EmailScreen.Code(current.email, current.requestId)
+        } else {
+            EmailScreen.Unusable(current.email, current.requestId)
+        }
+    }
+
     suspend fun confirmCode(code: String) = exclusive {
         val current = screen as? EmailScreen.Code ?: return@exclusive
         if (!code.matches(Regex("[0-9]{6}"))) {
@@ -128,18 +138,45 @@ class EmailFlowController(
             screen = current.copy(error = "Enter the six-digit code in your email.")
             return@exclusive
         }
-        Log.d("EmailDebugX", "Submitting manual confirmation code")
+
+        val pending = if (current.tokenB == null) {
+            storage.pending()?.takeIf { it.requestId == current.requestId }
+        } else {
+            null
+        }
+        if (current.tokenB == null && pending == null) {
+            Log.w("EmailDebugX", "Manual code lost the initiating local proof")
+            screen = EmailScreen.Unusable(current.email, current.requestId)
+            return@exclusive
+        }
+
+        Log.d(
+            "EmailDebugX",
+            "Submitting manual confirmation code proof=${if (current.tokenB != null) "B+C" else "A+C"}",
+        )
         screen = EmailScreen.Loading(LoadingStep.CONFIRM_EMAIL)
         try {
-            complete(current.link.requestId, api.confirmCode(current.link.requestId, current.link.tokenB, code))
+            val session = if (current.tokenB != null) {
+                api.confirmCode(current.requestId, current.tokenB, code)
+            } else {
+                api.confirmLocalCode(current.requestId, requireNotNull(pending).tokenA, code)
+            }
+            complete(current.requestId, session)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: EmailApiError) {
-            Log.e("EmailDebugX", "Manual confirmation rejected request_id=${current.link.requestId} kind=${error.kind}", error)
+            Log.e(
+                "EmailDebugX",
+                "Manual confirmation rejected request_id=${current.requestId} kind=${error.kind}",
+                error,
+            )
             screen = when (error.kind) {
-                EmailApiError.Kind.INCORRECT_CODE -> current.copy(error = "That code didn't match. Try the latest email.", attemptsRemaining = error.attemptsRemaining)
-                EmailApiError.Kind.ATTEMPT_LIMIT -> EmailScreen.Limit(current.email, current.link.requestId)
-                EmailApiError.Kind.LINK_UNUSABLE -> EmailScreen.Unusable(current.email, current.link.requestId)
+                EmailApiError.Kind.INCORRECT_CODE -> current.copy(
+                    error = "That code didn't match. Try the latest email.",
+                    attemptsRemaining = error.attemptsRemaining,
+                )
+                EmailApiError.Kind.ATTEMPT_LIMIT -> EmailScreen.Limit(current.email, current.requestId)
+                EmailApiError.Kind.LINK_UNUSABLE -> EmailScreen.Unusable(current.email, current.requestId)
                 EmailApiError.Kind.SIGN_IN_REQUIRED -> EmailScreen.Recovery
                 else -> current.copy(error = "We couldn't verify your email. Please try again.")
             }
