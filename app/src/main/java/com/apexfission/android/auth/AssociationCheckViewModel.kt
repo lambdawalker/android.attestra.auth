@@ -26,7 +26,7 @@ internal sealed interface AppLinkDiagnosticState {
 }
 
 /** One advisory check per activity ViewModel lifetime, retained through configuration changes. */
-internal class AssociationCheckViewModel(application: Application) : AndroidViewModel(application) {
+class AssociationCheckViewModel(application: Application) : AndroidViewModel(application) {
     var warning by mutableStateOf<String?>(null)
         private set
     var diagnosticState by mutableStateOf<AppLinkDiagnosticState>(AppLinkDiagnosticState.Checking)
