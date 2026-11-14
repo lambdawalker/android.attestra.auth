@@ -165,11 +165,11 @@
     <string name="auth_try_a_supported_device_or_password_manager_you_can_add_a_passkey">"Try a supported device or password manager. You can add a passkey later."</string>
     <string name="auth_check_again_if_this_device_s_passkey_support_has_changed">"Check again if this device’s passkey support has changed."</string>
     <string name="auth_you_can_use_email_sign_in_while_no_passkey_is_registered">"You can use email sign-in while no passkey is registered."</string>
-    <string name="auth_this_confirmation_link_can_t_be_used">"This confirmation link can’t be used"</string>
+    <string name="auth_this_confirmation_link_can_t_be_used">"This confirmation can’t be used"</string>
     <string name="auth_request_a_new_email">"Request a new email"</string>
     <string name="auth_change_email_address">"Change email address"</string>
-    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"This link may have expired or been replaced. Request another email and open its latest link."</string>
-    <string name="auth_the_old_link_and_code_cannot_be_reused">"The old link and code cannot be reused."</string>
+    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"This link or code may have expired or been replaced. Request another email and use its latest link or code."</string>
+    <string name="auth_the_old_link_and_code_cannot_be_reused">"Old links and codes cannot be reused."</string>
     <string name="auth_start_with_your_email">"Start with your email"</string>
     <string name="auth_continue">"Continue"</string>
     <string name="auth_already_have_an_account_sign_in">"Already have an account? Sign in"</string>
@@ -183,6 +183,10 @@
     <string name="auth_enter_the_six_digit_code_from_the_email_you_just_opened_to_confir">"Enter the six-digit code from the email you just opened to confirm on this device."</string>
     <string name="auth_confirmation_code">"Confirmation code"</string>
     <string name="auth_six_digit_confirmation_code">"Six-digit confirmation code"</string>
+    <string name="auth_paste_code">"Paste code"</string>
+    <string name="auth_enter_verification_code">"Enter verification code"</string>
+    <string name="auth_enter_the_six_digit_code_from_the_email_to_confirm_this_address">"Enter the six-digit code from the latest email to confirm this address on this device."</string>
+    <string name="auth_open_the_link_or_enter_the_code_from_the_latest_email_for">"Open the confirmation link, or enter the six-digit code from the latest email for:"</string>
     <string name="auth_attempts_remaining_1_s">"Attempts remaining: %1$s"</string>
     <string name="auth_the_code_is_separate_from_the_link_entering_it_does_not_submit_au">"The code is separate from the link. Entering it does not submit automatically."</string>
     <string name="auth_email_verified">"Email verified"</string>

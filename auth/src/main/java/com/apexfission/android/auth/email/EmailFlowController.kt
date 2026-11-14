@@ -15,7 +15,13 @@ data class VerificationLink(val requestId: String, val tokenB: String) {
 sealed interface EmailScreen {
     data class Start(val error: String? = null) : EmailScreen
     data class Wait(val email: String, val requestId: String, val help: String? = null) : EmailScreen
-    data class Code(val email: String, val link: VerificationLink, val error: String? = null, val attemptsRemaining: Int? = null) : EmailScreen
+    data class Code(
+        val email: String,
+        val requestId: String,
+        val tokenB: String? = null,
+        val error: String? = null,
+        val attemptsRemaining: Int? = null,
+    ) : EmailScreen
     data class Limit(val email: String, val requestId: String) : EmailScreen
     data class Unusable(val email: String, val requestId: String?) : EmailScreen
     data object Recovery : EmailScreen
@@ -78,7 +84,7 @@ class EmailFlowController(
         }
         if (pending == null) {
             Log.d("EmailDebugX", "Verification link opened without matching local proof; requesting manual code")
-            screen = EmailScreen.Code(email, link)
+            screen = EmailScreen.Code(email, link.requestId, tokenB = link.tokenB)
             return@exclusive
         }
         Log.d("EmailDebugX", "Verification link matched local proof; confirming automatically")
@@ -91,12 +97,34 @@ class EmailFlowController(
             Log.e("EmailDebugX", "Automatic confirmation rejected request_id=${link.requestId} kind=${error.kind}", error)
             screen = when (error.kind) {
                 EmailApiError.Kind.SIGN_IN_REQUIRED -> EmailScreen.Recovery
-                EmailApiError.Kind.LINK_UNUSABLE -> EmailScreen.Code(email, link, "Automatic verification didn't work. Enter the code from your email.")
-                else -> EmailScreen.Code(email, link, "We couldn't verify automatically. Enter the code from your email or try again.")
+                EmailApiError.Kind.LINK_UNUSABLE -> EmailScreen.Code(
+                    email,
+                    link.requestId,
+                    error = "Automatic verification didn't work. Enter the code from your email.",
+                )
+                else -> EmailScreen.Code(
+                    email,
+                    link.requestId,
+                    error = "We couldn't verify automatically. Enter the code from your email or try again.",
+                )
             }
         } catch (error: Exception) {
             Log.e("EmailDebugX", "Automatic confirmation failed request_id=${link.requestId}", error)
-            screen = EmailScreen.Code(email, link, "We couldn't verify automatically. Enter the code from your email or try again.")
+            screen = EmailScreen.Code(
+                email,
+                link.requestId,
+                error = "We couldn't verify automatically. Enter the code from your email or try again.",
+            )
+        }
+    }
+
+    fun enterCode() {
+        val current = screen as? EmailScreen.Wait ?: return
+        val pending = storage.pending()?.takeIf { it.requestId == current.requestId }
+        screen = if (pending != null) {
+            EmailScreen.Code(current.email, current.requestId)
+        } else {
+            EmailScreen.Unusable(current.email, current.requestId)
         }
     }
 
@@ -107,18 +135,45 @@ class EmailFlowController(
             screen = current.copy(error = "Enter the six-digit code in your email.")
             return@exclusive
         }
-        Log.d("EmailDebugX", "Submitting manual confirmation code")
+
+        val pending = if (current.tokenB == null) {
+            storage.pending()?.takeIf { it.requestId == current.requestId }
+        } else {
+            null
+        }
+        if (current.tokenB == null && pending == null) {
+            Log.w("EmailDebugX", "Manual code lost the initiating local proof")
+            screen = EmailScreen.Unusable(current.email, current.requestId)
+            return@exclusive
+        }
+
+        Log.d(
+            "EmailDebugX",
+            "Submitting manual confirmation code proof=${if (current.tokenB != null) "B+C" else "A+C"}",
+        )
         screen = EmailScreen.Loading(LoadingStep.CONFIRM_EMAIL)
         try {
-            complete(current.link.requestId, api.confirmCode(current.link.requestId, current.link.tokenB, code))
+            val session = if (current.tokenB != null) {
+                api.confirmCode(current.requestId, current.tokenB, code)
+            } else {
+                api.confirmLocalCode(current.requestId, requireNotNull(pending).tokenA, code)
+            }
+            complete(current.requestId, session)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: EmailApiError) {
-            Log.e("EmailDebugX", "Manual confirmation rejected request_id=${current.link.requestId} kind=${error.kind}", error)
+            Log.e(
+                "EmailDebugX",
+                "Manual confirmation rejected request_id=${current.requestId} kind=${error.kind}",
+                error,
+            )
             screen = when (error.kind) {
-                EmailApiError.Kind.INCORRECT_CODE -> current.copy(error = "That code didn't match. Try the latest email.", attemptsRemaining = error.attemptsRemaining)
-                EmailApiError.Kind.ATTEMPT_LIMIT -> EmailScreen.Limit(current.email, current.link.requestId)
-                EmailApiError.Kind.LINK_UNUSABLE -> EmailScreen.Unusable(current.email, current.link.requestId)
+                EmailApiError.Kind.INCORRECT_CODE -> current.copy(
+                    error = "That code didn't match. Try the latest email.",
+                    attemptsRemaining = error.attemptsRemaining,
+                )
+                EmailApiError.Kind.ATTEMPT_LIMIT -> EmailScreen.Limit(current.email, current.requestId)
+                EmailApiError.Kind.LINK_UNUSABLE -> EmailScreen.Unusable(current.email, current.requestId)
                 EmailApiError.Kind.SIGN_IN_REQUIRED -> EmailScreen.Recovery
                 else -> current.copy(error = "We couldn't verify your email. Please try again.")
             }
@@ -132,7 +187,7 @@ class EmailFlowController(
         val previous = screen
         val (email, id) = when (previous) {
             is EmailScreen.Wait -> previous.email to previous.requestId
-            is EmailScreen.Code -> previous.email to previous.link.requestId
+            is EmailScreen.Code -> previous.email to previous.requestId
             is EmailScreen.Limit -> previous.email to previous.requestId
             is EmailScreen.Unusable -> previous.email to previous.requestId
             else -> return@exclusive

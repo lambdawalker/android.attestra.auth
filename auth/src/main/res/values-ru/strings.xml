@@ -165,11 +165,11 @@
     <string name="auth_try_a_supported_device_or_password_manager_you_can_add_a_passkey">"Попробуйте поддерживаемое устройство или менеджер паролей. Ключ доступа можно добавить позже."</string>
     <string name="auth_check_again_if_this_device_s_passkey_support_has_changed">"Проверьте снова, если поддержка ключей доступа на этом устройстве изменилась."</string>
     <string name="auth_you_can_use_email_sign_in_while_no_passkey_is_registered">"Пока ключ доступа не зарегистрирован, вы можете входить с помощью электронной почты."</string>
-    <string name="auth_this_confirmation_link_can_t_be_used">"Эту ссылку для подтверждения нельзя использовать"</string>
+    <string name="auth_this_confirmation_link_can_t_be_used">"Это подтверждение нельзя использовать"</string>
     <string name="auth_request_a_new_email">"Запросить новое письмо"</string>
     <string name="auth_change_email_address">"Изменить адрес электронной почты"</string>
-    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"Ссылка могла истечь или быть заменена. Запросите ещё одно письмо и откройте самую новую ссылку."</string>
-    <string name="auth_the_old_link_and_code_cannot_be_reused">"Старую ссылку и код нельзя использовать повторно."</string>
+    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"Срок действия этой ссылки или кода мог истечь либо они были заменены. Запросите новое письмо и используйте самую новую ссылку или код."</string>
+    <string name="auth_the_old_link_and_code_cannot_be_reused">"Старые ссылки и коды нельзя использовать повторно."</string>
     <string name="auth_start_with_your_email">"Начните с электронной почты"</string>
     <string name="auth_continue">"Продолжить"</string>
     <string name="auth_already_have_an_account_sign_in">"Уже есть аккаунт? Войдите"</string>
@@ -183,6 +183,10 @@
     <string name="auth_enter_the_six_digit_code_from_the_email_you_just_opened_to_confir">"Введите шестизначный код из только что открытого письма для подтверждения на этом устройстве."</string>
     <string name="auth_confirmation_code">"Код подтверждения"</string>
     <string name="auth_six_digit_confirmation_code">"Шестизначный код подтверждения"</string>
+    <string name="auth_paste_code">"Вставить код"</string>
+    <string name="auth_enter_verification_code">"Ввести код подтверждения"</string>
+    <string name="auth_enter_the_six_digit_code_from_the_email_to_confirm_this_address">"Введите шестизначный код из последнего письма, чтобы подтвердить этот адрес на этом устройстве."</string>
+    <string name="auth_open_the_link_or_enter_the_code_from_the_latest_email_for">"Откройте ссылку подтверждения или введите шестизначный код из последнего письма для:"</string>
     <string name="auth_attempts_remaining_1_s">"Осталось попыток: %1$s"</string>
     <string name="auth_the_code_is_separate_from_the_link_entering_it_does_not_submit_au">"Код используется отдельно от ссылки. Ввод кода не отправляет его автоматически."</string>
     <string name="auth_email_verified">"Электронная почта подтверждена"</string>

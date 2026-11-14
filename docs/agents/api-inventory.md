@@ -478,6 +478,7 @@ enum class OnboardingStep {
 }
 ```
 
+
 ## `auth/src/main/java/com/apexfission/android/auth/email/EmailFlowController.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/email/EmailFlowController.kt)
@@ -497,7 +498,13 @@ data class VerificationLink(val requestId: String, val tokenB: String) {
 sealed interface EmailScreen {
     data class Start(val error: String? = null) : EmailScreen
     data class Wait(val email: String, val requestId: String, val help: String? = null) : EmailScreen
-    data class Code(val email: String, val link: VerificationLink, val error: String? = null, val attemptsRemaining: Int? = null) : EmailScreen
+    data class Code(
+        val email: String,
+        val requestId: String,
+        val tokenB: String? = null,
+        val error: String? = null,
+        val attemptsRemaining: Int? = null,
+    ) : EmailScreen
     data class Limit(val email: String, val requestId: String) : EmailScreen
     data class Unusable(val email: String, val requestId: String?) : EmailScreen
     data object Recovery : EmailScreen
@@ -524,13 +531,14 @@ class EmailFlowController(
     fun canResend(): Boolean
     suspend fun start(email: String)
     suspend fun openLink(link: VerificationLink)
+    fun enterCode()
     suspend fun confirmCode(code: String)
     suspend fun resend()
     fun changeEmail()
 }
 ```
 
-## `auth/src/main/java/com/apexfission/android/auth/email/EmailOnboardingHost.kt`
+## auth/src/main/java/com/apexfission/android/auth/email/EmailOnboardingHost.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/email/EmailOnboardingHost.kt)
 
@@ -606,6 +614,7 @@ fun EmailOnboardingHost(
 )
 ```
 
+
 ## `auth/src/main/java/com/apexfission/android/auth/email/EmailVerificationApi.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/email/EmailVerificationApi.kt)
@@ -655,17 +664,19 @@ interface EmailVerificationGateway {
     suspend fun signup(email: String, challenge: String): String
     suspend fun resend(requestId: String)
     suspend fun confirmLocal(requestId: String, tokenB: String, tokenA: String): AuthSession
+    suspend fun confirmLocalCode(requestId: String, tokenA: String, tokenC: String): AuthSession
     suspend fun confirmCode(requestId: String, tokenB: String, tokenC: String): AuthSession
 }
 class EmailVerificationApi(baseUrl: String, private val client: HttpClient) : EmailVerificationGateway {
     override suspend fun signup(email: String, challenge: String): String
     override suspend fun resend(requestId: String)
     override suspend fun confirmLocal(requestId: String, tokenB: String, tokenA: String): AuthSession
+    override suspend fun confirmLocalCode(requestId: String, tokenA: String, tokenC: String): AuthSession
     override suspend fun confirmCode(requestId: String, tokenB: String, tokenC: String): AuthSession
 }
 ```
 
-## `auth/src/main/java/com/apexfission/android/auth/email/ProofGenerator.kt`
+## auth/src/main/java/com/apexfission/android/auth/email/ProofGenerator.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/email/ProofGenerator.kt)
 
@@ -976,6 +987,7 @@ fun OnboardingCatalog(actions: OnboardingBusinessActions)
 fun OnboardingCatalogPreview()
 ```
 
+
 ## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingComponents.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingComponents.kt)
@@ -1003,6 +1015,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -1018,15 +1031,30 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.autofill.contentType
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalAutofillManager
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import com.apexfission.android.auth.ui.theme.AttestraAuthTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1054,7 +1082,7 @@ fun StatusRow(label: String, detail: String, complete: Boolean = true)
 fun WaitingIndicator(description: String)
 ```
 
-## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingLoadingScreen.kt`
+## auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingLoadingScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingLoadingScreen.kt)
 
@@ -1118,50 +1146,31 @@ fun EmailAttemptLimitScreen(
 fun EmailAttemptLimitScreenPreview()
 ```
 
+
 ## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailCodeScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailCodeScreen.kt)
 
 ```kotlin
 package com.apexfission.android.auth.ui.onboarding.email
-import com.apexfission.android.auth.ui.onboarding.common.authText
-import com.apexfission.android.auth.library.R
-import androidx.compose.ui.res.stringResource
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.apexfission.android.auth.library.R
 import com.apexfission.android.auth.ui.onboarding.common.BodyText
+import com.apexfission.android.auth.ui.onboarding.common.EmailOneTimeCodeField
 import com.apexfission.android.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.auth.ui.onboarding.common.OnboardingFrame
+import com.apexfission.android.auth.ui.onboarding.common.authText
 import com.apexfission.android.auth.ui.theme.AttestraAuthTheme
 
 @Composable
@@ -1179,7 +1188,7 @@ fun EmailCodeScreen(
 fun EmailCodeScreenPreview()
 ```
 
-## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailLinkUnusableScreen.kt`
+## auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailLinkUnusableScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailLinkUnusableScreen.kt)
 
@@ -1268,21 +1277,24 @@ fun EmailStartScreen(onBack: () -> Unit, onContinue: (String) -> Unit, error: St
 fun EmailStartScreenPreview()
 ```
 
+
 ## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailWaitScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/email/EmailWaitScreen.kt)
 
 ```kotlin
 package com.apexfission.android.auth.ui.onboarding.email
-import androidx.compose.material3.MaterialTheme
-import com.apexfission.android.auth.library.R
-import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.apexfission.android.auth.library.R
 import com.apexfission.android.auth.ui.onboarding.common.BodyText
 import com.apexfission.android.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.auth.ui.onboarding.common.OnboardingFrame
@@ -1290,15 +1302,21 @@ import com.apexfission.android.auth.ui.theme.AttestraAuthTheme
 
 @Composable
 fun EmailWaitScreen(
-    email: String, onBack: () -> Unit, onResend: () -> Unit, onChangeEmail: () -> Unit,
-    canResend: Boolean = true, resendHelp: String? = null, onSignIn: (() -> Unit)? = null,
+    email: String,
+    onBack: () -> Unit,
+    onResend: () -> Unit,
+    onChangeEmail: () -> Unit,
+    onEnterCode: () -> Unit,
+    canResend: Boolean = true,
+    resendHelp: String? = null,
+    onSignIn: (() -> Unit)? = null,
 )
 @Preview(showBackground = true, backgroundColor = 0xFF0F131B)
 @Composable
 fun EmailWaitScreenPreview()
 ```
 
-## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/id/CardDetailsSavedScreen.kt`
+## auth/src/main/java/com/apexfission/android/auth/ui/onboarding/id/CardDetailsSavedScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/id/CardDetailsSavedScreen.kt)
 
@@ -1627,15 +1645,13 @@ fun PasswordScreen(value: String, onChange: (String) -> Unit, onSubmit: () -> Un
     optional: Boolean = false, onSkip: () -> Unit = {}, signIn: Boolean = false)
 ```
 
+
 ## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/signin/ReturnSignInScreens.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/signin/ReturnSignInScreens.kt)
 
 ```kotlin
 package com.apexfission.android.auth.ui.onboarding.signin
-import com.apexfission.android.auth.ui.onboarding.common.authText
-import com.apexfission.android.auth.library.R
-import androidx.compose.ui.res.stringResource
 import android.util.Patterns
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
@@ -1650,20 +1666,37 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import com.apexfission.android.auth.library.R
 import com.apexfission.android.auth.ui.onboarding.common.BodyText
+import com.apexfission.android.auth.ui.onboarding.common.EmailOneTimeCodeField
 import com.apexfission.android.auth.ui.onboarding.common.OnboardingCard
 import com.apexfission.android.auth.ui.onboarding.common.OnboardingFrame
+import com.apexfission.android.auth.ui.onboarding.common.authText
 import com.apexfission.android.auth.ui.theme.AttestraAuthTheme
 
 @Composable
-fun ReturnSignInScreen(initialEmail: String, error: String?, onPasskey: (String) -> Unit, onEmail: (String) -> Unit, onBack: () -> Unit, onPassword: ((String) -> Unit)? = null)
+fun ReturnSignInScreen(
+    initialEmail: String,
+    error: String?,
+    onPasskey: (String) -> Unit,
+    onEmail: (String) -> Unit,
+    onBack: () -> Unit,
+    onPassword: ((String) -> Unit)? = null,
+)
 @Composable
-fun ReturnEmailCodeScreen(email: String, error: String?, onVerify: (String) -> Unit, onBack: () -> Unit)
+fun ReturnEmailCodeScreen(
+    email: String,
+    error: String?,
+    onVerify: (String) -> Unit,
+    onBack: () -> Unit,
+)
 ```
 
-## `auth/src/main/java/com/apexfission/android/auth/ui/onboarding/welcome/WelcomeScreen.kt`
+## auth/src/main/java/com/apexfission/android/auth/ui/onboarding/welcome/WelcomeScreen.kt`
 
 [Source](../../auth/src/main/java/com/apexfission/android/auth/ui/onboarding/welcome/WelcomeScreen.kt)
 

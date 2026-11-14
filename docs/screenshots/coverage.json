@@ -130,6 +130,16 @@
     },
     {
       "source": "auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingComponents.kt",
+      "symbol": "EmailOneTimeCodeField",
+      "kind": "visual-parent",
+      "scenarios": [
+        "auth:EmailCodeScreenshotTest.emptyState",
+        "auth:DocumentationScreenshotTest.returnCode"
+      ],
+      "note": "Shared email OTP input is rendered inside signup verification and returning-user email sign-in fixtures; clipboard/autofill behavior requires device tests."
+    },
+    {
+      "source": "auth/src/main/java/com/apexfission/android/auth/ui/onboarding/common/OnboardingComponents.kt",
       "symbol": "BodyText",
       "kind": "direct",
       "scenarios": [

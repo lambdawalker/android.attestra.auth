@@ -24,7 +24,7 @@ class DocumentationScreenshotTest {
     fun emailStart() { AttestraAuthTheme { EmailStartScreen({}, {}) } }
 
     @PreviewTest @DocumentationPreview @Composable
-    fun emailWait() { AttestraAuthTheme { EmailWaitScreen("name@example.invalid", {}, {}, {}) } }
+    fun emailWait() { AttestraAuthTheme { EmailWaitScreen("name@example.invalid", {}, {}, {}, {}) } }
 
     @PreviewTest @DocumentationPreview @Composable
     fun emailLimit() { AttestraAuthTheme { EmailAttemptLimitScreen("name@example.invalid", {}, {}, {}, canRequestEmail = true) } }

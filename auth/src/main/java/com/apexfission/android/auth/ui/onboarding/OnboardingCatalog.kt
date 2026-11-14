@@ -122,7 +122,13 @@ fun OnboardingCatalog(actions: OnboardingBusinessActions) {
     }
     when (selected) {
         "email_start" -> EmailStartScreen(back, actions::requestEmail)
-        "email_wait" -> EmailWaitScreen(sampleEmail, back, actions::resendEmail, { selected = "email_start" })
+        "email_wait" -> EmailWaitScreen(
+            sampleEmail,
+            back,
+            actions::resendEmail,
+            { selected = "email_start" },
+            { selected = "email_code" },
+        )
         "email_code" -> EmailCodeScreen(sampleEmail, back, actions::confirmWithCode, actions::resendEmail)
         "email_wrong" -> EmailCodeScreen(
             sampleEmail, back, actions::confirmWithCode, actions::resendEmail,

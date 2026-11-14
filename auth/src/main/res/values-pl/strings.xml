@@ -165,11 +165,11 @@
     <string name="auth_try_a_supported_device_or_password_manager_you_can_add_a_passkey">"Użyj obsługiwanego urządzenia lub menedżera haseł. Klucz dostępu możesz dodać później."</string>
     <string name="auth_check_again_if_this_device_s_passkey_support_has_changed">"Sprawdź ponownie, jeśli zmieniła się obsługa kluczy dostępu na tym urządzeniu."</string>
     <string name="auth_you_can_use_email_sign_in_while_no_passkey_is_registered">"Dopóki nie zarejestrujesz klucza dostępu, możesz logować się przez e-mail."</string>
-    <string name="auth_this_confirmation_link_can_t_be_used">"Nie można użyć tego linku potwierdzającego"</string>
+    <string name="auth_this_confirmation_link_can_t_be_used">"Nie można użyć tego potwierdzenia"</string>
     <string name="auth_request_a_new_email">"Poproś o nową wiadomość e-mail"</string>
     <string name="auth_change_email_address">"Zmień adres e-mail"</string>
-    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"Ten link mógł wygasnąć lub zostać zastąpiony. Poproś o kolejną wiadomość e-mail i otwórz najnowszy link."</string>
-    <string name="auth_the_old_link_and_code_cannot_be_reused">"Starego linku i kodu nie można użyć ponownie."</string>
+    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"Ten link lub kod mógł wygasnąć albo zostać zastąpiony. Poproś o nową wiadomość i użyj najnowszego linku lub kodu."</string>
+    <string name="auth_the_old_link_and_code_cannot_be_reused">"Starych linków i kodów nie można używać ponownie."</string>
     <string name="auth_start_with_your_email">"Zacznij od adresu e-mail"</string>
     <string name="auth_continue">"Kontynuuj"</string>
     <string name="auth_already_have_an_account_sign_in">"Masz już konto? Zaloguj się"</string>
@@ -183,6 +183,10 @@
     <string name="auth_enter_the_six_digit_code_from_the_email_you_just_opened_to_confir">"Wpisz sześciocyfrowy kod z właśnie otwartej wiadomości e-mail, aby potwierdzić na tym urządzeniu."</string>
     <string name="auth_confirmation_code">"Kod potwierdzający"</string>
     <string name="auth_six_digit_confirmation_code">"Sześciocyfrowy kod potwierdzający"</string>
+    <string name="auth_paste_code">"Wklej kod"</string>
+    <string name="auth_enter_verification_code">"Wpisz kod weryfikacyjny"</string>
+    <string name="auth_enter_the_six_digit_code_from_the_email_to_confirm_this_address">"Wpisz sześciocyfrowy kod z najnowszej wiadomości e-mail, aby potwierdzić ten adres na tym urządzeniu."</string>
+    <string name="auth_open_the_link_or_enter_the_code_from_the_latest_email_for">"Otwórz link potwierdzający albo wpisz sześciocyfrowy kod z najnowszej wiadomości e-mail dla:"</string>
     <string name="auth_attempts_remaining_1_s">"Pozostałe próby: %1$s"</string>
     <string name="auth_the_code_is_separate_from_the_link_entering_it_does_not_submit_au">"Kod jest niezależny od linku. Wpisanie go nie powoduje automatycznego wysłania."</string>
     <string name="auth_email_verified">"Adres e-mail zweryfikowany"</string>

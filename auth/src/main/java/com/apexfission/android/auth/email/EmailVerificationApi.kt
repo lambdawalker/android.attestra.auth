@@ -22,7 +22,7 @@ import kotlinx.serialization.json.Json
 @Serializable private data class ResendBody(@SerialName("request_id") val requestId: String)
 @Serializable private data class ConfirmBody(
     @SerialName("request_id") val requestId: String,
-    @SerialName("token_b") val tokenB: String,
+    @SerialName("token_b") val tokenB: String? = null,
     @SerialName("token_a") val tokenA: String? = null,
     @SerialName("token_c") val tokenC: String? = null,
 )
@@ -53,6 +53,7 @@ interface EmailVerificationGateway {
     suspend fun signup(email: String, challenge: String): String
     suspend fun resend(requestId: String)
     suspend fun confirmLocal(requestId: String, tokenB: String, tokenA: String): AuthSession
+    suspend fun confirmLocalCode(requestId: String, tokenA: String, tokenC: String): AuthSession
     suspend fun confirmCode(requestId: String, tokenB: String, tokenC: String): AuthSession
 }
 
@@ -75,13 +76,21 @@ class EmailVerificationApi(baseUrl: String, private val client: HttpClient) : Em
     }
 
     override suspend fun confirmLocal(requestId: String, tokenB: String, tokenA: String): AuthSession =
-        confirm(ConfirmBody(requestId, tokenB, tokenA = tokenA))
+        confirm(ConfirmBody(requestId, tokenB = tokenB, tokenA = tokenA))
+
+    override suspend fun confirmLocalCode(requestId: String, tokenA: String, tokenC: String): AuthSession =
+        confirm(ConfirmBody(requestId, tokenA = tokenA, tokenC = tokenC))
 
     override suspend fun confirmCode(requestId: String, tokenB: String, tokenC: String): AuthSession =
-        confirm(ConfirmBody(requestId, tokenB, tokenC = tokenC))
+        confirm(ConfirmBody(requestId, tokenB = tokenB, tokenC = tokenC))
 
     private suspend fun confirm(body: ConfirmBody): AuthSession {
-        Log.d(TAG, "POST /confirm request_id=${body.requestId} proof=${if (body.tokenA != null) "A+B" else "B+C"} url=$root/confirm")
+        val proof = when {
+            body.tokenA != null && body.tokenB != null -> "A+B"
+            body.tokenA != null && body.tokenC != null -> "A+C"
+            else -> "B+C"
+        }
+        Log.d(TAG, "POST /confirm request_id=${body.requestId} proof=$proof url=$root/confirm")
         val response = client.post("$root/confirm") { contentType(ContentType.Application.Json); setBody(body) }
         response.requireStatus(200, "confirm")
         return try {

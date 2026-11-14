@@ -165,11 +165,11 @@
     <string name="auth_try_a_supported_device_or_password_manager_you_can_add_a_passkey">"请尝试支持的设备或密码管理器。您可以稍后添加通行密钥。"</string>
     <string name="auth_check_again_if_this_device_s_passkey_support_has_changed">"如果此设备对通行密钥的支持情况发生变化，请再次检查。"</string>
     <string name="auth_you_can_use_email_sign_in_while_no_passkey_is_registered">"尚未注册通行密钥时，您可以使用邮箱登录。"</string>
-    <string name="auth_this_confirmation_link_can_t_be_used">"此确认链接无法使用"</string>
+    <string name="auth_this_confirmation_link_can_t_be_used">"此确认无法使用"</string>
     <string name="auth_request_a_new_email">"请求新邮件"</string>
     <string name="auth_change_email_address">"更改邮箱地址"</string>
-    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"此链接可能已过期或被替换。请请求再次发送邮件，并打开最新的链接。"</string>
-    <string name="auth_the_old_link_and_code_cannot_be_reused">"旧链接和验证码无法重复使用。"</string>
+    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"此链接或验证码可能已过期或已被替换。请请求新的邮件并使用最新的链接或验证码。"</string>
+    <string name="auth_the_old_link_and_code_cannot_be_reused">"旧链接和验证码不能重复使用。"</string>
     <string name="auth_start_with_your_email">"从邮箱开始"</string>
     <string name="auth_continue">"继续"</string>
     <string name="auth_already_have_an_account_sign_in">"已有账户？登录"</string>
@@ -183,6 +183,10 @@
     <string name="auth_enter_the_six_digit_code_from_the_email_you_just_opened_to_confir">"请输入刚打开的邮件中的六位验证码，以在此设备上确认。"</string>
     <string name="auth_confirmation_code">"确认码"</string>
     <string name="auth_six_digit_confirmation_code">"六位确认码"</string>
+    <string name="auth_paste_code">"粘贴验证码"</string>
+    <string name="auth_enter_verification_code">"输入验证码"</string>
+    <string name="auth_enter_the_six_digit_code_from_the_email_to_confirm_this_address">"输入最新邮件中的六位验证码，以在此设备上确认此电子邮件地址。"</string>
+    <string name="auth_open_the_link_or_enter_the_code_from_the_latest_email_for">"打开确认链接，或输入最新邮件中的六位验证码："</string>
     <string name="auth_attempts_remaining_1_s">"剩余尝试次数：%1$s"</string>
     <string name="auth_the_code_is_separate_from_the_link_entering_it_does_not_submit_au">"验证码与链接相互独立。输入验证码不会自动提交。"</string>
     <string name="auth_email_verified">"邮箱已验证"</string>

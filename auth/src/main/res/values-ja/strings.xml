@@ -165,10 +165,10 @@
     <string name="auth_try_a_supported_device_or_password_manager_you_can_add_a_passkey">"対応端末またはパスワードマネージャーをお試しください。パスキーは後で追加できます。"</string>
     <string name="auth_check_again_if_this_device_s_passkey_support_has_changed">"この端末のパスキー対応状況が変わった場合は、もう一度確認してください。"</string>
     <string name="auth_you_can_use_email_sign_in_while_no_passkey_is_registered">"パスキーが登録されていない間は、メールでログインできます。"</string>
-    <string name="auth_this_confirmation_link_can_t_be_used">"この確認リンクは使用できません"</string>
+    <string name="auth_this_confirmation_link_can_t_be_used">"この確認は使用できません"</string>
     <string name="auth_request_a_new_email">"新しいメールをリクエスト"</string>
     <string name="auth_change_email_address">"メールアドレスを変更"</string>
-    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"このリンクは有効期限が切れたか、新しいリンクに置き換えられた可能性があります。メールの再送をリクエストし、最新のリンクを開いてください。"</string>
+    <string name="auth_this_link_may_have_expired_or_been_replaced_request_another_email">"このリンクまたはコードは有効期限が切れたか、新しいものに置き換えられた可能性があります。新しいメールをリクエストし、最新のリンクまたはコードを使用してください。"</string>
     <string name="auth_the_old_link_and_code_cannot_be_reused">"古いリンクとコードは再利用できません。"</string>
     <string name="auth_start_with_your_email">"メールアドレスから開始"</string>
     <string name="auth_continue">"続行"</string>
@@ -183,6 +183,10 @@
     <string name="auth_enter_the_six_digit_code_from_the_email_you_just_opened_to_confir">"この端末で確認するため、開いたメールに記載された6桁のコードを入力してください。"</string>
     <string name="auth_confirmation_code">"確認コード"</string>
     <string name="auth_six_digit_confirmation_code">"6桁の確認コード"</string>
+    <string name="auth_paste_code">"コードを貼り付け"</string>
+    <string name="auth_enter_verification_code">"確認コードを入力"</string>
+    <string name="auth_enter_the_six_digit_code_from_the_email_to_confirm_this_address">"最新のメールに記載された6桁のコードを入力して、この端末でこのメールアドレスを確認してください。"</string>
+    <string name="auth_open_the_link_or_enter_the_code_from_the_latest_email_for">"確認リンクを開くか、最新のメールに記載された6桁のコードを入力してください:"</string>
     <string name="auth_attempts_remaining_1_s">"残りの試行回数：%1$s"</string>
     <string name="auth_the_code_is_separate_from_the_link_entering_it_does_not_submit_au">"コードはリンクとは別のものです。入力しても自動送信されません。"</string>
     <string name="auth_email_verified">"メールアドレスを確認しました"</string>
