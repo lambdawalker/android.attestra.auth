@@ -190,7 +190,7 @@ internal fun normalizeEmailOneTimeCode(value: String): String =
  * logical text field so keyboard input and clipboard paste behave like a normal field.
  */
 @Composable
-fun EmailOneTimeCodeField(
+internal fun EmailOneTimeCodeField(
     value: String,
     onValueChange: (String) -> Unit,
     contentDescriptionText: String,
